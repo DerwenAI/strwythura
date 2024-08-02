@@ -1,8 +1,8 @@
 # GraphGeeks.org talk 2024-08-14
 
-This implements an NLP pipeline for constructing _knowledge graphs_ from unstructured data sources.
+How to construct _knowledge graphs_ from unstructured data sources.
 
-Presentation for GraphGeeks.org on 2024-08-14
+See: <https://live.zoho.com/PBOB6fvr6c>
 
 
 ## Set up
