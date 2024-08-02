@@ -1,4 +1,3 @@
-datasets >= 2.20  # GLiREL has a PR to fix this omitted dependency
 gliner >= 0.2
 gliner_spacy >= 0.0
 glirel >= 0.1
@@ -10,6 +9,7 @@ lancedb >= 0.11
 networkx >= 3.3
 pyinstrument >= 4.6
 pyvis >= 0.3
+requests >= 2.32
 spacy >= 3.7
 tqdm >= 4.66
 watermark >= 2.4
@@ -17,4 +17,5 @@ watermark >= 2.4
 # spaCy language model
 https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.7.1/en_core_web_md-3.7.1-py3-none-any.whl
 
-#beautifulsoup4 >= 4.12
+# GLiREL has a PR to fix this omitted dependency
+datasets >= 2.20
