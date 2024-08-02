@@ -12,6 +12,7 @@ import itertools
 import os
 import sys
 import typing
+import unicodedata
 import warnings
 
 from bs4 import BeautifulSoup
@@ -44,11 +45,13 @@ GLINER_MODEL: str = "urchade/gliner_small-v2.1"
 LANCEDB_URI = "data/lancedb"
 
 NER_LABELS: typing.List[ str] = [
-    "Person",
     "Company",
-    "Location",
+    "Condition",
     "Food",
-    "Disease",
+    "Location",
+    "Organization",
+    "Person",
+    "Research",
 ]
 
 RE_LABELS: dict = {
@@ -75,6 +78,7 @@ STOP_WORDS: typing.Set[ str ] = set([
     "PRON.they",
     "PRON.those",
     "PRON.we",
+    "PRON.which",
     "PRON.who",
 ])
 
@@ -88,13 +92,6 @@ TR_LOOKBACK: int = 3
 class TextChunk (LanceModel):
     uid: int
     url: str
-    text: str = EMBED_FCN.SourceField()
-    vector: Vector(EMBED_FCN.ndims()) = EMBED_FCN.VectorField(default = None)
-
-
-class EntityEmbed (LanceModel):
-    node_id: int
-    chunk_id: int
     text: str = EMBED_FCN.SourceField()
     vector: Vector(EMBED_FCN.ndims()) = EMBED_FCN.VectorField(default = None)
 
@@ -147,6 +144,83 @@ Initialize the models.
         )
 
     return nlp
+
+
+def uni_scrubber (
+    span: spacy.tokens.span.Span,
+    ) -> str:
+    """
+Applies multiple approaches for aggressively removing garbled Unicode
+and spurious punctuation from the given text.
+
+OH: "It scrubs the garble from its stream... or it gets the debugger again!"
+    """
+    text: str = span.text
+
+    if type(text).__name__ != "str":
+        print("not a string?", type(text), text)
+
+    limpio: str = " ".join(map(lambda s: s.strip(), text.split("\n"))).strip()
+
+    limpio = limpio.replace('“', '"').replace('”', '"')
+    limpio = limpio.replace("‘", "'").replace("’", "'").replace("`", "'").replace("â", "'")
+    limpio = limpio.replace("…", "...").replace("–", "-")
+
+    limpio = str(unicodedata.normalize("NFKD", limpio).encode("ascii", "ignore").decode("utf-8"))
+
+    return limpio
+
+
+def make_chunk (
+    doc: spacy.tokens.doc.Doc,
+    url: str,
+    chunk_list: typing.List[ TextChunk ],
+    chunk_id: int,
+    ) -> int:
+    """
+Split the given document into text chunks, returning the last index.
+BTW, for ideal text chunk size see
+<https://www.llamaindex.ai/blog/evaluating-the-ideal-chunk-size-for-a-rag-system-using-llamaindex-6207e5d3fec5>
+    """
+    chunks: typing.List[ str ] = []
+    chunk_total: int = 0
+    prev_line: str = ""
+
+    for sent_id, sent in enumerate(doc.sents):
+        line: str = uni_scrubber(sent)
+        line_len: int = len(line)
+    
+        if (chunk_total + line_len) > CHUNK_SIZE:
+            # emit the current chunk
+            chunk_list.append(
+                TextChunk(
+                    uid = chunk_id,
+                    url = url,
+                    text = "\n".join(chunks),
+                )
+            )
+
+            # start a new chunk
+            chunks = [ prev_line, line ]
+            chunk_total = len(prev_line) + line_len
+            chunk_id += 1
+        else:
+            # append line to the current chunk
+            chunks.append(line)
+            chunk_total += line_len
+
+        prev_line = line
+
+    # emit the trailing chunk
+    chunk_list.append(
+        TextChunk(
+            uid = chunk_id,
+            url = url,
+            text = "\n".join(chunks),
+        )
+    )
+
+    return chunk_id + 1
 
 
 def parse_text (
@@ -218,58 +292,6 @@ Parse an input text chunk, returning a `spaCy` document.
                 )
 
     return doc
-
-
-def make_chunk (
-    doc: spacy.tokens.doc.Doc,
-    url: str,
-    chunk_list: typing.List[ TextChunk ],
-    chunk_id: int,
-    ) -> int:
-    """
-Split the given document into text chunks, returning the last index.
-BTW, for ideal text chunk size see
-<https://www.llamaindex.ai/blog/evaluating-the-ideal-chunk-size-for-a-rag-system-using-llamaindex-6207e5d3fec5>
-    """
-    chunks: typing.List[ str ] = []
-    chunk_total: int = 0
-    prev_line: str = ""
-
-    for sent_id, sent in enumerate(doc.sents):
-        line: str = str(sent).strip()
-        line_len: int = len(line)
-    
-        if (chunk_total + line_len) > CHUNK_SIZE:
-            # emit the current chunk
-            chunk_list.append(
-                TextChunk(
-                    uid = chunk_id,
-                    url = url,
-                    text = "\n".join(chunks),
-                )
-            )
-
-            # start a new chunk
-            chunks = [ prev_line, line ]
-            chunk_total = len(prev_line) + line_len
-            chunk_id += 1
-        else:
-            # append line to the current chunk
-            chunks.append(line)
-            chunk_total += line_len
-
-        prev_line = line
-
-    # emit the trailing chunk
-    chunk_list.append(
-        TextChunk(
-            uid = chunk_id,
-            url = url,
-            text = "\n".join(chunks),
-        )
-    )
-
-    return chunk_id + 1
 
 
 def make_entity (
@@ -531,12 +553,6 @@ if __name__ == "__main__":
     # iterate through the URL list scraping text and building chunks
     vect_db: lancedb.db.LanceDBConnection = lancedb.connect(LANCEDB_URI)
 
-    entity_table: lancedb.table.LanceTable = vect_db.create_table(
-        "entity",
-        schema = EntityEmbed,
-        mode = "overwrite",
-    )
-
     chunk_table: lancedb.table.LanceTable = vect_db.create_table(
         "chunk",
         schema = TextChunk,
@@ -549,11 +565,19 @@ if __name__ == "__main__":
     scrape_nlp: spacy.Language = spacy.load(SPACY_MODEL)
 
     url_list: typing.List[ str ] = [
+        "https://aaic.alz.org/releases-2024/processed-red-meat-raises-risk-of-dementia.asp",
         "https://www.theguardian.com/society/article/2024/jul/31/eating-processed-red-meat-could-increase-risk-of-dementia-study-finds",
     ]
 
+    headers: typing.Dict[ str, str ] = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
+    }
+
     for url in url_list:
-        response: requests.Response = requests.get(url)
+        response: requests.Response = requests.get(
+            url,
+            headers = headers,
+        )
 
         soup: BeautifulSoup = BeautifulSoup(
             response.text,
@@ -650,20 +674,6 @@ if __name__ == "__main__":
             span_decoder,
         )
 
-
-    ######################################################################
-    # add vector embeddings for each entity node in the graph
-    entity_table.add([
-        EntityEmbed(
-            node_id = ent.node,
-            chunk_id = ent.chunk_id,
-            text = ent.text,
-        )
-        for ent in span_decoder.values()
-        if ent.node is not None
-        for node in list([ graph.nodes[ent.node] ])
-        if node["kind"] == "Entity"
-    ])
 
     ######################################################################
     # apply _textrank_ then report the top-ranked extracted entities
