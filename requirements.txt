@@ -10,7 +10,6 @@ lancedb >= 0.11
 networkx >= 3.3
 pyinstrument >= 4.6
 pyvis >= 0.3
-sentence_transformers >= 3.0
 spacy >= 3.7
 tqdm >= 4.66
 watermark >= 2.4
