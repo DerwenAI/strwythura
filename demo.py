@@ -665,7 +665,7 @@ def gen_pyvis (
 Use `pyvis` to provide an interactive visualization of the graph layers.
     """
     pv_net: pyvis.network.Network = pyvis.network.Network(
-        height = "750px",
+        height = "900px",
         width = "100%",
         notebook = notebook,
         cdn_resources = "remote",
