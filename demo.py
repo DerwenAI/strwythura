@@ -9,8 +9,11 @@ How to construct _knowledge graphs_ from unstructured data sources.
 from collections import defaultdict
 from dataclasses import dataclass
 import itertools
+import json
+import math
 import os
 import sys
+import traceback
 import typing
 import unicodedata
 import warnings
@@ -70,6 +73,10 @@ RE_LABELS: dict = {
     }
 }
 
+SCRAPE_HEADERS: typing.Dict[ str, str ] = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
+}
+
 SPACY_MODEL: str = "en_core_web_md"
 
 STOP_WORDS: typing.Set[ str ] = set([
@@ -109,42 +116,7 @@ class Entity:
 
 
 ######################################################################
-## workflow function definitions
-
-def init_nlp (
-    ) -> spacy.Language:
-    """
-Initialize the models.
-    """
-    # override specific Hugging Face error messages, since
-    # `transformers` and `tokenizers` have noisy logging
-    transformers.logging.set_verbosity_error()
-    os.environ["TOKENIZERS_PARALLELISM"] = "0"
-
-    # load models for `spaCy`, `GLiNER`, `GLiREL`
-    # this may take several minutes when run the first time
-    nlp: spacy.Language = spacy.load(SPACY_MODEL)
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-
-        nlp.add_pipe(
-            "gliner_spacy",
-            config = {
-                "gliner_model": GLINER_MODEL,
-                "labels": NER_LABELS,
-                "chunk_size": CHUNK_SIZE,
-                "style": "ent",
-            },
-        )
-        
-        nlp.add_pipe(
-            "glirel",
-            after = "ner",
-        )
-
-    return nlp
-
+## collect unstructured data from specific web page sources
 
 def uni_scrubber (
     span: spacy.tokens.span.Span,
@@ -223,10 +195,83 @@ BTW, for ideal text chunk size see
     return chunk_id + 1
 
 
+def scrape_html (
+    scrape_nlp: spacy.Language,
+    url: str,
+    chunk_list: typing.List[ TextChunk ],
+    chunk_id: int,
+    ) -> int:
+    """
+A simple web page text scraper, which also performs chunking.
+Returns the updated `chunk_id` index.
+    """
+    response: requests.Response = requests.get(
+        url,
+        headers = SCRAPE_HEADERS,
+    )
+
+    soup: BeautifulSoup = BeautifulSoup(
+        response.text,
+        features = "lxml",
+    )
+
+    scrape_doc: spacy.tokens.doc.Doc = scrape_nlp("\n".join([
+        para.text.strip()
+        for para in soup.findAll("p")
+    ]))
+
+    chunk_id = make_chunk(
+        scrape_doc,
+        url,
+        chunk_list,
+        chunk_id,
+    )
+
+    return chunk_id
+
+
+######################################################################
+## lexical graph construction
+
+def init_nlp (
+    ) -> spacy.Language:
+    """
+Initialize the models.
+    """
+    # override specific Hugging Face error messages, since
+    # `transformers` and `tokenizers` have noisy logging
+    transformers.logging.set_verbosity_error()
+    os.environ["TOKENIZERS_PARALLELISM"] = "0"
+
+    # load models for `spaCy`, `GLiNER`, `GLiREL`
+    # this may take several minutes when run the first time
+    nlp: spacy.Language = spacy.load(SPACY_MODEL)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+
+        nlp.add_pipe(
+            "gliner_spacy",
+            config = {
+                "gliner_model": GLINER_MODEL,
+                "labels": NER_LABELS,
+                "chunk_size": CHUNK_SIZE,
+                "style": "ent",
+            },
+        )
+        
+        nlp.add_pipe(
+            "glirel",
+            after = "ner",
+        )
+
+    return nlp
+
+
 def parse_text (
     nlp: spacy.Language,
     known_lemma: typing.List[ str ],
-    graph: nx.Graph,
+    lex_graph: nx.Graph,
     chunk: TextChunk,
     *,
     debug: bool = False,
@@ -242,7 +287,7 @@ Parse an input text chunk, returning a `spaCy` document.
     )[0][0]
 
     # scan the document tokens to add lemmas to _lexical graph_ using
-    # a _textgraph_ algorithm
+    # a _textgraph_ approach called the _textrank_ algorithm
     for sent in doc.sents:
         node_seq: typing.List[ int ] = []
 
@@ -254,14 +299,20 @@ Parse an input text chunk, returning a `spaCy` document.
         
             if tok.pos_ in [ "NOUN", "PROPN" ]:
                 key: str = tok.pos_ + "." + tok.lemma_.strip().lower()
+                prev_known: bool = False
     
                 if key not in known_lemma:
                     # create a new node
                     known_lemma.append(key)
-                    node_id: int = known_lemma.index(key)
-                    node_seq.append(node_id)
+                else:
+                    # link to an existing node, adding weight
+                    prev_known = True
 
-                    graph.add_node(
+                node_id: int = known_lemma.index(key)
+                node_seq.append(node_id)
+
+                if not lex_graph.has_node(node_id):
+                    lex_graph.add_node(
                         node_id,
                         key = key,
                         kind = "Lemma",
@@ -270,15 +321,13 @@ Parse an input text chunk, returning a `spaCy` document.
                         chunk = chunk,
                         count = 1,
                     )
-                else:
-                    # link to an existing node, adding weight
-                    node_id = known_lemma.index(key)
-                    node_seq.append(node_id)
 
-                    node: dict = graph.nodes[node_id]
+                elif prev_known:
+                    node: dict = lex_graph.nodes[node_id]
                     node["count"] += 1
 
-        # create the textrank edges
+        # create the _textrank_ edges for the lexical graph,
+        # which will get used for ranking, but discarded later
         if debug:
             ic(node_seq)
 
@@ -286,17 +335,19 @@ Parse an input text chunk, returning a `spaCy` document.
             for node_id, node in enumerate(node_seq[: -1 - hop]):            
                 neighbor: int = node_seq[hop + node_id + 1]
     
-                graph.add_edge(
-                    node,
-                    neighbor,
-                    rel = "FOLLOWS_LEXICALLY",
-                )
+                if not lex_graph.has_edge(node, neighbor):
+                    lex_graph.add_edge(
+                        node,
+                        neighbor,
+                        rel = "FOLLOWS_LEXICALLY",
+                    )
 
     return doc
 
 
 def make_entity (
     span_decoder: typing.Dict[ tuple, Entity ],
+    sent_map: typing.Dict[ spacy.tokens.span.Span, int ],
     span: spacy.tokens.span.Span,
     chunk: TextChunk,
     *,
@@ -331,20 +382,29 @@ Instantiate one `Entity` dataclass object, adding to our working "vocabulary".
 
 def extract_entity (
     known_lemma: typing.List[ str ],
-    graph: nx.Graph,
+    lex_graph: nx.Graph,
     ent: Entity,
     *,
     debug: bool = False,
     ) -> None:
     """
-Link one `Entity` into the existing graph.
+Link one `Entity` into this doc's lexical graph.
     """
+    prev_known: bool = False
+
     if ent.key not in known_lemma:
         # add a new Entity node to the graph and link to its component Lemma nodes
         known_lemma.append(ent.key)
-        node_id: int = known_lemma.index(ent.key)
-        
-        graph.add_node(
+    else:
+        # phrase for this entity has been previously seen in other documents
+        prev_known = True
+
+    node_id: int = known_lemma.index(ent.key)
+    ent.node = node_id
+
+    # hydrate a compound phrase in this doc's lexical graph
+    if not lex_graph.has_node(node_id):
+        lex_graph.add_node(
             node_id,
             key = ent.key,
             kind = "Entity",
@@ -361,30 +421,30 @@ Link one `Entity` into the existing graph.
             if tok_key in known_lemma:
                 tok_idx: int = known_lemma.index(tok_key)
 
-                graph.add_edge(
+                lex_graph.add_edge(
                     node_id,
                     tok_idx,
                     rel = "COMPOUND_ELEMENT_OF",
                 )
-    else:
-        node_id: int = known_lemma.index(ent.key)
-        node: dict = graph.nodes[node_id]
-        # promote to an Entity, in case the node had been a Lemma
+
+
+    if prev_known:
+        # promote a previous Lemma node to an Entity
+        node: dict = lex_graph.nodes[node_id]
         node["kind"] = "Entity"
         node["label"] = ent.label
         node["chunk"] = ent.chunk_id
         node["count"] += 1
     
-    ent.node = node_id
-
     if debug:
         ic(ent)
 
 
 def extract_relations (
     known_lemma: typing.List[ str ],
-    graph: nx.Graph,
+    lex_graph: nx.Graph,
     span_decoder: typing.Dict[ tuple, Entity ],
+    sent_map: typing.Dict[ spacy.tokens.span.Span, int ],
     doc: spacy.tokens.doc.Doc,
     chunk: TextChunk,
     *,
@@ -410,6 +470,7 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
 
             src_ent: Entity = make_entity(
                 span_decoder,
+                sent_map,
                 doc[ item["head_pos"][0] : item["head_pos"][1] ],
                 chunk,
                 debug = debug,
@@ -420,7 +481,7 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
             else:
                 extract_entity(
                     known_lemma,
-                    graph,
+                    lex_graph,
                     src_ent,
                     debug = debug
                 )
@@ -431,6 +492,7 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
 
             dst_ent: Entity = make_entity(
                 span_decoder,
+                sent_map,
                 doc[ item["tail_pos"][0] : item["tail_pos"][1] ],
                 chunk,
                 debug = debug,
@@ -441,7 +503,7 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
             else:
                 extract_entity(
                     known_lemma,
-                    graph,
+                    lex_graph,
                     dst_ent,
                     debug = debug
                 )
@@ -457,7 +519,7 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
             if debug:
                 print(f"{src_ent.text} -> {rel} -> {dst_ent.text} | {prob}")
 
-            graph.add_edge(
+            lex_graph.add_edge(
                 src_ent.node,
                 dst_ent.node,
                 rel = rel,
@@ -465,8 +527,11 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
             )
 
 
+######################################################################
+## textrank algorithm for co-occurence and node ranking
+
 def connect_entities (
-    graph: nx.Graph,
+    lex_graph: nx.Graph,
     span_decoder: typing.Dict[ tuple, Entity ],
     ) -> None:
     """
@@ -480,8 +545,8 @@ Connect entities which co-occur within the same sentence.
 
     for sent_id, nodes in ent_map.items():
         for pair in itertools.combinations(list(nodes), 2):
-            if not graph.has_edge(*pair):
-                graph.add_edge(
+            if not lex_graph.has_edge(*pair):
+                lex_graph.add_edge(
                     pair[0],
                     pair[1],
                     rel = "CO_OCCURS_WITH",
@@ -490,27 +555,110 @@ Connect entities which co-occur within the same sentence.
 
 
 def run_textrank (
-    graph: nx.Graph,
+    lex_graph: nx.Graph,
     ) -> pd.DataFrame:
     """
 Run eigenvalue centrality (i.e., _Personalized PageRank_) to rank the entities.
     """
-    for node, rank in nx.pagerank(graph, alpha = TR_ALPHA, weight = "count").items():
-        graph.nodes[node]["rank"] = rank
+    for node, rank in nx.pagerank(lex_graph, alpha = TR_ALPHA, weight = "count").items():
+        lex_graph.nodes[node]["rank"] = rank
 
     df: pd.DataFrame = pd.DataFrame([
         node_attr
-        for node, node_attr in graph.nodes(data = True)
+        for node, node_attr in lex_graph.nodes(data = True)
         if node_attr["kind"] == "Entity"
     ]).sort_values(by = [ "rank", "count" ], ascending = False)
 
     return df
 
 
+######################################################################
+## abstracting the semantic overlay out of the lexical graph
+
+def abstract_overlay (
+    url: str,
+    chunk_list: typing.List[ TextChunk ],
+    lex_graph: nx.Graph,
+    sem_overlay: nx.Graph,
+    ) -> None:
+    """
+Abstract a _semantic overlay_ from the lexical graph -- in other words
+which nodes and edges get promoted up to the next level?
+
+Also connect the extracted entities with their source chunks, where
+the latter first-class citizens within the KG.
+    """
+    kept_nodes: typing.Set[ int ] = set()
+    skipped_rel: typing.Set[ str ] = set([ "FOLLOWS_LEXICALLY", "COMPOUND_ELEMENT_OF" ])
+
+    chunk_nodes: typing.Dict[ int, str ] = {
+        chunk.uid: f"chunk_{chunk.uid}"
+        for chunk in chunk_list
+    }
+
+    for chunk_id, node_id in chunk_nodes.items():
+        sem_overlay.add_node(
+            node_id,
+            kind = "Chunk",
+            chunk = chunk_id,
+            url = url,
+        )
+
+    for node_id, node_attr in lex_graph.nodes(data = True):
+        if node_attr["kind"] == "Entity":
+            kept_nodes.add(node_id)                
+            count: int = node_attr["count"]
+
+            if not sem_overlay.has_node(node_id):
+                sem_overlay.add_node(
+                    node_id,
+                    kind = "Entity",
+                    key = node_attr["key"],
+                    text = node_attr["text"],
+                    label = node_attr["label"],
+                    count = count,
+                )
+            else:
+                sem_overlay.nodes[node_id]["count"] += count
+
+            sem_overlay.add_edge(
+                node_id,
+                chunk_nodes[node_attr["chunk"]],
+                rel = "WITHIN",
+                weight = node_attr["rank"],
+            )
+
+    for src_id, dst_id, edge_attr in lex_graph.edges(data = True):
+        if src_id in kept_nodes and dst_id in kept_nodes:
+            rel: str = edge_attr["rel"]
+            prob: float = 1.0
+
+            if "prob" in edge_attr:
+                prob = edge_attr["prob"]
+
+            if rel not in skipped_rel:
+                if not sem_overlay.has_edge(src_id, dst_id):
+                    sem_overlay.add_edge(
+                        src_id,
+                        dst_id,
+                        rel = rel,
+                        prob = prob,
+                    )
+                else:
+                    sem_overlay[src_id][dst_id]["prob"] = max(
+                        prob,
+                        sem_overlay.edges[(src_id, dst_id)]["prob"],
+                    )
+
+
+######################################################################
+## graph visualization
+
 def gen_pyvis (
     graph: nx.Graph,
     html_file: str,
     *,
+    num_docs: int = 1,
     notebook: bool = False,
     ) -> None:
     """
@@ -524,17 +672,21 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
     )
 
     for node_id, node_attr in graph.nodes(data = True):
-        if node_attr["kind"] == "Entity":
-            color: str = "hsl(65, 46%, 58%)"
-            size: int = round(200 * node_attr["rank"])
+        if node_attr.get("kind") == "Entity":
+            color: str = "hsla(65, 46%, 58%, 0.80)"
+            size: int = round(20 * math.log(1.0 + math.sqrt(float(node_attr.get("count"))) / num_docs))
+            label: str = node_attr.get("text")
+            title: str = node_attr.get("label")
         else:
-            color = "hsla(72, 10%, 90%, 0.95)"
-            size = round(30 * node_attr["rank"])
+            color = "hsla(306, 45%, 57%, 0.95)"
+            size = 5
+            label = node_id
+            title = node_attr.get("url")
 
         pv_net.add_node(
             node_id,
-            label = node_attr["text"],
-            title = node_attr.get("label"),
+            label = label,
+            title = title,
             color = color,
             size = size,
         )
@@ -547,14 +699,146 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
         )
 
         pv_net.toggle_physics(True)
-        pv_net.show_buttons(filter_ = True)
+        pv_net.show_buttons(filter_ = [ "physics" ])
         pv_net.save_graph(html_file)
 
 
-if __name__ == "__main__":
-    debug: bool = True # False
+def main (
+    url_list: typing.List[ str ],
+    chunk_table: lancedb.table.LanceTable,
+    sem_overlay: nx.Graph,
+    *,
+    debug: bool = True,
+    ) -> None:
+    """
+Main entry point.
+    """
+    # define the global data structures which must be reset for each
+    # run, not on each chunk iteration
+    nlp: spacy.Language = init_nlp()
+    known_lemma: typing.List[ str ] = []
 
-    # iterate through the URL list scraping text and building chunks
+    # iterate through the URL list, scraping text and building chunks
+    chunk_id: int = 0
+    scrape_nlp: spacy.Language = spacy.load(SPACY_MODEL)
+
+    for url in url_list:
+        lex_graph: nx.Graph = nx.Graph()
+        chunk_list: typing.List[ TextChunk ] = []
+
+        chunk_id = scrape_html(
+            scrape_nlp,
+            url,
+            chunk_list,
+            chunk_id,
+        )
+
+        chunk_table.add(chunk_list)
+
+        # parse each chunk to build a lexical graph per source URL
+        for chunk in chunk_list:
+            span_decoder: typing.Dict[ tuple, Entity ] = {}
+
+            doc: spacy.tokens.doc.Doc = parse_text(
+                nlp,
+                known_lemma,
+                lex_graph,
+                chunk,
+                debug = debug,
+            )
+
+            # keep track of sentence numbers per chunk, to use later
+            # for entity co-occurrence links
+            sent_map: typing.Dict[ spacy.tokens.span.Span, int ] = {}
+
+            for sent_id, sent in enumerate(doc.sents):
+                sent_map[sent] = sent_id
+
+                # classify the recognized spans within this chunk as
+                # potential entities
+
+                # NB: if we'd run [_entity resolution_]
+                # see: <https://neo4j.com/developer-blog/entity-resolved-knowledge-graphs/>
+                # previously from _structured_ or _semi-structured_ data sources to
+                # generate a "backbone" for the knowledge graph, then we could use
+                # contextualized _surface forms_ perform _entity linking_ on the
+                # entities extracted here from _unstructured_ data
+
+            for span in doc.ents:
+                make_entity(
+                    span_decoder,
+                    sent_map,
+                    span,
+                    chunk,
+                    debug = debug,
+                )
+
+            for span in doc.noun_chunks:
+                make_entity(
+                    span_decoder,
+                    sent_map,
+                    span,
+                    chunk,
+                    debug = debug,
+                )
+
+            # overlay the recognized entity spans atop the base layer
+            # constructed by _textgraph_ analysis of the `spaCy` parse trees
+            for ent in span_decoder.values():
+                if ent.key not in STOP_WORDS:
+                    extract_entity(
+                        known_lemma,
+                        lex_graph,
+                        ent,
+                        debug = debug,
+                    )
+
+            # extract relations for co-occurring entity pairs
+            extract_relations(
+                known_lemma,
+                lex_graph,
+                span_decoder,
+                sent_map,
+                doc,
+                chunk,
+                debug = debug,
+            )
+
+            # connect entities which co-occur within the same sentence
+            connect_entities(
+                lex_graph,
+                span_decoder,
+            )
+
+        # apply _textrank_ to the graph (in the url/doc iteration)
+        # then report the top-ranked extracted entities
+        df: pd.DataFrame = run_textrank(
+            lex_graph,
+        )
+
+        ic(url, df.head(20))
+
+        # abstract a semantic overlay from the lexical graph
+        # and persist this in the resulting KG
+        abstract_overlay(
+            url,
+            chunk_list,
+            lex_graph,
+            sem_overlay,
+        )
+
+        print("nodes", len(sem_overlay.nodes), "edges", len(sem_overlay.edges))
+
+
+######################################################################
+## main entry point
+
+if __name__ == "__main__":
+    url_list: typing.List[ str ] = [
+        "https://aaic.alz.org/releases-2024/processed-red-meat-raises-risk-of-dementia.asp",
+        "https://www.theguardian.com/society/article/2024/jul/31/eating-processed-red-meat-could-increase-risk-of-dementia-study-finds",
+    ]
+
     vect_db: lancedb.db.LanceDBConnection = lancedb.connect(LANCEDB_URI)
 
     chunk_table: lancedb.table.LanceTable = vect_db.create_table(
@@ -563,134 +847,32 @@ if __name__ == "__main__":
         mode = "overwrite",
     )
 
-    chunk_list: typing.List[ TextChunk ] = []
-    chunk_id: int = 0
+    sem_overlay: nx.Graph = nx.Graph()
 
-    scrape_nlp: spacy.Language = spacy.load(SPACY_MODEL)
-
-    url_list: typing.List[ str ] = [
-        "https://aaic.alz.org/releases-2024/processed-red-meat-raises-risk-of-dementia.asp",
-        "https://www.theguardian.com/society/article/2024/jul/31/eating-processed-red-meat-could-increase-risk-of-dementia-study-finds",
-    ]
-
-    headers: typing.Dict[ str, str ] = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
-    }
-
-    for url in url_list:
-        response: requests.Response = requests.get(
-            url,
-            headers = headers,
+    try:
+        main(
+            url_list,
+            chunk_table,
+            sem_overlay,
+            debug = False,  # True
         )
 
-        soup: BeautifulSoup = BeautifulSoup(
-            response.text,
-            features = "lxml",
-        )
-
-        scrape_doc: spacy.tokens.doc.Doc = scrape_nlp("\n".join([
-            para.text.strip()
-            for para in soup.findAll("p")
-        ]))
-
-        chunk_id = make_chunk(
-            scrape_doc,
-            url,
-            chunk_list,
-            chunk_id,
-        )
-
-    chunk_table.add(chunk_list)
-
-    # define the global data structures which must be reset for each
-    # run, not on each chunk iteration
-    nlp: spacy.Language = init_nlp()
-    graph: nx.Graph = nx.Graph()
-    known_lemma: typing.List[ str ] = []
-
-    # iterate through the text chunks to parase and build the graph
-    for chunk in chunk_list:
-        doc: spacy.tokens.doc.Doc = parse_text(
-            nlp,
-            known_lemma,
-            graph,
-            chunk,
-            debug = debug,
-        )
-
-        # keep track of sentence numbers, to use for entity co-occurrence
-        # links
-        sent_map: typing.Dict[ spacy.tokens.span.Span, int ] = {}
-
-        for sent_id, sent in enumerate(doc.sents):
-            sent_map[sent] = sent_id
-
-        # classify the recognized spans within this chunk as potential
-        # entities
-        span_decoder: typing.Dict[ tuple, Entity ] = {}
-
-        # NB: if we'd run [_entity resolution_](https://neo4j.com/developer-blog/entity-resolved-knowledge-graphs/)
-        # previously from _structured_ or _semi-structured_ data sources to
-        # generate a "backbone" for the knowledge graph, then we could use
-        # contextualized _surface forms_ perform _entity linking_ on the
-        # entities extracted here from _unstructured_ data
-
-        for span in doc.ents:
-            make_entity(
-                span_decoder,
-                span,
-                chunk,
-                debug = debug,
-            )
-
-        for span in doc.noun_chunks:
-            make_entity(
-                span_decoder,
-                span,
-                chunk,
-                debug = debug,
-            )
-
-        # overlay the recognized entity spans atop the base layer
-        # constructed by _textgraph_ analysis of the `spaCy` parse trees
-        for ent in span_decoder.values():
-            if ent.key not in STOP_WORDS:
-                extract_entity(
-                    known_lemma,
-                    graph,
-                    ent,
-                    debug = debug,
+        # serialize the resulting KG
+        with open("kg.json", "w", encoding = "utf-8") as fp:
+            fp.write(
+                json.dumps(
+                    nx.node_link_data(sem_overlay),
+                    indent = 2,
+                    sort_keys = True,
                 )
+            )
 
-        # extract relations for co-occurring entity pairs
-        extract_relations(
-            known_lemma,
-            graph,
-            span_decoder,
-            doc,
-            chunk,
-            debug = debug,
+        # generate HTML for an interactive visualization of a graph
+        gen_pyvis(
+            sem_overlay,
+            "kg.html",
+            num_docs = len(url_list),
         )
-
-        # connect entities which co-occur within the same sentence
-        connect_entities(
-            graph,
-            span_decoder,
-        )
-
-
-    ######################################################################
-    # apply _textrank_ then report the top-ranked extracted entities
-    df: pd.DataFrame = run_textrank(
-        graph,
-    )
-
-    ic(df.head(20))
-
-    ######################################################################
-    # generate HTML for an interactive visualization of the graph
-
-    gen_pyvis(
-        graph,
-        "chunk.html",
-    )
+    except Exception as ex:
+        ic(ex)
+        traceback.print_exc()
