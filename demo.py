@@ -267,6 +267,7 @@ Parse an input text chunk, returning a `spaCy` document.
                         kind = "Lemma",
                         pos = tok.pos_,
                         text = text,
+                        chunk = chunk,
                         count = 1,
                     )
                 else:
@@ -350,6 +351,7 @@ Link one `Entity` into the existing graph.
             label = ent.label,
             pos = "NP",
             text = ent.text,
+            chunk = ent.chunk_id,
             count = 1,
         )
 
@@ -370,6 +372,7 @@ Link one `Entity` into the existing graph.
         # promote to an Entity, in case the node had been a Lemma
         node["kind"] = "Entity"
         node["label"] = ent.label
+        node["chunk"] = ent.chunk_id
         node["count"] += 1
     
     ent.node = node_id
@@ -477,12 +480,13 @@ Connect entities which co-occur within the same sentence.
 
     for sent_id, nodes in ent_map.items():
         for pair in itertools.combinations(list(nodes), 2):
-            graph.add_edge(
-                pair[0],
-                pair[1],
-                rel = "CO_OCCURS_WITH",
-                prob = 1.0,
-            )
+            if not graph.has_edge(*pair):
+                graph.add_edge(
+                    pair[0],
+                    pair[1],
+                    rel = "CO_OCCURS_WITH",
+                    prob = 1.0,
+                )
 
 
 def run_textrank (
