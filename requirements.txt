@@ -1,3 +1,4 @@
+gensim >= 4.3
 gliner >= 0.2
 gliner_spacy >= 0.0
 glirel >= 0.1

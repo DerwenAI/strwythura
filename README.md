@@ -24,12 +24,14 @@ python3 demo.py
 
 This will scrape text sources from particular URLs for articles about
 the linkage between dementia and regularly eating procesed red meat,
-then produces a knowledge graph using `NetworkX` and a vector database
-of text chunck embeddings using `LanceDB`:
+then produces a knowledge graph using `NetworkX`, a vector database of
+text chunck embeddings using `LanceDB`, and an entity embedding models
+using `gensim.Word2Vec`:
 
   * `kg.html` -- interactive graph visualization in `PyVis`
-  * `kg.json` -- serialization of `NetworkX` graph
+  * `data/kg.json` -- serialization of `NetworkX` graph
   * `data/lancedb` -- vector database tables
+  * `data/entity.w2v` -- entity embedding model
 
 
 ## Deep-dive
@@ -43,4 +45,5 @@ workflow:
 
   * Part 1: `construct.ipynb` -- detailed steps for KG construction from a lexical graph
   * Part 2: `chunk.ipynb` -- example of how to chunk text (YMMV)
-  * Part 3: `vector.ipynb` -- query LanceDB table for chunked text embeddings (after running `demo.py`)
+  * Part 3: `vector.ipynb` -- query LanceDB table for text chunk embeddings (after running `demo.py`)
+  * Part 4: `embed.ipynb` -- query gensim.Word2Vec for entity embeddings (after running `demo.py`)

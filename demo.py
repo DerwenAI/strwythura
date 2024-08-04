@@ -10,8 +10,10 @@ from collections import defaultdict
 from dataclasses import dataclass
 import itertools
 import json
+import logging
 import math
 import os
+import pathlib
 import sys
 import traceback
 import typing
@@ -23,6 +25,7 @@ from gliner_spacy.pipeline import GlinerSpacy
 from icecream import ic
 from lancedb.embeddings import get_registry
 from lancedb.pydantic import LanceModel, Vector
+import gensim
 import glirel
 import lancedb
 import networkx as nx
@@ -240,6 +243,7 @@ Initialize the models.
     """
     # override specific Hugging Face error messages, since
     # `transformers` and `tokenizers` have noisy logging
+    logging.disable(logging.ERROR)
     transformers.logging.set_verbosity_error()
     os.environ["TOKENIZERS_PARALLELISM"] = "0"
 
@@ -703,20 +707,22 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
         pv_net.save_graph(html_file)
 
 
-def main (
+def construct_kg (
     url_list: typing.List[ str ],
     chunk_table: lancedb.table.LanceTable,
     sem_overlay: nx.Graph,
+    w2v_file: pathlib.Path,
     *,
     debug: bool = True,
     ) -> None:
     """
-Main entry point.
+Construct a knowledge graph from unstructured data sources.
     """
     # define the global data structures which must be reset for each
     # run, not on each chunk iteration
     nlp: spacy.Language = init_nlp()
     known_lemma: typing.List[ str ] = []
+    w2v_vectors: list = []
 
     # iterate through the URL list, scraping text and building chunks
     chunk_id: int = 0
@@ -754,15 +760,15 @@ Main entry point.
             for sent_id, sent in enumerate(doc.sents):
                 sent_map[sent] = sent_id
 
-                # classify the recognized spans within this chunk as
-                # potential entities
+            # classify the recognized spans within this chunk as
+            # potential entities
 
-                # NB: if we'd run [_entity resolution_]
-                # see: <https://neo4j.com/developer-blog/entity-resolved-knowledge-graphs/>
-                # previously from _structured_ or _semi-structured_ data sources to
-                # generate a "backbone" for the knowledge graph, then we could use
-                # contextualized _surface forms_ perform _entity linking_ on the
-                # entities extracted here from _unstructured_ data
+            # NB: if we'd run [_entity resolution_]
+            # see: <https://neo4j.com/developer-blog/entity-resolved-knowledge-graphs/>
+            # previously from _structured_ or _semi-structured_ data sources to
+            # generate a "backbone" for the knowledge graph, then we could use
+            # contextualized _surface forms_ perform _entity linking_ on the
+            # entities extracted here from _unstructured_ data
 
             for span in doc.ents:
                 make_entity(
@@ -810,6 +816,18 @@ Main entry point.
                 span_decoder,
             )
 
+            # build the vector input for entity embeddings
+            w2v_map: typing.Dict[ int, typing.Set[ str ]] = defaultdict(set)
+
+            for ent in span_decoder.values():
+                if ent.node is not None:
+                    w2v_map[ent.sent_id].add(ent.key)
+
+            for sent_id, ents in w2v_map.items():
+                vec: list = list(ents)
+                vec.insert(0, str(sent_id))
+                w2v_vectors.append(vec)
+
         # apply _textrank_ to the graph (in the url/doc iteration)
         # then report the top-ranked extracted entities
         df: pd.DataFrame = run_textrank(
@@ -828,6 +846,21 @@ Main entry point.
         )
 
         print("nodes", len(sem_overlay.nodes), "edges", len(sem_overlay.edges))
+
+
+    # train the entity embedding model
+    w2v_max: int = max([
+        len(vec) - 1
+        for vec in w2v_vectors
+    ])
+
+    w2v_model: gensim.models.Word2Vec = gensim.models.Word2Vec(
+        w2v_vectors,
+        min_count = 2,
+        window = w2v_max,
+    )
+
+    w2v_model.save(str(w2v_file))
 
 
 ######################################################################
@@ -850,15 +883,16 @@ if __name__ == "__main__":
     sem_overlay: nx.Graph = nx.Graph()
 
     try:
-        main(
+        construct_kg(
             url_list,
             chunk_table,
             sem_overlay,
+            pathlib.Path("data/entity.w2v"),
             debug = False,  # True
         )
 
         # serialize the resulting KG
-        with open("kg.json", "w", encoding = "utf-8") as fp:
+        with pathlib.Path("data/kg.json").open("w", encoding = "utf-8") as fp:
             fp.write(
                 json.dumps(
                     nx.node_link_data(sem_overlay),
