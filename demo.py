@@ -16,6 +16,7 @@ import os
 import pathlib
 import sys
 import traceback
+import tracemalloc
 import typing
 import unicodedata
 import warnings
@@ -25,6 +26,7 @@ from gliner_spacy.pipeline import GlinerSpacy
 from icecream import ic
 from lancedb.embeddings import get_registry
 from lancedb.pydantic import LanceModel, Vector
+from pyinstrument import Profiler
 import gensim
 import glirel
 import lancedb
@@ -680,7 +682,7 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
             color: str = "hsla(65, 46%, 58%, 0.80)"
             size: int = round(20 * math.log(1.0 + math.sqrt(float(node_attr.get("count"))) / num_docs))
             label: str = node_attr.get("text")
-            title: str = node_attr.get("label")
+            title: str = node_attr.get("key")
         else:
             color = "hsla(306, 45%, 57%, 0.95)"
             size = 5
@@ -867,6 +869,12 @@ Construct a knowledge graph from unstructured data sources.
 ## main entry point
 
 if __name__ == "__main__":
+    # start the stochastic call trace profiler and memory profiler
+    profiler: Profiler = Profiler()
+    profiler.start()
+    tracemalloc.start()
+
+    # define the global data structures
     url_list: typing.List[ str ] = [
         "https://aaic.alz.org/releases-2024/processed-red-meat-raises-risk-of-dementia.asp",
         "https://www.theguardian.com/society/article/2024/jul/31/eating-processed-red-meat-could-increase-risk-of-dementia-study-finds",
@@ -910,3 +918,12 @@ if __name__ == "__main__":
     except Exception as ex:
         ic(ex)
         traceback.print_exc()
+
+    # stop the profiler and report performance statistics
+    profiler.stop()
+    profiler.print()
+
+    # report the memory usage
+    report: tuple = tracemalloc.get_traced_memory()
+    peak: float = round(report[1] / 1024.0 / 1024.0, 2)
+    print(f"peak memory usage: {peak} MB")
