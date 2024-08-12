@@ -22,67 +22,76 @@ The full demo app is in `demo.py`:
 python3 demo.py
 ```
 
-This will scrape text sources from particular URLs for articles about
-the linkage between dementia and regularly eating processed red meat,
-then produces a knowledge graph using `NetworkX`, a vector database of
-text chunk embeddings using `LanceDB`, and an entity embedding models
-using `gensim.Word2Vec`:
+This demo scrapes text sources from articles about the linkage between
+dementia and regularly eating processed red meat, then produces a graph
+using `NetworkX`, a vector database of text chunk embeddings using
+`LanceDB`, and an entity embedding model using `gensim.Word2Vec`,
+where the results are:
 
-  * `kg.html` -- interactive graph visualization in `PyVis`
   * `data/kg.json` -- serialization of `NetworkX` graph
   * `data/lancedb` -- vector database tables
   * `data/entity.w2v` -- entity embedding model
-
+  * `kg.html` -- interactive graph visualization in `PyVis`
 
 ## Explore notebooks
 
-Multiple Jupyter notebooks illustrate important steps within this
-workflow:
+A collection of Jupyter notebooks illustrate important steps
+within this workflow:
 
 ```bash
 ./venv/bin/jupyter-lab
 ```
 
-  * Part 1: `construct.ipynb` -- detailed steps for KG construction using a lexical graph
-  * Part 2: `chunk.ipynb` -- a simple example of how to scrape and chunk text
+  * Part 1: `construct.ipynb` -- detailed KG construction using a lexical graph
+  * Part 2: `chunk.ipynb` -- simple example of how to scrape and chunk text
   * Part 3: `vector.ipynb` -- query LanceDB table for text chunk embeddings (after running `demo.py`)
-  * Part 4: `embed.ipynb` -- query gensim.Word2Vec model for entity embeddings (after running `demo.py`)
+  * Part 4: `embed.ipynb` -- query the entity embedding model (after running `demo.py`)
 
 
-## Generalized process
+## Generalized, unbundled process
 
 **Objective:**
-Construct a _knowledge graph_ (KG) using open source libraries with
-deep learning models as _point solutions_ to generate components of
-the graph.
+Construct a _knowledge graph_ (KG) using open source libraries where
+deep learning models provide narrowly-focused _point solutions_ to
+generate components for a graph: nodes, edges, properties.
 
-The steps in a generalized process are the following, where this tutorial picks up at step 5:
+These steps define a generalized process, where this tutorial picks up
+at the _lexical graph_:
 
-  1. load any pre-defined _controlled vocabulary_ (layer 3)
-  2. load the _structured data_ sources into a _data graph_ (layer 1)
-  3. perform _entity resolution_ (ER) on PII extracted from the _data graph_
-  4. use ER results to generate a _semantic overlay_ as a "backbone" for the KG (layer 3)
-  5. scrape URLs to obtain the _unstructured data_ sources
-  6. split the text into chunks and load into a vector database
-  7. parse the text chunks, using _lemmatization_ to normalize token spans
-  8. construct a _lexical graph_ from parse trees using the _textrank_ algorithm (layer 2)
-  9. analyze _named entity recognition_ (NER) to extract candidate entities from spans
-  10. analyze _relation extraction_ (RE) to extract relations between pairwise entities
-  11. perform _entity linking_ (EL) leveraging the ER results
-  12. promote the extracted entities and relations into the KG (layer 3)
+**Semantic overlay:**
 
+  1. load any pre-defined controlled vocabularies directly into the KG
 
-Better yet, review the intermediate results at steps [4, 9, 10, 11] to
-collect human feedback for curating the KG, for example by using
+**Data graph:**
+
+  1. load the structured data sources or updates into a data graph
+  2. perform entity resolution (ER) on PII extracted from the data graph
+  3. use ER results to generate a semantic overlay as a "backbone" for the KG
+
+**Lexical graph:**
+
+  1. parse the text chunks, using lemmatization to normalize token spans
+  2. construct a lexical graph from parse trees, e.g., using a textgraph algorithm
+  3. analyze named entity recognition (NER) to extract candidate entities from NP spans
+  4. analyze relation extraction (RE) to extract relations between pairwise entities
+  5. perform entity linking (EL) leveraging the ER results
+  6. promote the extracted entities and relations up to the semantic overlay
+
+This approach is in contrast to using a _large language model_ (LLM)
+as a _one size fits all_ "black box" approach to generate the entire
+graph automagically.
+Black box approaches don't work well for KG practices in regulated environments, where audits, explanations, evidence, data provenance, etc., are required.
+
+Better yet, review the intermediate results after each inference step to
+collect human feedback for curating the KG components, e.g., using
 [`Argilla`](https://github.com/argilla-io/argilla).
 
-Once you have produced a KG following this process, updates can be handled more robustly, and downstream apps such as
-[_Graph-enhanced RAG_](https://discord.gg/N9A83zuhZu)
-for grounding LLM results can work with better data quality.
-
-Note: this approach is in contrast to using a _large language model_ (LLM) as a _one size fits all_ "black box" approach to generate the entire graph
-automagically.
-Black box approaches don't work well for KG practices in regulated environments, where audits, explanations, evidence, data provenance, etc., are required.
+KGs used in mission-critical apps such as investigations generally rely
+on updates, not a one-step construction process.
+By producing a KG based on the steps above, updates can be handled more
+effectively
+Downstream apps such as [_Graph RAG_](https://derwen.ai/s/hm7h)
+for grounding LLM results also benefit from improved data quality.
 
 
 ## Component libraries
@@ -90,7 +99,6 @@ Black box approaches don't work well for KG practices in regulated environments,
   * `spaCy`: <https://spacy.io/>
   * `GLiNER`: <https://github.com/urchade/GLiNER>
   * `GLiREL`: <https://github.com/jackboyla/GLiREL>
-  * `ReLIK`: <https://github.com/SapienzaNLP/relik>
   * `NetworkX`: <https://networkx.org/>
   * `PyVis`: <https://github.com/WestHealth/pyvis>
   * `LanceDB`: <https://github.com/lancedb/lancedb>
