@@ -89,9 +89,9 @@ collect human feedback for curating the KG components, e.g., using
 KGs used in mission-critical apps such as investigations generally rely
 on updates, not a one-step construction process.
 By producing a KG based on the steps above, updates can be handled more
-effectively
+effectively.
 Downstream apps such as [_Graph RAG_](https://derwen.ai/s/hm7h)
-for grounding LLM results also benefit from improved data quality.
+for grounding the LLM results will also benefit from improved data quality.
 
 
 ## Component libraries
@@ -99,6 +99,7 @@ for grounding LLM results also benefit from improved data quality.
   * `spaCy`: <https://spacy.io/>
   * `GLiNER`: <https://github.com/urchade/GLiNER>
   * `GLiREL`: <https://github.com/jackboyla/GLiREL>
+  * `OpenNRE`: <https://github.com/thunlp/OpenNRE>
   * `NetworkX`: <https://networkx.org/>
   * `PyVis`: <https://github.com/WestHealth/pyvis>
   * `LanceDB`: <https://github.com/lancedb/lancedb>
@@ -106,3 +107,5 @@ for grounding LLM results also benefit from improved data quality.
   * `pandas`: <https://pandas.pydata.org/>
   * `Pydantic`: <https://github.com/pydantic/pydantic>
   * `Pyinstrument`: <https://github.com/joerick/pyinstrument>
+
+Note: you must use the `nre.sh` script to load OpenNRE pre-trained models before running the `opennre.ipynb` notebook.
