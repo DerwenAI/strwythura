@@ -2,7 +2,11 @@
 
 How to construct _knowledge graphs_ from unstructured data sources.
 
-See: <https://live.zoho.com/PBOB6fvr6c>
+  * register: <https://live.zoho.com/PBOB6fvr6c>
+  * video: <https://youtu.be/B6_NfvQL-BE>
+  * slides: <https://derwen.ai/s/2njz#1>
+
+Caveat: this repo provides the source code and notebooks which accompany an instructional tutorial; it is not intended as a package library or product.
 
 
 ## Set up
