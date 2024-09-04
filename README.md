@@ -113,3 +113,8 @@ for grounding the LLM results will also benefit from improved data quality.
   * `Pyinstrument`: <https://github.com/joerick/pyinstrument>
 
 Note: you must use the `nre.sh` script to load OpenNRE pre-trained models before running the `opennre.ipynb` notebook.
+
+## star history
+
+[![Star History Chart](https://api.star-history.com/svg?repos=derwenai/strwythura&type=Date)](https://star-history.com/#derwenai/strwythura&Date)
+
