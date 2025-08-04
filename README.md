@@ -1,4 +1,7 @@
-# Strwythura tutorial, based on the GraphGeeks.org talk 2024-08-14
+# Strwythura
+
+Strwythura tutorial, based on a presentation for GraphGeeks.org on
+2024-08-14
 
 How to construct _knowledge graphs_ from unstructured data sources
 using SOTA models for _named entity recognition_ (NER):
@@ -8,7 +11,7 @@ using SOTA models for _named entity recognition_ (NER):
 
 Caveat: this repo provides the source code and notebooks which
 accompany an instructional tutorial; it is not intended as a package
-library or product.
+library or maintained product.
 
 
 ## Set up
@@ -88,32 +91,18 @@ at the _lexical graph_:
 This approach is in contrast to using a _large language model_ (LLM)
 as a _one size fits all_ "black box" approach to generate the entire
 graph automagically.
-Black box approaches don't work well for KG practices in regulated environments, where audits, explanations, evidence, data provenance, etc., are required.
 
-Better yet, review the intermediate results after each inference step to
-collect human feedback for curating the KG components, e.g., using
-[`Argilla`](https://github.com/argilla-io/argilla).
+Black box approaches don't work well for KG practices in regulated
+environments, where audits, explanations, evidence, data provenance,
+etc., are required.
 
-KGs used in mission-critical apps such as investigations generally rely
-on updates, not a one-step construction process.
-By producing a KG based on the steps above, updates can be handled more
-effectively.
-Downstream apps such as [_Graph RAG_](https://derwen.ai/s/hm7h)
-for grounding the LLM results will also benefit from improved data quality.
+KGs used in mission-critical apps, such as investigations, generally
+require periodic data updates, so construction isn't a one-step
+process. By producing a KG based on the steps above, updates can be
+handled more effectively.
 
-
-## Component libraries
-
-  * `spaCy`: <https://spacy.io/>
-  * `GLiNER`: <https://github.com/urchade/GLiNER>
-  * `GLiREL`: <https://github.com/jackboyla/GLiREL>
-  * `NetworkX`: <https://networkx.org/>
-  * `PyVis`: <https://github.com/WestHealth/pyvis>
-  * `LanceDB`: <https://github.com/lancedb/lancedb>
-  * `gensim`: <https://github.com/piskvorky/gensim>
-  * `pandas`: <https://pandas.pydata.org/>
-  * `Pydantic`: <https://github.com/pydantic/pydantic>
-  * `Pyinstrument`: <https://github.com/joerick/pyinstrument>
+Downstream usage such as [_GraphRAG_](https://derwen.ai/s/hm7h) for
+grounding the LLM results will also benefit from improved data quality.
 
 
 ## Experimental
