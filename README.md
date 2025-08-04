@@ -1,21 +1,21 @@
-# GraphGeeks.org talk 2024-08-14
+# Strwythura tutorial, based on the GraphGeeks.org talk 2024-08-14
 
-How to construct _knowledge graphs_ from unstructured data sources.
+How to construct _knowledge graphs_ from unstructured data sources
+using SOTA models for _named entity recognition_ (NER):
 
-  * event: <https://live.zoho.com/PBOB6fvr6c>
   * video: <https://youtu.be/B6_NfvQL-BE>
   * slides: <https://derwen.ai/s/2njz#1>
 
-Caveat: this repo provides the source code and notebooks which accompany an instructional tutorial; it is not intended as a package library or product.
+Caveat: this repo provides the source code and notebooks which
+accompany an instructional tutorial; it is not intended as a package
+library or product.
 
 
 ## Set up
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-python3 -m pip install -U pip wheel
-python3 -m pip install -r requirements.txt 
+poetry update
+poetry run python3 -m spacy download en_core_web_sm
 ```
 
 ## Run demo
@@ -23,7 +23,7 @@ python3 -m pip install -r requirements.txt
 The full demo app is in `demo.py`:
 
 ```bash
-python3 demo.py
+poetry run python3 demo.py
 ```
 
 This demo scrapes text sources from articles about the linkage between
@@ -37,13 +37,17 @@ where the results are:
   * `data/entity.w2v` -- entity embedding model
   * `kg.html` -- interactive graph visualization in `PyVis`
 
+Note: this may take a few minutes when you run it the first time since
+`PyTorch` will need to download a large (~2GB) file.
+
+
 ## Explore notebooks
 
 A collection of Jupyter notebooks illustrate important steps
 within this workflow:
 
 ```bash
-./venv/bin/jupyter-lab
+.venv/bin/jupyter-lab
 ```
 
   * Part 1: `construct.ipynb` -- detailed KG construction using a lexical graph
@@ -103,7 +107,6 @@ for grounding the LLM results will also benefit from improved data quality.
   * `spaCy`: <https://spacy.io/>
   * `GLiNER`: <https://github.com/urchade/GLiNER>
   * `GLiREL`: <https://github.com/jackboyla/GLiREL>
-  * `OpenNRE`: <https://github.com/thunlp/OpenNRE>
   * `NetworkX`: <https://networkx.org/>
   * `PyVis`: <https://github.com/WestHealth/pyvis>
   * `LanceDB`: <https://github.com/lancedb/lancedb>
@@ -112,9 +115,21 @@ for grounding the LLM results will also benefit from improved data quality.
   * `Pydantic`: <https://github.com/pydantic/pydantic>
   * `Pyinstrument`: <https://github.com/joerick/pyinstrument>
 
-Note: you must use the `nre.sh` script to load OpenNRE pre-trained models before running the `opennre.ipynb` notebook.
 
-## star history
+## Experimental
+
+The `OpenNRE` library also provides _relation extraction_ and there is
+some experimental code which illustrates this.
+
+  * `OpenNRE`: <https://github.com/thunlp/OpenNRE>
+
+Use the `nre.sh` script to load OpenNRE pre-trained models before
+running the `opennre.ipynb` notebook.
+
+This may not work in many environments, depending on whether the
+`OpenNRE` library is being maintained.
+
+
+## Star history
 
 [![Star History Chart](https://api.star-history.com/svg?repos=derwenai/strwythura&type=Date)](https://star-history.com/#derwenai/strwythura&Date)
-

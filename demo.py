@@ -234,7 +234,7 @@ Returns the updated `chunk_id` index.
 
     scrape_doc: spacy.tokens.doc.Doc = scrape_nlp("\n".join([
         para.text.strip()
-        for para in soup.findAll("p")
+        for para in soup.find_all("p")
     ]))
 
     chunk_id = make_chunk(
@@ -265,23 +265,20 @@ Initialize the models.
     # this may take several minutes when run the first time
     nlp: spacy.Language = spacy.load(SPACY_MODEL)
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-
-        nlp.add_pipe(
-            "gliner_spacy",
-            config = {
-                "gliner_model": GLINER_MODEL,
-                "labels": NER_LABELS,
-                "chunk_size": CHUNK_SIZE,
-                "style": "ent",
-            },
-        )
+    nlp.add_pipe(
+        "gliner_spacy",
+        config = {
+            "gliner_model": GLINER_MODEL,
+            "labels": NER_LABELS,
+            "chunk_size": CHUNK_SIZE,
+            "style": "ent",
+        },
+    )
         
-        nlp.add_pipe(
-            "glirel",
-            after = "ner",
-        )
+    nlp.add_pipe(
+        "glirel",
+        after = "ner",
+    )
 
     return nlp
 
@@ -983,10 +980,10 @@ Construct a knowledge graph from unstructured data sources.
     w2v_model.save(str(w2v_file))
 
 
-######################################################################
-## main entry point
-
-if __name__ == "__main__":
+def main () -> int:
+    """
+Main entry point.
+    """
     # start the stochastic call trace profiler and memory profiler
     profiler: Profiler = Profiler()
     profiler.start()
@@ -1021,7 +1018,7 @@ if __name__ == "__main__":
         with pathlib.Path("data/kg.json").open("w", encoding = "utf-8") as fp:
             fp.write(
                 json.dumps(
-                    nx.node_link_data(sem_overlay),
+                    nx.node_link_data(sem_overlay, edges = "links"),
                     indent = 2,
                     sort_keys = True,
                 )
@@ -1045,3 +1042,13 @@ if __name__ == "__main__":
     report: tuple = tracemalloc.get_traced_memory()
     peak: float = round(report[1] / 1024.0 / 1024.0, 2)
     print(f"peak memory usage: {peak} MB")
+
+
+######################################################################
+## main entry point
+
+if __name__ == "__main__":
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+
+        main()
