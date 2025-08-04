@@ -128,3 +128,8 @@ running the `opennre.ipynb` notebook.
 
 This may not work in many environments, depending on whether the
 `OpenNRE` library is being maintained.
+
+
+## Star history
+
+[![Star History Chart](https://api.star-history.com/svg?repos=derwenai/strwythura&type=Date)](https://star-history.com/#derwenai/strwythura&Date)
