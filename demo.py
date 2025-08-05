@@ -116,6 +116,7 @@ TR_LOOKBACK: int = 3
 class TextChunk (LanceModel):
     uid: int
     url: str
+    sent_id: int
     text: str = EMBED_FCN.SourceField()
     vector: Vector(EMBED_FCN.ndims()) = EMBED_FCN.VectorField(default = None)
 
@@ -185,6 +186,7 @@ BTW, for ideal text chunk size see
                 TextChunk(
                     uid = chunk_id,
                     url = url,
+                    sent_id = sent_id,
                     text = "\n".join(chunks),
                 )
             )
@@ -205,6 +207,7 @@ BTW, for ideal text chunk size see
         TextChunk(
             uid = chunk_id,
             url = url,
+            sent_id = sent_id + 1,
             text = "\n".join(chunks),
         )
     )
@@ -213,7 +216,7 @@ BTW, for ideal text chunk size see
 
 
 def scrape_html (
-    scrape_nlp: spacy.Language,
+    simple_pipe: spacy.Language,
     url: str,
     chunk_list: typing.List[ TextChunk ],
     chunk_id: int,
@@ -232,7 +235,7 @@ Returns the updated `chunk_id` index.
         features = "lxml",
     )
 
-    scrape_doc: spacy.tokens.doc.Doc = scrape_nlp("\n".join([
+    scrape_doc: spacy.tokens.doc.Doc = simple_pipe("\n".join([
         para.text.strip()
         for para in soup.find_all("p")
     ]))
@@ -250,7 +253,7 @@ Returns the updated `chunk_id` index.
 ######################################################################
 ## lexical graph construction
 
-def init_nlp (
+def init_nlp_pipe (
     ) -> spacy.Language:
     """
 Initialize the models.
@@ -263,9 +266,9 @@ Initialize the models.
 
     # load models for `spaCy`, `GLiNER`, `GLiREL`
     # this may take several minutes when run the first time
-    nlp: spacy.Language = spacy.load(SPACY_MODEL)
+    nlp_pipe: spacy.Language = spacy.load(SPACY_MODEL)
 
-    nlp.add_pipe(
+    nlp_pipe.add_pipe(
         "gliner_spacy",
         config = {
             "gliner_model": GLINER_MODEL,
@@ -275,16 +278,16 @@ Initialize the models.
         },
     )
         
-    nlp.add_pipe(
+    nlp_pipe.add_pipe(
         "glirel",
         after = "ner",
     )
 
-    return nlp
+    return nlp_pipe
 
 
 def parse_text (
-    nlp: spacy.Language,
+    nlp_pipe: spacy.Language,
     known_lemma: typing.List[ str ],
     lex_graph: nx.Graph,
     chunk: TextChunk,
@@ -295,7 +298,7 @@ def parse_text (
 Parse an input text chunk, returning a `spaCy` document.
     """
     doc: spacy.tokens.doc.Doc = list(
-        nlp.pipe(
+        nlp_pipe.pipe(
             [( chunk.text, RE_LABELS )],
             as_tuples = True,
         )
@@ -306,7 +309,7 @@ Parse an input text chunk, returning a `spaCy` document.
     for sent in doc.sents:
         node_seq: typing.List[ int ] = []
 
-        if debug:
+        if False: # debug
             ic(sent)
 
         for tok in sent:
@@ -343,7 +346,7 @@ Parse an input text chunk, returning a `spaCy` document.
 
         # create the _textrank_ edges for the lexical graph,
         # which will get used for ranking, but discarded later
-        if debug:
+        if False: # debug
             ic(node_seq)
 
         for hop in range(TR_LOOKBACK):
@@ -389,7 +392,7 @@ Instantiate one `Entity` dataclass object, adding to our working "vocabulary".
     if ent.loc not in span_decoder:
         span_decoder[ent.loc] = ent
 
-        if debug:
+        if False: # debug
             ic(ent)
 
     return ent
@@ -454,7 +457,7 @@ Link one `Entity` into this doc's lexical graph.
         if "label" not in node or node["label"] == "NP":
             node["label"] = ent.label
     
-    if debug:
+    if False: # debug
         ic(ent)
 
 
@@ -483,7 +486,7 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
         redact_rel: bool = False
 
         if src_loc not in span_decoder:
-            if debug:
+            if False: # debug
                 print("MISSING src entity:", item["head_text"], item["head_pos"])
 
             src_ent: Entity = make_entity(
@@ -491,7 +494,7 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
                 sent_map,
                 doc[ item["head_pos"][0] : item["head_pos"][1] ],
                 chunk,
-                debug = debug,
+                debug = False, # debug
             )
 
             if src_ent.key in STOP_WORDS:
@@ -513,7 +516,7 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
                 sent_map,
                 doc[ item["tail_pos"][0] : item["tail_pos"][1] ],
                 chunk,
-                debug = debug,
+                debug = False, # debug
             )
 
             if dst_ent.key in STOP_WORDS:
@@ -826,31 +829,30 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
 
 def construct_kg (
     url_list: typing.List[ str ],
+    simple_pipe: spacy.Language,
     chunk_table: lancedb.table.LanceTable,
     sem_overlay: nx.Graph,
-    w2v_file: pathlib.Path,
+    w2v_vectors: list = [],
     *,
-    debug: bool = True,
+    debug: bool = False,
     ) -> None:
     """
 Construct a knowledge graph from unstructured data sources.
     """
     # define the global data structures which must be reset for each
     # run, not on each chunk iteration
-    nlp: spacy.Language = init_nlp()
+    nlp_pipe: spacy.Language = init_nlp_pipe()
     known_lemma: typing.List[ str ] = []
-    w2v_vectors: list = []
 
     # iterate through the URL list, scraping text and building chunks
     chunk_id: int = 0
-    scrape_nlp: spacy.Language = spacy.load(SPACY_MODEL)
 
     for url in url_list:
         lex_graph: nx.Graph = nx.Graph()
         chunk_list: typing.List[ TextChunk ] = []
 
         chunk_id = scrape_html(
-            scrape_nlp,
+            simple_pipe,
             url,
             chunk_list,
             chunk_id,
@@ -863,12 +865,15 @@ Construct a knowledge graph from unstructured data sources.
             span_decoder: typing.Dict[ tuple, Entity ] = {}
 
             doc: spacy.tokens.doc.Doc = parse_text(
-                nlp,
+                nlp_pipe,
                 known_lemma,
                 lex_graph,
                 chunk,
                 debug = debug,
             )
+
+            if debug:
+                ic(chunk)
 
             # keep track of sentence numbers per chunk, to use later
             # for entity co-occurrence links
@@ -902,7 +907,7 @@ Construct a knowledge graph from unstructured data sources.
                     sent_map,
                     span,
                     chunk,
-                    debug = debug,
+                    debug = False, # debug
                 )
 
             # overlay the recognized entity spans atop the base layer
@@ -951,7 +956,8 @@ Construct a knowledge graph from unstructured data sources.
             lex_graph,
         )
 
-        ic(url, df.head(20))
+        if debug:
+            ic(url, df.head(20))
 
         # abstract a semantic overlay from the lexical graph
         # and persist this in the resulting KG
@@ -962,10 +968,19 @@ Construct a knowledge graph from unstructured data sources.
             sem_overlay,
         )
 
-        print("nodes", len(sem_overlay.nodes), "edges", len(sem_overlay.edges))
+        if debug:
+            print("nodes", len(sem_overlay.nodes), "edges", len(sem_overlay.edges))
 
 
-    # train the entity embedding model
+def train_entity_model (
+    w2v_vectors: list,
+    w2v_file: pathlib.Path,
+    *,
+    debug: bool = False,
+    ) -> gensim.models.Word2Vec:
+    """
+Train a `gensim.Word2Vec` model for entity embeddings.
+    """
     w2v_max: int = max([
         len(vec) - 1
         for vec in w2v_vectors
@@ -979,8 +994,59 @@ Construct a knowledge graph from unstructured data sources.
 
     w2v_model.save(str(w2v_file))
 
+    return w2v_model
 
-def main () -> int:
+
+def run_query (
+    query: str,
+    simple_pipe: spacy.Language,
+    chunk_table: lancedb.table.LanceTable,
+    w2v_model: gensim.models.Word2Vec,
+    sem_overlay: nx.Graph,
+    ) -> None:
+    """
+Run an example query through LanceDB to identify _chunks_ and through
+the Word2Vec entity embedding model for a _semantic expansion_ to
+produce a set of _anchor nodes_ in the NetworkX graph.
+    """
+    # show the query
+    ic(query)
+
+    # enumerate chunks from a vector search -- the basic RAG process
+    df_chunk: pd.DataFrame = chunk_table.search(query).to_pandas()
+    ic(df_chunk)
+
+    for row in df_chunk.itertuples():
+        ic(row.text)
+
+    tagged_query: str = " ".join([
+        f"{token.pos_}.{token.lemma_}"
+        for token in simple_pipe(query)
+    ])
+
+    # enumerate neighbor entities from entity embedding
+    df_entity: pd.DataFrame = pd.DataFrame([
+        {
+            "entity": neighbor[0],
+            "distance": neighbor[1],
+        }
+        for neighbor in w2v_model.wv.most_similar(positive = [ tagged_query ], topn = 10)
+        if neighbor[1] > 0.0
+    ])
+
+    ic(df_entity)
+
+    # perform a semantic expansion to enrich the anchor nodes
+    expansion: typing.Set[ str ] = set(df_entity["entity"].values.tolist())
+
+    for node, dat in sem_overlay.nodes(data = True):
+        if "key" in dat and dat["key"] in expansion:
+            ic(node, dat)
+
+
+def main (
+    debug: bool = False,
+    ) -> int:
     """
 Main entry point.
     """
@@ -995,6 +1061,8 @@ Main entry point.
         "https://www.theguardian.com/society/article/2024/jul/31/eating-processed-red-meat-could-increase-risk-of-dementia-study-finds",
     ]
 
+    simple_pipe: spacy.Language = spacy.load(SPACY_MODEL)
+
     vect_db: lancedb.db.LanceDBConnection = lancedb.connect(LANCEDB_URI)
 
     chunk_table: lancedb.table.LanceTable = vect_db.create_table(
@@ -1006,12 +1074,15 @@ Main entry point.
     sem_overlay: nx.Graph = nx.Graph()
 
     try:
+        w2v_vectors: list = []
+
         construct_kg(
             url_list,
+            simple_pipe,
             chunk_table,
             sem_overlay,
-            pathlib.Path("data/entity.w2v"),
-            debug = False,  # True
+            w2v_vectors,
+            debug = debug,
         )
 
         # serialize the resulting KG
@@ -1029,6 +1100,30 @@ Main entry point.
             sem_overlay,
             "kg.html",
             num_docs = len(url_list),
+        )
+
+        # train an entity embedding model
+        w2v_model: gensim.models.Word2Vec = train_entity_model(
+            w2v_vectors,
+            pathlib.Path("data/entity.w2v"),
+            debug = debug,
+        )
+
+        # run example queries
+        run_query(
+            "dementia",
+            simple_pipe,
+            chunk_table,
+            w2v_model,
+            sem_overlay,
+        )
+
+        run_query(
+            "cognitive decline",
+            simple_pipe,
+            chunk_table,
+            w2v_model,
+            sem_overlay,
         )
     except Exception as ex:
         ic(ex)
@@ -1051,4 +1146,4 @@ if __name__ == "__main__":
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
 
-        main()
+        main(debug = True)
