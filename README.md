@@ -194,6 +194,15 @@ This may not work in many environments, depending on whether the
 `OpenNRE` library is being maintained.
 
 
+## Developer Notes
+
+After each `BAML` release update, regenerate its Python client source:
+
+```bash
+poetry run baml-cli generate --from strwythura/baml_src
+```
+
+
 ## FAQ
 
 Q: "Have you tried this with `langextract` yet?"  

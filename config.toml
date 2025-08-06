@@ -22,3 +22,7 @@ tr_lookback = 3
 
 kg_path = "data/kg.json"
 html_path = "kg.html"
+
+[rag]
+
+num_chunks = 11

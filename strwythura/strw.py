@@ -269,14 +269,13 @@ Extract entity spans from a text question.
         question: str,
         *,
         debug: bool = False,
-        num_chunks: int = 10,
+        num_chunks: typing.Optional[ int ] = None,
         ) -> typing.List[ str ]:
         """
 Run semantic search to produce a set of text chunks.
         """
-        # show the question
-        if debug:
-            ic(question)
+        if num_chunks is None:
+            num_chunks = self.strw.config["rag"]["num_chunks"]
 
         # enumerate chunks from a vector search -- the basic RAG process
         df_chunk: pd.DataFrame = self.strw.chunk_table.search(question).to_pandas()
