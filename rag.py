@@ -12,6 +12,7 @@ import json
 import os
 import pathlib
 import sys
+import traceback
 import typing
 import warnings
 
@@ -23,15 +24,65 @@ import networkx as nx
 import spacy
 
 from strwythura import GraphRAG, \
-    KG_PATH, LANCEDB_URI, SPACY_MODEL, W2V_PATH
+    SPACY_MODEL, RE_LABELS, init_nlp_pipe, \
+    KG_PATH, LANCEDB_URI, W2V_PATH
 
+
+def extract_entities (
+    nlp_pipe: spacy.Language,
+    question: str,
+    ) -> typing.Iterator[ str ]:
+    """
+Extract entity spans from a text question.
+    """
+    doc: spacy.tokens.doc.Doc = list(
+        nlp_pipe.pipe(
+            [( question, RE_LABELS )],
+            as_tuples = True,
+        )
+    )[0][0]
+
+    for span in doc.ents:
+        key: str = " ".join([
+            tok.pos_ + "." + tok.lemma_.strip().lower()
+            for tok in span
+        ])
+        
+        yield key
+    
+
+def qa_loop (
+    rag: GraphRAG,
+    nlp_pipe: spacy.Language,
+    ) -> None:
+    """
+Loop to answer questions.
+    """
+    while True:
+        question: str = input("\n\nWhat is your question? ").strip()
+
+        if question.lower() in [ "exit", "quit" ]:
+            print("\nÀ bientôt!")
+            break
+
+        entities: typing.List[ str ] = list(extract_entities(nlp_pipe, question))
+        chunks: typing.List[ str ] = rag.get_chunks(question, entities, debug = False) # True
+        context: str = "\n".join( chunks )
+        response: baml_client.types.Response = baml_client.b.RAG(question, context)
+
+        ic(response)
+        print("-" * 10)
+    
 
 if __name__ == "__main__":
     # configuration
     os.environ["BAML_LOG"] = "WARN"
 
     # load the serialized assets
-    simple_pipe: spacy.Language = spacy.load(SPACY_MODEL)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        nlp_pipe: spacy.Language = init_nlp_pipe()
+
     w2v_model: gensim.models.Word2Vec = gensim.models.Word2Vec.load(W2V_PATH)
 
     sem_overlay: nx.Graph = nx.Graph()
@@ -47,7 +98,6 @@ if __name__ == "__main__":
 
     # build a GraphRAG instance
     rag: GraphRAG = GraphRAG(
-        simple_pipe,
         chunk_table,
         w2v_model,
         sem_overlay,
@@ -55,24 +105,9 @@ if __name__ == "__main__":
 
     # loop to answer questions
     try:
-        while True:
-            question: str = input("\n\nWhat is your question? ").strip()
-
-            if question.lower() in [ "exit", "quit" ]:
-                print("\nÀ bientôt!")
-                break
-
-            query: str = "processed red meat"
-
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                chunks: typing.List[ str ] = rag.get_chunks(query)
-
-            context: str = "\n".join( chunks )
-            response: baml_client.types.Response = baml_client.b.RAG(question, context)
-
-            ic(response)
-            print("-" * 10)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            qa_loop(rag, nlp_pipe)
 
     except EOFError:
         print("")

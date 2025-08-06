@@ -25,7 +25,6 @@ produce a set of _anchor nodes_ in the NetworkX graph.
 
     def __init__ (
         self,
-        simple_pipe: spacy.Language,
         chunk_table: lancedb.table.LanceTable,
         w2v_model: gensim.models.Word2Vec,
         sem_overlay: nx.Graph,
@@ -33,7 +32,6 @@ produce a set of _anchor nodes_ in the NetworkX graph.
         """
 Constructor.
         """
-        self.simple_pipe: spacy.Language = simple_pipe
         self.chunk_table: lancedb.table.LanceTable = chunk_table
         self.w2v_model: gensim.models.Word2Vec = w2v_model
         self.sem_overlay: nx.Graph = sem_overlay
@@ -42,6 +40,7 @@ Constructor.
     def get_chunks (
         self,
         query: str,
+        entities: typing.List[ str ],
         *,
         debug: bool = False,
         num_chunks: int = 10,
@@ -62,21 +61,27 @@ Run semantic search to produce a set of text chunks.
             for row in df_chunk.itertuples():
                 ic(row.text)
 
-        tagged_query: str = " ".join([
-            f"{token.pos_}.{token.lemma_}"
-            for token in self.simple_pipe(query)
-        ])
-
         # enumerate neighbor entities from entity embedding
+        neighbors: list = []
+        
+        for entity in entities:
+            try:
+                neighbor_iter = self.w2v_model.wv.most_similar(
+                    positive = [ entity ],
+                    topn = num_chunks,
+                )
+
+                for neighbor in neighbor_iter:
+                    neighbors.append(neighbor)
+            except KeyError:
+                pass
+
         df_entity: pd.DataFrame = pd.DataFrame([
             {
                 "entity": neighbor[0],
                 "distance": neighbor[1],
             }
-            for neighbor in self.w2v_model.wv.most_similar(
-                positive = [ tagged_query ],
-                topn = num_chunks,
-            )
+            for neighbor in neighbors
             if neighbor[1] > 0.0
         ])
 
