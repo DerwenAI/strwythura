@@ -8,13 +8,15 @@ based on BAML <https://docs.boundaryml.com/examples/prompt-engineering/retrieval
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
+import time
 import traceback
 import warnings
 
 from icecream import ic
 
 from strwythura import Strwythura, GraphRAG
-    
+from strwythura.baml_client import types as baml_types
+
 
 if __name__ == "__main__":
     with warnings.catch_warnings():
@@ -28,10 +30,25 @@ if __name__ == "__main__":
 
         try:
             # loop to answer questions
-            rag.qa_loop(debug = False) # True
+            while True:
+                question: str = input("\nQuoi? ").strip()
+
+                if question.lower() in [ "quitter", "bye" ]:
+                    break
+
+                response: baml_types.Response = rag.qa_cycle(
+                    question,
+                    debug = False, # True
+                )
+
+                ic(response.answer)
+                print("-" * 10)
 
         except EOFError:
             print("")
         except Exception as ex:
             ic(ex)
             traceback.print_exc()
+        finally:
+            print("\nÀ bientôt!\n")
+            time.sleep(.1)
