@@ -15,10 +15,10 @@ import networkx as nx
 import pandas as pd
 import spacy
 
+from .graph import Entity, TextChunk
 from .lex import  STOP_WORDS, parse_text, extract_entity, extract_relations, make_entity
 from .scrape import scrape_html
 from .textrank import run_textrank, cooccur_entities
-from .valid import Entity, TextChunk
 
 
 def abstract_overlay (

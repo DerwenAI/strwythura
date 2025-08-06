@@ -12,9 +12,8 @@ from bs4 import BeautifulSoup
 import requests
 import spacy
 
-
+from .graph import TextChunk
 from .nlp import make_chunk
-from .valid import TextChunk
 
 
 SCRAPE_HEADERS: typing.Dict[ str, str ] = {

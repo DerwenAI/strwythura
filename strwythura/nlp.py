@@ -16,7 +16,7 @@ import glirel
 import spacy
 import transformers
 
-from .valid import TextChunk
+from .graph import TextChunk
 
 
 CHUNK_SIZE: int = 1024
@@ -57,6 +57,16 @@ RE_LABELS: dict = {
         "subsidiary_of": {"allowed_head": ["ORG"], "allowed_tail": ["ORG", "PERSON"]}, 
     }
 }
+
+STOP_WORDS: typing.Set[ str ] = set([
+    "PRON.it",
+    "PRON.that",
+    "PRON.they",
+    "PRON.those",
+    "PRON.we",
+    "PRON.which",
+    "PRON.who",
+])
 
 
 def uni_scrubber (

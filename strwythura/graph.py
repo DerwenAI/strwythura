@@ -13,6 +13,8 @@ from lancedb.embeddings import get_registry, transformers
 from lancedb.pydantic import LanceModel, Vector
 import spacy
 
+
+# Note: this model is hard-coded, so far
 EMBED_MODEL: str = "BAAI/bge-small-en-v1.5"
 
 EMBED_FCN: transformers.TransformersEmbeddingFunction = \

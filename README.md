@@ -49,31 +49,53 @@ Then the demo iterates through multiple steps to produce results:
 There's also a step "5.1" which extracts _relations_ using `GLiREL`
 though its results seem rather iffy so far.
 
-Then a couple example queries get run to perform vector search for the
-top-ranked text chunks and semantic expansion to enrich the set of
-_anchor nodes_ in the graph.
-
-
-Assets get serialized into these generated files:
-
-  * `kg.html` -- interactive graph visualization in `PyVis`
-  * `data/kg.json` -- serialization of `NetworkX` graph
-  * `data/lancedb` -- vector database tables
-  * `data/entity.w2v` -- entity embedding model
-
 Note: this processing may take a few extra minutes the first time you
 run it since `PyTorch` must download a large (~2GB) file.
 
-BTW, if you'd had a graph previously constructed from more reliable
+Assets get serialized into these generated files:
+
+  * `data/lancedb` -- vector database tables
+  * `data/kg.json` -- serialization of `NetworkX` graph
+  * `data/entity.w2v` -- entity embedding model
+  * `kg.html` -- interactive graph visualization in `PyVis`
+
+Note: if you had a graph previously constructed from more reliable
 _structured data sources_, this demo could use a _semantic layer_ --
 i.e., a "backbone" for the KG -- to organize the entities and
 relations which get abstracted from from the lexical graph.
 
 
-## Explore Notebooks
+## About GraphRAG
 
-A collection of Jupyter notebooks illustrate important steps
-within this workflow:
+A good downstream use case for exploring a newly constructed KG is
+[_GraphRAG_](https://derwen.ai/s/hm7h), used for grounding the
+responses by an LLM in a question/answer chat.
+
+This implementation uses `BAML` <https://docs.boundaryml.com/home>
+and leverages the KG using _semantic random walks_.
+
+Note: the term "GraphRAG" means many different things ... see this
+article for more details:
+["Unbundling the Graph in GraphRAG"](https://www.oreilly.com/radar/unbundling-the-graph-in-graphrag/).
+
+To set up, first download/install `Ollama` <https://ollama.com/>
+and pull the Llama3 model:
+
+```bash
+ollama pull llama3:latest
+```
+
+Then run the `rag.py` script for an interactive GraphRAG example:
+
+```bash
+poetry run python3 rag.py
+```
+
+
+## Tutorial Notebooks
+
+A collection of Jupyter notebooks illustrate important steps within
+these workflows:
 
 ```bash
 .venv/bin/jupyter-lab
@@ -146,26 +168,8 @@ Also keep in mind that KGs used in mission-critical apps, such as
 investigations, generally require periodic data updates, so
 construction isn't a one-step process. By producing a KG based on the
 approach sketched above, updates can be handled more effectively.
-
-Downstream usage such as [_GraphRAG_](https://derwen.ai/s/hm7h) for
-grounding the LLM results also benefit from improved data quality in
-the KG.
-
-
-## Experimental - BAML
-
-First download and install `Ollama` <https://ollama.com/>
-and pull the Llama3 model:
-
-```bash
-ollama pull llama3:latest
-```
-
-Then run the GraphRAG example:
-
-```bash
-poetry run python3 rag.py
-```
+Any downstream use cases, such as AI applications, also benefit from
+improved quality of semantics and representation.
 
 
 ## Experimental - OpenNRE

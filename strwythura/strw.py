@@ -22,15 +22,10 @@ import spacy
 
 from .baml_client import b
 from .baml_client import types as baml_types
+from .graph import TextChunk
 from .kg import construct_kg
 from .nlp import RE_LABELS, init_nlp_pipe
-from .valid import TextChunk
 from .vis import gen_pyvis
-
-
-HTML_PATH: str = "kg.html"
-KG_PATH: str = "data/kg.json"
-W2V_PATH: str = "data/entity.w2v"
 
 
 class Strwythura:
@@ -68,8 +63,8 @@ Constructor.
         url_list: typing.List[ str ],
         *,
         debug: bool = False,
-        kg_path: str = KG_PATH,
-        w2v_path: str = W2V_PATH,
+        kg_path: typing.Optional[ pathlib.Path ] = None,
+        w2v_path: typing.Optional[ pathlib.Path ] = None,
         ) -> int:
         """
 Builds assets for constructing a KG.
@@ -112,7 +107,7 @@ Builds assets for constructing a KG.
     def embed_entities (
         self,
         *,
-        w2v_path: str = W2V_PATH,   
+        w2v_path: typing.Optional[ pathlib.Path ] = None,
         ) -> None:
         """
 Train a `gensim.Word2Vec` model for entity embeddings.
@@ -128,23 +123,30 @@ Train a `gensim.Word2Vec` model for entity embeddings.
             window = w2v_max,
         )
 
-        # temporary pathing
-        w2v_file: pathlib.Path = pathlib.Path(w2v_path)
-        self.w2v_model.save(str(w2v_file))
+        if w2v_path is None:
+            w2v_path = pathlib.Path(self.config["ent"]["w2v_path"])
+
+        self.w2v_model.save(w2v_path.as_posix())
 
 
     def save_graph (
         self,
         *,
-        kg_path: str = KG_PATH,
+        kg_path: typing.Optional[ pathlib.Path ] = None,
         ) -> None:
         """
 Serialize the KG
         """
-        with pathlib.Path(KG_PATH).open("w", encoding = "utf-8") as fp:
+        if kg_path is None:
+            kg_path = pathlib.Path(self.config["kg"]["kg_path"])
+
+        with kg_path.open("w", encoding = "utf-8") as fp:
             fp.write(
                 json.dumps(
-                    nx.node_link_data(self.sem_overlay, edges = "links"),
+                    nx.node_link_data(
+                        self.sem_overlay,
+                        edges = "links",
+                    ),
                     indent = 2,
                     sort_keys = True,
                 )
@@ -154,14 +156,17 @@ Serialize the KG
     def gen_visualization (
         self,
         *,
-        html_path: str = HTML_PATH,
+        html_path: typing.Optional[ pathlib.Path ] = None,
         ) -> None:
         """
 Generate HTML for an interactive visualization of the graph, based on `PyVis`
         """
+        if html_path is None:
+            html_path = pathlib.Path(self.config["kg"]["html_path"])
+
         gen_pyvis(
             self.sem_overlay,
-            html_path,
+            html_path.as_posix(),
             num_docs = len(self.url_list),
         )
 
@@ -169,13 +174,19 @@ Generate HTML for an interactive visualization of the graph, based on `PyVis`
     def load_assets (
         self,
         *,
-        kg_path: str = KG_PATH,
-        w2v_path: str = W2V_PATH,
+        kg_path: typing.Optional[ pathlib.Path ] = None,
+        w2v_path: typing.Optional[ pathlib.Path ] = None,
         ) -> int:
         """
 Load the serialized assets for a constructed KG.
         """
-        self.w2v_model = gensim.models.Word2Vec.load(w2v_path)
+        if w2v_path is None:
+            w2v_path = pathlib.Path(self.config["ent"]["w2v_path"])
+
+        self.w2v_model = gensim.models.Word2Vec.load(w2v_path.as_posix())
+
+        if kg_path is None:
+            kg_path = pathlib.Path(self.config["kg"]["kg_path"])
 
         with pathlib.Path(kg_path).open("r", encoding = "utf-8") as fp:
             self.sem_overlay = nx.node_link_graph(

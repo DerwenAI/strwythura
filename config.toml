@@ -2,7 +2,16 @@
 
 spacy_model = "en_core_web_md"
 
+[ent]
+
+w2v_path = "data/entity.w2v"
+
 [vect]
 
 lancedb_uri = "data/lancedb"
 chunk_table = "chunk"
+
+[kg]
+
+kg_path = "data/kg.json"
+html_path = "kg.html"

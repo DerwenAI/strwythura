@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 
 from .opt import calc_quantile_bins, stripe_column, root_mean_square
-from .valid import Entity
+from .graph import Entity
 
 
 TR_ALPHA: float = 0.85

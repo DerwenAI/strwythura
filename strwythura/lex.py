@@ -13,20 +13,9 @@ from icecream import ic
 import networkx as nx
 import spacy
 
-from .nlp import RE_LABELS
+from .graph import Entity, TextChunk
+from .nlp import RE_LABELS, STOP_WORDS
 from .textrank import TR_LOOKBACK
-from .valid import Entity, TextChunk
-
-
-STOP_WORDS: typing.Set[ str ] = set([
-    "PRON.it",
-    "PRON.that",
-    "PRON.they",
-    "PRON.those",
-    "PRON.we",
-    "PRON.which",
-    "PRON.who",
-])
 
 
 def parse_text (
