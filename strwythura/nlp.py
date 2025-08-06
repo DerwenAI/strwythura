@@ -21,9 +21,8 @@ from .valid import TextChunk
 
 CHUNK_SIZE: int = 1024
 GLINER_MODEL: str = "urchade/gliner_small-v2.1"
-SPACY_MODEL: str = "en_core_web_md"
 
-NER_LABELS: typing.List[ str] = [
+NER_LABELS: typing.List[ str ] = [
     "Behavior",
     "City",
     "Company",    
@@ -86,6 +85,7 @@ OH: "It scrubs the garble from its stream... or it gets the debugger again!"
 
 
 def init_nlp_pipe (
+    config: dict,
     ) -> spacy.Language:
     """
 Initialize the models.
@@ -98,7 +98,7 @@ Initialize the models.
 
     # load models for `spaCy`, `GLiNER`, `GLiREL`
     # this may take several minutes when run the first time
-    nlp_pipe: spacy.Language = spacy.load(SPACY_MODEL)
+    nlp_pipe: spacy.Language = spacy.load(config["nlp"]["spacy_model"])
 
     nlp_pipe.add_pipe(
         "gliner_spacy",

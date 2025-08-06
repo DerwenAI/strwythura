@@ -1,0 +1,8 @@
+[nlp]
+
+spacy_model = "en_core_web_md"
+
+[vect]
+
+lancedb_uri = "data/lancedb"
+chunk_table = "chunk"

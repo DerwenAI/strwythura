@@ -154,14 +154,8 @@ the KG.
 
 ## Experimental - BAML
 
-First, set up `BAML` <https://docs.boundaryml.com/guide/installation-language/python>
-
-```bash
-poetry run baml-cli generate
-```
-
-Second, download and install `Ollama` <https://ollama.com/> then pull
-the Llama3 model:
+First download and install `Ollama` <https://ollama.com/>
+and pull the Llama3 model:
 
 ```bash
 ollama pull llama3:latest

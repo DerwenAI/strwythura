@@ -10,7 +10,6 @@ import pathlib
 import typing
 
 from icecream import ic
-import gensim
 import networkx as nx
 import spacy
 
@@ -290,28 +289,3 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
                 rel = rel,
                 prob = prob,
             )
-
-
-def train_entity_model (
-    w2v_vectors: list,
-    w2v_file: pathlib.Path,
-    *,
-    debug: bool = False,
-    ) -> gensim.models.Word2Vec:
-    """
-Train a `gensim.Word2Vec` model for entity embeddings.
-    """
-    w2v_max: int = max([
-        len(vec) - 1
-        for vec in w2v_vectors
-    ])
-
-    w2v_model: gensim.models.Word2Vec = gensim.models.Word2Vec(
-        w2v_vectors,
-        min_count = 2,
-        window = w2v_max,
-    )
-
-    w2v_model.save(str(w2v_file))
-
-    return w2v_model
