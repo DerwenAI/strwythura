@@ -3,8 +3,9 @@
 Strwythura tutorial, based on a presentation for GraphGeeks.org on
 2024-08-14
 
-How to construct _knowledge graphs_ from unstructured data sources
-using SOTA models for _named entity recognition_ (NER):
+How to construct a _knowledge graph_ from unstructured data sources
+using SOTA models for _named entity recognition_ (NER), and then
+implement GraphRAG.
 
   * video: <https://youtu.be/B6_NfvQL-BE>
   * slides: <https://derwen.ai/s/2njz#1>
@@ -155,7 +156,7 @@ the KG.
 
 First, set up `BAML` <https://docs.boundaryml.com/guide/installation-language/python>
 
-``bash
+```bash
 poetry run baml-cli generate
 ```
 
