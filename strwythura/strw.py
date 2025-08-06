@@ -20,6 +20,8 @@ import networkx as nx
 import pandas as pd
 import spacy
 
+from .baml_client import b
+from .baml_client import types as baml_types
 from .kg import construct_kg
 from .nlp import RE_LABELS, init_nlp_pipe
 from .valid import TextChunk
@@ -289,3 +291,34 @@ Run semantic search to produce a set of text chunks.
             row.text
             for row in df_chunk.itertuples()
         ]
+
+
+    def qa_loop (
+        self,
+        *,
+        debug: bool = False,
+        ) -> None:
+        """
+Loop to answer questions.
+        """
+        while True:
+            question: str = input("\n\nWhat is your question? ").strip()
+
+            if question.lower() in [ "exit", "quit" ]:
+                print("\nÀ bientôt!")
+                break
+
+            chunks: typing.List[ str ] = self.get_chunks(
+                question,
+                debug = debug,
+            )
+
+            context: str = "\n".join( chunks )
+
+            response: baml_types.Response = b.RAG(
+                question,
+                context,
+            )
+
+            ic(response)
+            print("-" * 10)

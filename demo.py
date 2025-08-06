@@ -24,7 +24,7 @@ if __name__ == "__main__":
     profiler.start()
     tracemalloc.start()
 
-    # construct the KG and build the GraphRAG assets
+    # construct the KG and build the assets for GraphRAG later
     url_list: typing.List[ str ] = [
         "https://aaic.alz.org/releases-2024/processed-red-meat-raises-risk-of-dementia.asp",
         "https://www.theguardian.com/society/article/2024/jul/31/eating-processed-red-meat-could-increase-risk-of-dementia-study-finds",
