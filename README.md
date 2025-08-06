@@ -21,12 +21,13 @@ poetry run python3 -m spacy download en_core_web_md
 ## Usage
 
 Caveat: this repo provides the source code and notebooks which
-accompany an instructional tutorial; it is not intended as a package
+accompany an instructional tutorial; it is not intended as a packaged
 library or maintained product.
 
-That said, you may want to copy settings in `config.toml` into your
-own customized configuration file, then instantiate a new `Strwythura`
-object using it.
+That said, if you want to use this as a library, then you may want to
+copy settings in `config.toml` into your own customized configuration
+file. Then you can instantiate new `Strwythura` and `GraphRAG` objects
+using it.
 
 
 ## Run Demo

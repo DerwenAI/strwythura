@@ -22,27 +22,6 @@ class Parser:
 Wrapper class for the spaCy NLP pipeline used to extract entities and
 relations, based on using `GLiNER`, `GLiREL`, and textgraphs.
     """
-    ## TODO: make this a parameter
-    NER_LABELS: typing.List[ str ] = [
-        "Behavior",
-        "City",
-        "Company",    
-        "Condition",
-        "Conference",
-        "Country",
-        "Food",
-        "Food Additive",
-        "Hospital",
-        "Organ",
-        "Organization",
-        "People Group",
-        "Person",
-        "Publication",
-        "Research",
-        "Science",
-        "University",
-    ]
-
     RE_LABELS: dict = {
         "glirel_labels": {
             "no_relation": {},
@@ -108,6 +87,23 @@ relations, based on using `GLiNER`, `GLiREL`, and textgraphs.
 Constructor.
         """
         self.config: dict = config
+        self.url_list: typing.List[ str ] = []
+        self.ner_labels: typing.List[ str ] = []
+
+
+    def update_data (
+    	self,
+        url_list: typing.List[ str ],
+        ner_labels: typing.List[ str ],
+        ) -> None:
+        """
+Update the input data for the parsing run:
+
+  - `url_list`: URLs to crawl
+  - `ner_labels`: semantics to apply for zero-shot NER
+        """
+        self.url_list = url_list
+        self.ner_labels = ner_labels
 
 
     def build_entity_pipe (
@@ -126,7 +122,7 @@ installing the repo.
             "gliner_spacy",
             config = {
                 "style": "ent",
-                "labels": self.NER_LABELS,
+                "labels": self.ner_labels,
                 "gliner_model": self.config["nlp"]["gliner_model"],
                 "chunk_size": self.config["vect"]["chunk_size"],
             },

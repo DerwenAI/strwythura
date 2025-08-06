@@ -65,11 +65,11 @@ Constructor.
         #logging.getLogger("glirel.spacy_integration").setLevel(logging.ERROR)
 
         # initial data structures for assets
+        self.parser: Parser = Parser(self.config)
+
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
-            self.url_list: typing.List[ str ] = []
-            self.parser: Parser = Parser(self.config)
             self.simple_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])
             self.entity_pipe: spacy.Language = self.parser.build_entity_pipe()
             self.chunk_table: typing.Optional[ lancedb.table.LanceTable ] = None
@@ -81,6 +81,7 @@ Constructor.
     def build_assets (
         self,
         url_list: typing.List[ str ],
+        ner_labels: typing.List[ str ],
         *,
         debug: bool = False,
         kg_path: typing.Optional[ pathlib.Path ] = None,
@@ -89,7 +90,10 @@ Constructor.
         """
 Builds assets for constructing a KG.
         """
-        self.url_list = url_list
+        self.parser.update_data(
+            url_list,
+            ner_labels,
+        )
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -108,7 +112,7 @@ Builds assets for constructing a KG.
                 kg: KnowledgeGraph = KnowledgeGraph(self.config)
 
                 kg.build_graph(
-                    self.url_list,
+                    self.parser,
                     self.simple_pipe,
                     self.entity_pipe,
                     self.chunk_table,
@@ -189,7 +193,7 @@ Generate HTML for an interactive visualization of the graph, based on `PyVis`
         gen_pyvis(
             self.sem_overlay,
             html_path.as_posix(),
-            num_docs = len(self.url_list),
+            num_docs = len(self.parser.url_list),
         )
 
 

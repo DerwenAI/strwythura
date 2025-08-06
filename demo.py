@@ -30,10 +30,31 @@ if __name__ == "__main__":
         "https://www.theguardian.com/society/article/2024/jul/31/eating-processed-red-meat-could-increase-risk-of-dementia-study-finds",
     ]
 
+    ner_labels: typing.List[ str ] = [
+        "Behavior",
+        "City",
+        "Company",    
+        "Condition",
+        "Conference",
+        "Country",
+        "Food",
+        "Food Additive",
+        "Hospital",
+        "Organ",
+        "Organization",
+        "People Group",
+        "Person",
+        "Publication",
+        "Research",
+        "Science",
+        "University",
+    ]
+
     strw: Strwythura = Strwythura()
 
     strw.build_assets(
         url_list,
+        ner_labels,
         debug = True,
     )
 
