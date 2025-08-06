@@ -3,6 +3,7 @@
 chunk.html
 kg.html
 data/
+baml_client/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

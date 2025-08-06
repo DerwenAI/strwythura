@@ -151,16 +151,29 @@ grounding the LLM results also benefit from improved data quality in
 the KG.
 
 
-## FAQ
+## Experimental - BAML
 
-Q: "Have you tried this with `langextract` yet?"  
-A: "I'll take `How an instructor knows a student ignored the README?` for $200"
+First, set up `BAML` <https://docs.boundaryml.com/guide/installation-language/python>
 
-Q: "Why aren't you using an LLM instead to build the graph?"  
-A: "I promise to visit you in jail."
+``bash
+poetry run baml-cli generate
+```
+
+Second, download and install `Ollama` <https://ollama.com/> then pull
+the Llama3 model:
+
+```bash
+ollama pull llama3:latest
+```
+
+Then run the GraphRAG example:
+
+```bash
+poetry run python3 rag.py
+```
 
 
-## Experimental
+## Experimental - OpenNRE
 
 The `OpenNRE` library also provides _relation extraction_ and there is
 some experimental code which illustrates this.
@@ -172,6 +185,24 @@ running the `opennre.ipynb` notebook.
 
 This may not work in many environments, depending on whether the
 `OpenNRE` library is being maintained.
+
+
+## FAQ
+
+Q: "Have you tried this with `langextract` yet?"  
+A: "I'll take `How an instructor knows a student ignored the README?` for $200"
+
+Q: "Why aren't you using an LLM instead to build the graph?"  
+A: "I promise to visit you in jail."
+
+
+## License and Copyright
+
+Source code, documentation, and examples have an
+[MIT license](https://spdx.org/licenses/MIT.html)
+which is succinct andsimplifies use in commercial applications.
+
+All materials herein are Copyright © 2024-2025 Senzing, Inc.
 
 
 ## Star History
