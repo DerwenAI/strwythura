@@ -26,7 +26,7 @@ import transformers
 from .baml_client import b
 from .baml_client import types as baml_types
 from .graph import TextChunk
-from .kg import construct_kg
+from .kg import KnowledgeGraph
 from .nlp import Parser
 from .vis import gen_pyvis
 
@@ -105,8 +105,9 @@ Builds assets for constructing a KG.
                 )
 
                 # construct the graph
-                construct_kg(
-                    self.config,
+                kg: KnowledgeGraph = KnowledgeGraph(self.config)
+
+                kg.build_graph(
                     self.url_list,
                     self.simple_pipe,
                     self.entity_pipe,
@@ -236,7 +237,7 @@ Constructor.
         self.strw: Strwythura = strw
 
 
-    def extract_entities (
+    def find_entities (
         self,
         question: str,
         ) -> typing.Iterator[ str ]:
@@ -285,7 +286,7 @@ Run semantic search to produce a set of text chunks.
         # enumerate the nearest neighbor entities from the entity embedding model
         neighbors: list = []
 
-        for entity in self.extract_entities(question):
+        for entity in self.find_entities(question):
             try:
                 neighbor_iter = self.strw.w2v_model.wv.most_similar(
                     positive = [ entity ],

@@ -102,7 +102,7 @@ relations, based on using `GLiNER`, `GLiREL`, and textgraphs.
 
     def __init__ (
         self,
-        config: dict,            
+        config: dict,
         ) -> None:
         """
 Constructor.

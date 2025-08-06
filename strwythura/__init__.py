@@ -8,9 +8,7 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 
 from .graph import Entity, TextChunk
 
-from .kg import abstract_overlay, construct_kg
-
-from .lex import extract_entity, extract_relations, make_entity
+from .kg import KnowledgeGraph
 
 from .nlp import Parser
 
