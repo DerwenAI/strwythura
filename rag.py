@@ -9,6 +9,7 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
 import json
+import logging
 import os
 import pathlib
 import sys
@@ -20,12 +21,17 @@ from icecream import ic
 import baml_client
 import gensim
 import lancedb
+import loguru
 import networkx as nx
 import spacy
 
+import gliner_spacy.pipeline
+import glirel
+
+
 from strwythura import GraphRAG, \
-    SPACY_MODEL, RE_LABELS, init_nlp_pipe, \
-    KG_PATH, LANCEDB_URI, W2V_PATH
+    CHUNK_TABLE, KG_PATH, LANCEDB_URI, W2V_PATH, \
+    SPACY_MODEL, RE_LABELS, init_nlp_pipe
 
 
 def extract_entities (
@@ -78,6 +84,14 @@ if __name__ == "__main__":
     # configuration
     os.environ["BAML_LOG"] = "WARN"
 
+    # none of this works!
+    #os.environ["TQDM_DISABLE"] = "1"
+    #loguru.logger.disable(gliner_spacy.pipeline.__name__)
+    #loggers: dict = { name:logging.getLogger(name) for name in logging.root.manager.loggerDict }
+    #ic(loggers)
+    #logging.getLogger("glirel.spacy_integration").setLevel(logging.ERROR)
+
+
     # load the serialized assets
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -94,7 +108,7 @@ if __name__ == "__main__":
         )
 
     vect_db: lancedb.db.LanceDBConnection = lancedb.connect(LANCEDB_URI)
-    chunk_table: lancedb.table.LanceTable = vect_db.open_table("chunk")
+    chunk_table: lancedb.table.LanceTable = vect_db.open_table(CHUNK_TABLE)
 
     # build a GraphRAG instance
     rag: GraphRAG = GraphRAG(

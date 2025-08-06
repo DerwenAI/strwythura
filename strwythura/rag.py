@@ -89,12 +89,13 @@ Run semantic search to produce a set of text chunks.
             ic(df_entity)
 
         # perform a semantic expansion to enrich the anchor nodes
-        expansion: typing.Set[ str ] = set(df_entity["entity"].values.tolist())
+        if len(df_entity) > 0:
+            expansion: typing.Set[ str ] = set(df_entity["entity"].values.tolist())
 
-        for node, dat in self.sem_overlay.nodes(data = True):
-            if "key" in dat and dat["key"] in expansion:
-                if debug:
-                    ic(node, dat)
+            for node, dat in self.sem_overlay.nodes(data = True):
+                if "key" in dat and dat["key"] in expansion:
+                    if debug:
+                        ic(node, dat)
 
         # return a list of text chunks
         return [
