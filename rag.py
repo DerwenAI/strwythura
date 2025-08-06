@@ -13,6 +13,7 @@ import logging
 import os
 import pathlib
 import sys
+import tomllib
 import traceback
 import typing
 import warnings
@@ -31,7 +32,7 @@ import glirel
 
 from strwythura import GraphRAG, \
     CHUNK_TABLE, KG_PATH, LANCEDB_URI, W2V_PATH, \
-    SPACY_MODEL, RE_LABELS, init_nlp_pipe
+    RE_LABELS, init_nlp_pipe
 
 
 def extract_entities (
@@ -91,10 +92,17 @@ if __name__ == "__main__":
     #ic(loggers)
     #logging.getLogger("glirel.spacy_integration").setLevel(logging.ERROR)
 
+    # set up configuration
+    config_path: pathlib.Path = pathlib.Path("config.toml")
+    config: dict = {}
+
+    with open(config_path, mode = "rb") as fp:
+        config = tomllib.load(fp)
+
     # load the serialized assets
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        nlp_pipe: spacy.Language = init_nlp_pipe()
+        nlp_pipe: spacy.Language = init_nlp_pipe(config)
 
     w2v_model: gensim.models.Word2Vec = gensim.models.Word2Vec.load(W2V_PATH)
 

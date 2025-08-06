@@ -11,11 +11,11 @@ GraphRAG downstream.
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
+import typing
 import tracemalloc
-import warnings
 
 from pyinstrument import Profiler
-from strwythura import build_assets
+from strwythura import Strwythura
 
 
 if __name__ == "__main__":
@@ -25,9 +25,20 @@ if __name__ == "__main__":
     tracemalloc.start()
 
     # construct the KG and build the GraphRAG assets
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        build_assets(debug = True)
+    url_list: typing.List[ str ] = [
+        "https://aaic.alz.org/releases-2024/processed-red-meat-raises-risk-of-dementia.asp",
+        "https://www.theguardian.com/society/article/2024/jul/31/eating-processed-red-meat-could-increase-risk-of-dementia-study-finds",
+    ]
+
+    strw: Strwythura = Strwythura()
+
+    strw.build_assets(
+        url_list,
+        debug = True,
+    )
+
+    strw.gen_visualization()
+    strw.test_chunks()
 
     # stop the call trace profiler and report performance statistics
     profiler.stop()

@@ -99,6 +99,7 @@ the latter first-class citizens within the KG.
 
 
 def construct_kg (
+    config: dict,
     url_list: typing.List[ str ],
     simple_pipe: spacy.Language,
     chunk_table: lancedb.table.LanceTable,
@@ -112,7 +113,7 @@ Construct a knowledge graph from unstructured data sources.
     """
     # define the global data structures which must be reset for each
     # run, not on each chunk iteration
-    nlp_pipe: spacy.Language = init_nlp_pipe()
+    nlp_pipe: spacy.Language = init_nlp_pipe(config)
     known_lemma: typing.List[ str ] = []
 
     # iterate through the URL list, scraping text and building chunks
