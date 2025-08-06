@@ -1421,15 +1421,13 @@ spacy = ">=3.0.0"
 
 [[package]]
 name = "glirel"
-version = "1.2.1"
+version = "1.2.1.dev0"
 description = "Generalist model for Relation Extraction (Extract any relation types from texts)"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
-files = [
-    {file = "glirel-1.2.1-py3-none-any.whl", hash = "sha256:ecbe2f955d8f2a406931022a10753e889761de7a736ec4090187830e49689aaf"},
-    {file = "glirel-1.2.1.tar.gz", hash = "sha256:96e0636810c6f020707a515d4f08aa36b7950c7d06030b5fe149b86d716e00e4"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 datasets = "*"
@@ -1438,6 +1436,12 @@ seqeval = "*"
 torch = "*"
 tqdm = "*"
 transformers = "*"
+
+[package.source]
+type = "git"
+url = "https://github.com/ceteri/GLiREL.git"
+reference = "HEAD"
+resolved_reference = "3aa6a91d218e945c9be64d8a9d08834350283539"
 
 [[package]]
 name = "h11"
@@ -6465,4 +6469,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.12"
-content-hash = "16ee0da9248f7fd40d8ae4ca919a9e1e3b31a463040d9380d0b7672679d169f6"
+content-hash = "7cc9c90f826bbde37b6968101486fba97340a381d3ff7d854dcd41d3bfb8ab8f"
