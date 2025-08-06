@@ -19,7 +19,6 @@ import typing
 import warnings
 
 from icecream import ic
-import baml_client
 import gensim
 import lancedb
 import loguru
@@ -33,6 +32,8 @@ import glirel
 from strwythura import GraphRAG, \
     CHUNK_TABLE, KG_PATH, LANCEDB_URI, W2V_PATH, \
     RE_LABELS, init_nlp_pipe
+
+from strwythura import baml_client
 
 
 def extract_entities (
