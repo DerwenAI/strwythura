@@ -4,10 +4,11 @@
 """
 GraphGeeks.org talk 2024-08-14 https://live.zoho.com/PBOB6fvr6c
 How to construct _knowledge graphs_ from unstructured data sources.
+
+see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
 from collections import defaultdict
-from dataclasses import dataclass
 import enum
 import itertools
 import json
@@ -25,8 +26,6 @@ import warnings
 from bs4 import BeautifulSoup
 from gliner_spacy.pipeline import GlinerSpacy
 from icecream import ic
-from lancedb.embeddings import get_registry
-from lancedb.pydantic import LanceModel, Vector
 from pyinstrument import Profiler
 import gensim
 import glirel
@@ -34,10 +33,14 @@ import lancedb
 import networkx as nx
 import numpy as np
 import pandas as pd
-import pyvis
 import requests
 import spacy
 import transformers
+
+from strwythura import Entity, TextChunk, GraphRAG, \
+    KG_PATH, LANCEDB_URI, SPACY_MODEL, W2V_PATH, \
+    gen_pyvis, \
+    calc_quantile_bins, stripe_column, root_mean_square
 
 
 ######################################################################
@@ -45,14 +48,7 @@ import transformers
 
 CHUNK_SIZE: int = 1024
 
-EMBED_MODEL: str = "BAAI/bge-small-en-v1.5"
-
-EMBED_FCN: lancedb.embeddings.transformers.TransformersEmbeddingFunction = \
-    get_registry().get("huggingface").create(name = EMBED_MODEL)
-
 GLINER_MODEL: str = "urchade/gliner_small-v2.1"
-
-LANCEDB_URI = "data/lancedb"
 
 NER_LABELS: typing.List[ str] = [
     "Behavior",
@@ -94,8 +90,6 @@ SCRAPE_HEADERS: typing.Dict[ str, str ] = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
 }
 
-SPACY_MODEL: str = "en_core_web_md"
-
 STOP_WORDS: typing.Set[ str ] = set([
     "PRON.it",
     "PRON.that",
@@ -108,29 +102,6 @@ STOP_WORDS: typing.Set[ str ] = set([
 
 TR_ALPHA: float = 0.85
 TR_LOOKBACK: int = 3
-
-
-######################################################################
-## data validation classes
-
-class TextChunk (LanceModel):
-    uid: int
-    url: str
-    sent_id: int
-    text: str = EMBED_FCN.SourceField()
-    vector: Vector(EMBED_FCN.ndims()) = EMBED_FCN.VectorField(default = None)
-
-
-@dataclass(order=False, frozen=False)
-class Entity:
-    loc: typing.Tuple[ int ]
-    key: str
-    text: str
-    label: str
-    chunk_id: int
-    sent_id: int
-    span: spacy.tokens.span.Span
-    node: typing.Optional[ int ] = None
 
 
 ######################################################################
@@ -372,7 +343,7 @@ def make_entity (
     debug: bool = False,
     ) -> Entity:
     """
-Instantiate one `Entity` dataclass object, adding to our working "vocabulary".
+Instantiate one `Entity` object, adding to our working "vocabulary".
     """
     key: str = " ".join([
         tok.pos_ + "." + tok.lemma_.strip().lower()
@@ -549,81 +520,6 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
 
 
 ######################################################################
-## numerical utilities
-
-def calc_quantile_bins (
-    num_rows: int,
-    *,
-    amplitude: int = 4,
-    ) -> np.ndarray:
-    """
-Calculate the bins to use for a quantile stripe,
-using [`numpy.linspace`](https://numpy.org/doc/stable/reference/generated/numpy.linspace.html)
-
-    num_rows:
-number of rows in the target dataframe
-
-    returns:
-calculated bins, as a `numpy.ndarray`
-    """
-    granularity = max(round(math.log(num_rows) * amplitude), 1)
-
-    return np.linspace(
-        0,
-        1,
-        num = granularity,
-        endpoint = True,
-    )
-
-
-def stripe_column (
-    values: list,
-    bins: int,
-    ) -> np.ndarray:
-    """
-Stripe a column in a dataframe, by interpolating quantiles into a set of discrete indexes.
-
-    values:
-list of values to stripe
-
-    bins:
-quantile bins; see [`calc_quantile_bins()`](#calc_quantile_bins-function)
-
-    returns:
-the striped column values, as a `numpy.ndarray`
-    """
-    s = pd.Series(values)
-    q = s.quantile(bins, interpolation = "nearest")
-
-    try:
-        stripe = np.digitize(values, q) - 1
-        return stripe
-    except ValueError as ex:
-        # should never happen?
-        print("ValueError:", str(ex), values, s, q, bins)
-        raise
-
-
-def root_mean_square (
-    values: typing.List[ float ]
-    ) -> float:
-    """
-Calculate the [*root mean square*](https://mathworld.wolfram.com/Root-Mean-Square.html)
-of the values in the given list.
-
-    values:
-list of values to use in the RMS calculation
-
-    returns:
-RMS metric as a float
-    """
-    s: float = sum(map(lambda x: float(x) ** 2.0, values))
-    n: float = float(len(values))
-
-    return math.sqrt(s / n)
-
-
-######################################################################
 ## textrank algorithm for co-occurence and node ranking
 
 def connect_entities (
@@ -773,58 +669,6 @@ the latter first-class citizens within the KG.
                         prob,
                         sem_overlay.edges[(src_id, dst_id)]["prob"],
                     )
-
-
-######################################################################
-## graph visualization
-
-def gen_pyvis (
-    graph: nx.Graph,
-    html_file: str,
-    *,
-    num_docs: int = 1,
-    notebook: bool = False,
-    ) -> None:
-    """
-Use `pyvis` to provide an interactive visualization of the graph layers.
-    """
-    pv_net: pyvis.network.Network = pyvis.network.Network(
-        height = "900px",
-        width = "100%",
-        notebook = notebook,
-        cdn_resources = "remote",
-    )
-
-    for node_id, node_attr in graph.nodes(data = True):
-        if node_attr.get("kind") == "Entity":
-            color: str = "hsla(65, 46%, 58%, 0.80)"
-            size: int = round(20 * math.log(1.0 + math.sqrt(float(node_attr.get("count"))) / num_docs))
-            label: str = node_attr.get("text")
-            title: str = node_attr.get("key")
-        else:
-            color = "hsla(306, 45%, 57%, 0.95)"
-            size = 5
-            label = node_id
-            title = node_attr.get("url")
-
-        pv_net.add_node(
-            node_id,
-            label = label,
-            title = title,
-            color = color,
-            size = size,
-        )
-
-    for src_node, dst_node, edge_attr in graph.edges(data = True):
-        pv_net.add_edge(
-            src_node,
-            dst_node,
-            title = edge_attr.get("rel"),
-        )
-
-        pv_net.toggle_physics(True)
-        pv_net.show_buttons(filter_ = [ "physics" ])
-        pv_net.save_graph(html_file)
 
 
 def construct_kg (
@@ -997,53 +841,6 @@ Train a `gensim.Word2Vec` model for entity embeddings.
     return w2v_model
 
 
-def run_query (
-    query: str,
-    simple_pipe: spacy.Language,
-    chunk_table: lancedb.table.LanceTable,
-    w2v_model: gensim.models.Word2Vec,
-    sem_overlay: nx.Graph,
-    ) -> None:
-    """
-Run an example query through LanceDB to identify _chunks_ and through
-the Word2Vec entity embedding model for a _semantic expansion_ to
-produce a set of _anchor nodes_ in the NetworkX graph.
-    """
-    # show the query
-    ic(query)
-
-    # enumerate chunks from a vector search -- the basic RAG process
-    df_chunk: pd.DataFrame = chunk_table.search(query).to_pandas()
-    ic(df_chunk)
-
-    for row in df_chunk.itertuples():
-        ic(row.text)
-
-    tagged_query: str = " ".join([
-        f"{token.pos_}.{token.lemma_}"
-        for token in simple_pipe(query)
-    ])
-
-    # enumerate neighbor entities from entity embedding
-    df_entity: pd.DataFrame = pd.DataFrame([
-        {
-            "entity": neighbor[0],
-            "distance": neighbor[1],
-        }
-        for neighbor in w2v_model.wv.most_similar(positive = [ tagged_query ], topn = 10)
-        if neighbor[1] > 0.0
-    ])
-
-    ic(df_entity)
-
-    # perform a semantic expansion to enrich the anchor nodes
-    expansion: typing.Set[ str ] = set(df_entity["entity"].values.tolist())
-
-    for node, dat in sem_overlay.nodes(data = True):
-        if "key" in dat and dat["key"] in expansion:
-            ic(node, dat)
-
-
 def main (
     debug: bool = False,
     ) -> int:
@@ -1086,7 +883,7 @@ Main entry point.
         )
 
         # serialize the resulting KG
-        with pathlib.Path("data/kg.json").open("w", encoding = "utf-8") as fp:
+        with pathlib.Path(KG_PATH).open("w", encoding = "utf-8") as fp:
             fp.write(
                 json.dumps(
                     nx.node_link_data(sem_overlay, edges = "links"),
@@ -1105,26 +902,28 @@ Main entry point.
         # train an entity embedding model
         w2v_model: gensim.models.Word2Vec = train_entity_model(
             w2v_vectors,
-            pathlib.Path("data/entity.w2v"),
+            W2V_PATH,
             debug = debug,
         )
 
         # run example queries
-        run_query(
-            "dementia",
+        rag: GraphRAG = GraphRAG(
             simple_pipe,
             chunk_table,
             w2v_model,
             sem_overlay,
-        )
+            )
 
-        run_query(
+        queries: typing.List[ str ] = [
+            "dementia",
             "cognitive decline",
-            simple_pipe,
-            chunk_table,
-            w2v_model,
-            sem_overlay,
-        )
+        ]
+
+        for query in queries:
+            rag.get_chunks(
+                query,
+                debug = debug,
+            )
     except Exception as ex:
         ic(ex)
         traceback.print_exc()
