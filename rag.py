@@ -30,7 +30,7 @@ import glirel
 
 
 from strwythura import GraphRAG, \
-    CHUNK_TABLE, KG_PATH, LANCEDB_URI, W2V_PATH, \
+    KG_PATH, W2V_PATH, \
     RE_LABELS, init_nlp_pipe
 
 from strwythura import baml_client
@@ -101,10 +101,6 @@ if __name__ == "__main__":
         config = tomllib.load(fp)
 
     # load the serialized assets
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        nlp_pipe: spacy.Language = init_nlp_pipe(config)
-
     w2v_model: gensim.models.Word2Vec = gensim.models.Word2Vec.load(W2V_PATH)
 
     sem_overlay: nx.Graph = nx.Graph()
@@ -115,8 +111,13 @@ if __name__ == "__main__":
             edges = "links",
         )
 
-    vect_db: lancedb.db.LanceDBConnection = lancedb.connect(LANCEDB_URI)
-    chunk_table: lancedb.table.LanceTable = vect_db.open_table(CHUNK_TABLE)
+    vect_db: lancedb.db.LanceDBConnection = lancedb.connect(config["vect"]["lancedb_uri"])
+    chunk_table: lancedb.table.LanceTable = vect_db.open_table(config["vect"]["chunk_table"])
+
+    # set up the spaCy pipeline for NER + RE
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        nlp_pipe: spacy.Language = init_nlp_pipe(config)
 
     # build a GraphRAG instance
     rag: GraphRAG = GraphRAG(

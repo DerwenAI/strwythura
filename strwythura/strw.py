@@ -25,9 +25,6 @@ from .valid import TextChunk
 from .vis import gen_pyvis
 
 
-CHUNK_TABLE: str = "chunk"
-LANCEDB_URI: str = "data/lancedb"
-
 HTML_PATH: str = "kg.html"
 KG_PATH: str = "data/kg.json"
 W2V_PATH: str = "data/entity.w2v"
@@ -74,10 +71,10 @@ Builds assets for constructing a KG.
 
         try:
             # initialize the chunk table
-            vect_db: lancedb.db.LanceDBConnection = lancedb.connect(LANCEDB_URI)
+            vect_db: lancedb.db.LanceDBConnection = lancedb.connect(self.config["vect"]["lancedb_uri"])
 
             self.chunk_table = vect_db.create_table(
-                CHUNK_TABLE,
+                self.config["vect"]["chunk_table"],
                 schema = TextChunk,
                 mode = "overwrite",
             )

@@ -21,8 +21,7 @@ from .rag import GraphRAG
 
 from .scrape import scrape_html
 
-from .strw import CHUNK_TABLE, LANCEDB_URI, \
-    HTML_PATH, KG_PATH, W2V_PATH, \
+from .strw import HTML_PATH, KG_PATH, W2V_PATH, \
     Strwythura
 
 from .textrank import TR_ALPHA, TR_LOOKBACK, \
