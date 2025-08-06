@@ -41,7 +41,7 @@ Constructor.
 
     def build_graph (
         self,
-        url_list: typing.List[ str ],
+        parser: Parser,
         simple_pipe: spacy.Language,
         entity_pipe: spacy.Language,
         chunk_table: lancedb.table.LanceTable,
@@ -53,14 +53,10 @@ Constructor.
         """
 Construct a knowledge graph from unstructured data sources.
         """
-        # define the global data structures which must be reset on a
-        # full run, not on each chunk iteration
-        parser: Parser = Parser(self.config)
-
         # iterate through the URL list, scraping text and building chunks
         chunk_id: int = 0
 
-        for url in url_list:
+        for url in parser.url_list:
             # define data structures intialized for each parsed document
             lex_graph: nx.Graph = nx.Graph()
             chunk_list: typing.List[ TextChunk ] = []
