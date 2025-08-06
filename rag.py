@@ -91,7 +91,6 @@ if __name__ == "__main__":
     #ic(loggers)
     #logging.getLogger("glirel.spacy_integration").setLevel(logging.ERROR)
 
-
     # load the serialized assets
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
