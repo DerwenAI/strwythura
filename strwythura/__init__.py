@@ -17,12 +17,10 @@ from .nlp import NER_LABELS, RE_LABELS, \
 
 from .opt import calc_quantile_bins, stripe_column, root_mean_square
 
-from .rag import GraphRAG
-
 from .scrape import scrape_html
 
 from .strw import HTML_PATH, KG_PATH, W2V_PATH, \
-    Strwythura
+    Strwythura, GraphRAG
 
 from .textrank import TR_ALPHA, TR_LOOKBACK, \
     run_textrank, cooccur_entities

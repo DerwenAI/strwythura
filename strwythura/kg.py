@@ -16,7 +16,6 @@ import pandas as pd
 import spacy
 
 from .lex import  STOP_WORDS, parse_text, extract_entity, extract_relations, make_entity
-from .nlp import init_nlp_pipe
 from .scrape import scrape_html
 from .textrank import run_textrank, cooccur_entities
 from .valid import Entity, TextChunk
@@ -99,9 +98,9 @@ the latter first-class citizens within the KG.
 
 
 def construct_kg (
-    config: dict,
     url_list: typing.List[ str ],
     simple_pipe: spacy.Language,
+    entity_pipe: spacy.Language,
     chunk_table: lancedb.table.LanceTable,
     sem_overlay: nx.Graph,
     w2v_vectors: list = [],
@@ -113,7 +112,6 @@ Construct a knowledge graph from unstructured data sources.
     """
     # define the global data structures which must be reset for each
     # run, not on each chunk iteration
-    nlp_pipe: spacy.Language = init_nlp_pipe(config)
     known_lemma: typing.List[ str ] = []
 
     # iterate through the URL list, scraping text and building chunks
@@ -137,7 +135,7 @@ Construct a knowledge graph from unstructured data sources.
             span_decoder: typing.Dict[ tuple, Entity ] = {}
 
             doc: spacy.tokens.doc.Doc = parse_text(
-                nlp_pipe,
+                entity_pipe,
                 known_lemma,
                 lex_graph,
                 chunk,

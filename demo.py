@@ -38,7 +38,6 @@ if __name__ == "__main__":
     )
 
     strw.gen_visualization()
-    strw.test_chunks()
 
     # stop the call trace profiler and report performance statistics
     profiler.stop()

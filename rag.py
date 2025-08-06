@@ -11,57 +11,18 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 import json
 import logging
 import os
-import pathlib
-import sys
-import tomllib
 import traceback
 import typing
 import warnings
 
 from icecream import ic
-import gensim
-import lancedb
-import loguru
-import networkx as nx
-import spacy
 
-import gliner_spacy.pipeline
-import glirel
-
-
-from strwythura import GraphRAG, \
-    KG_PATH, W2V_PATH, \
-    RE_LABELS, init_nlp_pipe
-
+from strwythura import Strwythura, GraphRAG
 from strwythura import baml_client
-
-
-def extract_entities (
-    nlp_pipe: spacy.Language,
-    question: str,
-    ) -> typing.Iterator[ str ]:
-    """
-Extract entity spans from a text question.
-    """
-    doc: spacy.tokens.doc.Doc = list(
-        nlp_pipe.pipe(
-            [( question, RE_LABELS )],
-            as_tuples = True,
-        )
-    )[0][0]
-
-    for span in doc.ents:
-        key: str = " ".join([
-            tok.pos_ + "." + tok.lemma_.strip().lower()
-            for tok in span
-        ])
-        
-        yield key
-    
+ 
 
 def qa_loop (
     rag: GraphRAG,
-    nlp_pipe: spacy.Language,
     ) -> None:
     """
 Loop to answer questions.
@@ -73,8 +34,7 @@ Loop to answer questions.
             print("\nÀ bientôt!")
             break
 
-        entities: typing.List[ str ] = list(extract_entities(nlp_pipe, question))
-        chunks: typing.List[ str ] = rag.get_chunks(question, entities, debug = False) # True
+        chunks: typing.List[ str ] = rag.get_chunks(question, debug = False) # True
         context: str = "\n".join( chunks )
         response: baml_client.types.Response = baml_client.b.RAG(question, context)
 
@@ -93,48 +53,21 @@ if __name__ == "__main__":
     #ic(loggers)
     #logging.getLogger("glirel.spacy_integration").setLevel(logging.ERROR)
 
-    # set up configuration
-    config_path: pathlib.Path = pathlib.Path("config.toml")
-    config: dict = {}
-
-    with open(config_path, mode = "rb") as fp:
-        config = tomllib.load(fp)
-
-    # load the serialized assets
-    w2v_model: gensim.models.Word2Vec = gensim.models.Word2Vec.load(W2V_PATH)
-
-    sem_overlay: nx.Graph = nx.Graph()
-
-    with pathlib.Path(KG_PATH).open("r", encoding = "utf-8") as fp:
-        sem_overlay = nx.node_link_graph(
-            json.load(fp),
-            edges = "links",
-        )
-
-    vect_db: lancedb.db.LanceDBConnection = lancedb.connect(config["vect"]["lancedb_uri"])
-    chunk_table: lancedb.table.LanceTable = vect_db.open_table(config["vect"]["chunk_table"])
-
-    # set up the spaCy pipeline for NER + RE
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        nlp_pipe: spacy.Language = init_nlp_pipe(config)
 
-    # build a GraphRAG instance
-    rag: GraphRAG = GraphRAG(
-        chunk_table,
-        w2v_model,
-        sem_overlay,
-    )
+        # build a GraphRAG instance
+        strw: Strwythura = Strwythura()
+        strw.load_assets()
 
-    # loop to answer questions
-    try:
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            qa_loop(rag, nlp_pipe)
+        rag: GraphRAG = GraphRAG(strw)
 
-    except EOFError:
-        print("")
-        pass
-    except Exception as ex:
-        ic(ex)
-        traceback.print_exc()
+        # loop to answer questions
+        try:
+            qa_loop(rag)
+
+        except EOFError:
+            print("")
+        except Exception as ex:
+            ic(ex)
+            traceback.print_exc()
