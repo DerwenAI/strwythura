@@ -330,32 +330,25 @@ Run semantic search to produce a set of text chunks.
         ]
 
 
-    def qa_loop (
+    def qa_cycle (
         self,
+        question: str,
         *,
         debug: bool = False,
-        ) -> None:
+        ) -> baml_types.Response:
         """
 Loop to answer questions.
         """
-        while True:
-            question: str = input("\n\nWhat is your question? ").strip()
+        chunks: typing.List[ str ] = self.get_chunks(
+            question,
+            debug = debug,
+        )
 
-            if question.lower() in [ "exit", "quit" ]:
-                print("\nÀ bientôt!")
-                break
+        context: str = "\n".join( chunks )
 
-            chunks: typing.List[ str ] = self.get_chunks(
-                question,
-                debug = debug,
-            )
+        response: baml_types.Response = b.RAG(
+            question,
+            context,
+        )
 
-            context: str = "\n".join( chunks )
-
-            response: baml_types.Response = b.RAG(
-                question,
-                context,
-            )
-
-            ic(response)
-            print("-" * 10)
+        return response
