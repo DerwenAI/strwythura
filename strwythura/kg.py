@@ -16,7 +16,8 @@ import pandas as pd
 import spacy
 
 from .graph import Entity, TextChunk
-from .lex import  STOP_WORDS, parse_text, extract_entity, extract_relations, make_entity
+from .lex import extract_entity, extract_relations, make_entity
+from .nlp import Parser
 from .scrape import scrape_html
 from .textrank import run_textrank, cooccur_entities
 
@@ -98,6 +99,7 @@ the latter first-class citizens within the KG.
 
 
 def construct_kg (
+    config: dict,
     url_list: typing.List[ str ],
     simple_pipe: spacy.Language,
     entity_pipe: spacy.Language,
@@ -113,6 +115,7 @@ Construct a knowledge graph from unstructured data sources.
     # define the global data structures which must be reset for each
     # run, not on each chunk iteration
     known_lemma: typing.List[ str ] = []
+    parser: Parser = Parser(config)
 
     # iterate through the URL list, scraping text and building chunks
     chunk_id: int = 0
@@ -122,6 +125,7 @@ Construct a knowledge graph from unstructured data sources.
         chunk_list: typing.List[ TextChunk ] = []
 
         chunk_id = scrape_html(
+            parser,
             simple_pipe,
             url,
             chunk_list,
@@ -134,7 +138,7 @@ Construct a knowledge graph from unstructured data sources.
         for chunk in chunk_list:
             span_decoder: typing.Dict[ tuple, Entity ] = {}
 
-            doc: spacy.tokens.doc.Doc = parse_text(
+            doc: spacy.tokens.doc.Doc = parser.parse_text(
                 entity_pipe,
                 known_lemma,
                 lex_graph,
@@ -183,7 +187,7 @@ Construct a knowledge graph from unstructured data sources.
             # overlay the recognized entity spans atop the base layer
             # constructed by _textgraph_ analysis of the `spaCy` parse trees
             for ent in span_decoder.values():
-                if ent.key not in STOP_WORDS:
+                if ent.key not in Parser.STOP_WORDS:
                     extract_entity(
                         known_lemma,
                         lex_graph,
@@ -223,6 +227,7 @@ Construct a knowledge graph from unstructured data sources.
         # apply _textrank_ to the graph (in the url/doc iteration)
         # then report the top-ranked extracted entities
         df: pd.DataFrame = run_textrank(
+            config,
             lex_graph,
         )
 

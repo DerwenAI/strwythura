@@ -7,6 +7,8 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
 import json
+import logging
+import os
 import pathlib
 import tomllib
 import traceback
@@ -19,12 +21,13 @@ import lancedb
 import networkx as nx
 import pandas as pd
 import spacy
+import transformers
 
 from .baml_client import b
 from .baml_client import types as baml_types
 from .graph import TextChunk
 from .kg import construct_kg
-from .nlp import RE_LABELS, init_nlp_pipe
+from .nlp import Parser
 from .vis import gen_pyvis
 
 
@@ -41,17 +44,34 @@ Builds assets for constructing a KG, then running GraphRAG downstream.
         """
 Constructor.
         """
+        # configuration
         self.config: dict = {}
 
         with open(config_path, mode = "rb") as fp:
             self.config = tomllib.load(fp)
 
+        # disable noisy logging
+        os.environ["BAML_LOG"] = "WARN"
+        os.environ["TOKENIZERS_PARALLELISM"] = "0"
+
+        logging.disable(logging.ERROR)
+        transformers.logging.set_verbosity_error()
+
+        ## none of this works!
+        #os.environ["TQDM_DISABLE"] = "1"
+        #loguru.logger.disable(gliner_spacy.pipeline.__name__)
+        #loggers: dict = { name:logging.getLogger(name) for name in logging.root.manager.loggerDict }
+        #ic(loggers)
+        #logging.getLogger("glirel.spacy_integration").setLevel(logging.ERROR)
+
+        # initial data structures for assets
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
             self.url_list: typing.List[ str ] = []
+            self.parser: Parser = Parser(self.config)
             self.simple_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])
-            self.entity_pipe: spacy.Language = init_nlp_pipe(self.config)
+            self.entity_pipe: spacy.Language = self.parser.build_entity_pipe()
             self.chunk_table: typing.Optional[ lancedb.table.LanceTable ] = None
             self.sem_overlay: nx.Graph = nx.Graph()
             self.w2v_vectors: list = []
@@ -86,6 +106,7 @@ Builds assets for constructing a KG.
 
                 # construct the graph
                 construct_kg(
+                    self.config,
                     self.url_list,
                     self.simple_pipe,
                     self.entity_pipe,
@@ -224,7 +245,7 @@ Extract entity spans from a text question.
         """
         doc: spacy.tokens.doc.Doc = list(
             self.strw.entity_pipe.pipe(
-                [( question, RE_LABELS )],
+                [( question, Parser.RE_LABELS )],
                 as_tuples = True,
             )
         )[0][0]

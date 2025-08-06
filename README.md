@@ -10,10 +10,6 @@ implement GraphRAG.
   * video: <https://youtu.be/B6_NfvQL-BE>
   * slides: <https://derwen.ai/s/2njz#1>
 
-Caveat: this repo provides the source code and notebooks which
-accompany an instructional tutorial; it is not intended as a package
-library or maintained product.
-
 
 ## Set Up
 
@@ -21,6 +17,17 @@ library or maintained product.
 poetry update
 poetry run python3 -m spacy download en_core_web_md
 ```
+
+## Usage
+
+Caveat: this repo provides the source code and notebooks which
+accompany an instructional tutorial; it is not intended as a package
+library or maintained product.
+
+That said, you may want to copy settings in `config.toml` into your
+own customized configuration file, then instantiate a new `Strwythura`
+object using it.
+
 
 ## Run Demo
 
