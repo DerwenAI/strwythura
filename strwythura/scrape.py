@@ -12,9 +12,8 @@ from bs4 import BeautifulSoup
 import requests
 import spacy
 
-
-from .nlp import make_chunk
-from .valid import TextChunk
+from .graph import TextChunk
+from .nlp import Parser
 
 
 SCRAPE_HEADERS: typing.Dict[ str, str ] = {
@@ -23,6 +22,7 @@ SCRAPE_HEADERS: typing.Dict[ str, str ] = {
 
 
 def scrape_html (
+    parser: Parser,
     simple_pipe: spacy.Language,
     url: str,
     chunk_list: typing.List[ TextChunk ],
@@ -47,7 +47,7 @@ Returns the updated `chunk_id` index.
         for para in soup.find_all("p")
     ]))
 
-    chunk_id = make_chunk(
+    chunk_id = parser.make_chunk(
         scrape_doc,
         url,
         chunk_list,

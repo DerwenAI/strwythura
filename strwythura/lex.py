@@ -13,97 +13,8 @@ from icecream import ic
 import networkx as nx
 import spacy
 
-from .nlp import RE_LABELS
-from .textrank import TR_LOOKBACK
-from .valid import Entity, TextChunk
-
-
-STOP_WORDS: typing.Set[ str ] = set([
-    "PRON.it",
-    "PRON.that",
-    "PRON.they",
-    "PRON.those",
-    "PRON.we",
-    "PRON.which",
-    "PRON.who",
-])
-
-
-def parse_text (
-    nlp_pipe: spacy.Language,
-    known_lemma: typing.List[ str ],
-    lex_graph: nx.Graph,
-    chunk: TextChunk,
-    *,
-    debug: bool = False,
-    ) -> spacy.tokens.doc.Doc:
-    """
-Parse an input text chunk, returning a `spaCy` document.
-    """
-    doc: spacy.tokens.doc.Doc = list(
-        nlp_pipe.pipe(
-            [( chunk.text, RE_LABELS )],
-            as_tuples = True,
-        )
-    )[0][0]
-
-    # scan the document tokens to add lemmas to _lexical graph_ using
-    # a _textgraph_ approach called the _textrank_ algorithm
-    for sent in doc.sents:
-        node_seq: typing.List[ int ] = []
-
-        if False: # debug
-            ic(sent)
-
-        for tok in sent:
-            text: str = tok.text.strip()
-        
-            if tok.pos_ in [ "NOUN", "PROPN" ]:
-                key: str = tok.pos_ + "." + tok.lemma_.strip().lower()
-                prev_known: bool = False
-    
-                if key not in known_lemma:
-                    # create a new node
-                    known_lemma.append(key)
-                else:
-                    # link to an existing node, adding weight
-                    prev_known = True
-
-                node_id: int = known_lemma.index(key)
-                node_seq.append(node_id)
-
-                if not lex_graph.has_node(node_id):
-                    lex_graph.add_node(
-                        node_id,
-                        key = key,
-                        kind = "Lemma",
-                        pos = tok.pos_,
-                        text = text,
-                        chunk = chunk,
-                        count = 1,
-                    )
-
-                elif prev_known:
-                    node: dict = lex_graph.nodes[node_id]
-                    node["count"] += 1
-
-        # create the _textrank_ edges for the lexical graph,
-        # which will get used for ranking, but discarded later
-        if False: # debug
-            ic(node_seq)
-
-        for hop in range(TR_LOOKBACK):
-            for node_id, node in enumerate(node_seq[: -1 - hop]):            
-                neighbor: int = node_seq[hop + node_id + 1]
-    
-                if not lex_graph.has_edge(node, neighbor):
-                    lex_graph.add_edge(
-                        node,
-                        neighbor,
-                        rel = "FOLLOWS_LEXICALLY",
-                    )
-
-    return doc
+from .graph import Entity, TextChunk
+from .nlp import Parser
 
 
 def make_entity (
@@ -240,7 +151,7 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
                 debug = False, # debug
             )
 
-            if src_ent.key in STOP_WORDS:
+            if src_ent.key in Parser.STOP_WORDS:
                 redact_rel = True
             else:
                 extract_entity(
@@ -262,7 +173,7 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
                 debug = False, # debug
             )
 
-            if dst_ent.key in STOP_WORDS:
+            if dst_ent.key in Parser.STOP_WORDS:
                 redact_rel = True
             else:
                 extract_entity(

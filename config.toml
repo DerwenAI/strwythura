@@ -1,8 +1,24 @@
 [nlp]
 
 spacy_model = "en_core_web_md"
+gliner_model = "urchade/gliner_small-v2.1"
+
+[ent]
+
+w2v_path = "data/entity.w2v"
 
 [vect]
 
 lancedb_uri = "data/lancedb"
 chunk_table = "chunk"
+chunk_size = 1024
+
+[tr]
+
+tr_alpha = 0.85
+tr_lookback = 3
+
+[kg]
+
+kg_path = "data/kg.json"
+html_path = "kg.html"

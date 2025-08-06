@@ -15,14 +15,11 @@ import numpy as np
 import pandas as pd
 
 from .opt import calc_quantile_bins, stripe_column, root_mean_square
-from .valid import Entity
-
-
-TR_ALPHA: float = 0.85
-TR_LOOKBACK: int = 3
+from .graph import Entity
 
 
 def run_textrank (
+    config: dict,
     lex_graph: nx.Graph,
     ) -> pd.DataFrame:
     """
@@ -35,7 +32,11 @@ Run eigenvalue centrality (i.e., _Personalized PageRank_) to rank the entities.
             "weight": rank,
             "count": lex_graph.nodes[node]["count"],
         }
-        for node, rank in nx.pagerank(lex_graph, alpha = TR_ALPHA, weight = "count").items()
+        for node, rank in nx.pagerank(
+                lex_graph,
+                alpha = config["tr"]["tr_alpha"],
+                weight = "count",
+        ).items()
     ])
 
     # normalize by column and calculate quantiles
