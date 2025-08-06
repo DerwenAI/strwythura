@@ -5475,6 +5475,40 @@ mpmath = ">=1.1.0,<1.4"
 dev = ["hypothesis (>=6.70.0)", "pytest (>=7.1.0)"]
 
 [[package]]
+name = "tantivy"
+version = "0.20.1"
+description = ""
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "tantivy-0.20.1-cp310-cp310-macosx_10_7_x86_64.whl", hash = "sha256:0e1d2fff8440685e04b69e098dd6569336de19eb729f21785fb7c9b9421a5e2e"},
+    {file = "tantivy-0.20.1-cp310-cp310-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:cac53b5811035cd44ce891a31eb08002b91f94163308df2b3d712e45897d219c"},
+    {file = "tantivy-0.20.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a2a3350bd7354bfccaf00a7741885305194eb10ca004b27e7ba98b631db657b0"},
+    {file = "tantivy-0.20.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:82bb9ed9f622964a9f2901093456fb069dcaa81249477931e38bef1eb103327e"},
+    {file = "tantivy-0.20.1-cp310-none-win_amd64.whl", hash = "sha256:f2e368c286d0aa1911fb609a5ff7d4b063c7a636eec4d1c4ee8250326363c9d4"},
+    {file = "tantivy-0.20.1-cp311-cp311-macosx_10_7_x86_64.whl", hash = "sha256:2e3b77fd49ef2ce53de1fef4115c20eed52614daef32548275049d75e432fada"},
+    {file = "tantivy-0.20.1-cp311-cp311-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:a689a7a8f3ff54a0a99ff72ad09a89ff1dd63a388370d12882b694b229c6bbe5"},
+    {file = "tantivy-0.20.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:407010e2393205791d55d86088f76c07f5ec35a15440bb81593ff23666b3b935"},
+    {file = "tantivy-0.20.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9bde39fd6dbf4ed9c80e4f8af57dcc510a36ddd329db2b9698eb5b272ae139d0"},
+    {file = "tantivy-0.20.1-cp311-none-win_amd64.whl", hash = "sha256:1f163e249823dbb1aaeee19cbb56b412ea68e7b32a843e12e9e89060c93e9e89"},
+    {file = "tantivy-0.20.1-cp38-cp38-macosx_10_7_x86_64.whl", hash = "sha256:a5603254426ea8d5ef203e90bd07dd47f20a0001614af7323bb3edb0a9d2b26f"},
+    {file = "tantivy-0.20.1-cp38-cp38-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:81fcf4553a4bf15dd2cf5f5b7d79d7cb331433dadc08bfa07e6ea57ebd2b4f95"},
+    {file = "tantivy-0.20.1-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:17a4ac33c685f1b0ea2581bceb00d97219f9cde27d82a7dff35f988a2e8511e7"},
+    {file = "tantivy-0.20.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d3de1d5b92f2dd20d9554202a5a36762cf5d487ee569e7e0eff7bfa62fcf964c"},
+    {file = "tantivy-0.20.1-cp38-none-win_amd64.whl", hash = "sha256:94be702ee4a0316249302a83be5b804820e218b237b55ad4d697586ff9ec001f"},
+    {file = "tantivy-0.20.1-cp39-cp39-macosx_10_7_x86_64.whl", hash = "sha256:d11234ace32984cf4ce92484de244abaa54d75eae51da12a4c08997f13bc8add"},
+    {file = "tantivy-0.20.1-cp39-cp39-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:2fda8125e1da8b0ad621e4da83f0ad1fb6637c246195f0a5e5f896539de2aec2"},
+    {file = "tantivy-0.20.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:2286badd1768f905221f49db565ae6aa230c90d22b59928688dc83688dbd7295"},
+    {file = "tantivy-0.20.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3733da8f0012371777b6dcf0310ceddab8391998b7f8d14bbc6eca2effb2d1ea"},
+    {file = "tantivy-0.20.1-cp39-none-win_amd64.whl", hash = "sha256:7dc3eb52d0d44dbed5f61104fb9b37c0938aae60bf7c3a111c13723377b57fe5"},
+    {file = "tantivy-0.20.1.tar.gz", hash = "sha256:da1c937494f90d16ecfef00176b8f3b85132dadf35c79ce6115216ee85c8bdf0"},
+]
+
+[package.extras]
+dev = ["nox"]
+
+[[package]]
 name = "terminado"
 version = "0.18.1"
 description = "Tornado websocket backend for the Xterm.js Javascript terminal emulator library."
@@ -6457,4 +6491,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.12"
-content-hash = "7cc9c90f826bbde37b6968101486fba97340a381d3ff7d854dcd41d3bfb8ab8f"
+content-hash = "4ab9383dec4df85060af0e74c0ff8bdada97daf2f09ee7c589cb6e9d46699908"

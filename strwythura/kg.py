@@ -183,7 +183,10 @@ Construct a knowledge graph from unstructured data sources.
                 print("nodes", len(sem_overlay.nodes), "edges", len(sem_overlay.edges))
 
         # finally, add full-text search to the chunk table in LanceDB
-        chunk_table.create_fts_index("text", use_tantivy = False)
+        chunk_table.create_fts_index(
+            self.config["vect"]["fts_column"],
+            use_tantivy = False,
+        )
 
 
     def abstract_overlay (

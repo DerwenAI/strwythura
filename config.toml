@@ -12,6 +12,7 @@ w2v_path = "data/entity.w2v"
 lancedb_uri = "data/lancedb"
 chunk_table = "chunk"
 chunk_size = 1024
+fts_column = "text"
 
 [tr]
 
