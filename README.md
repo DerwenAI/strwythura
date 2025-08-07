@@ -1,7 +1,7 @@
 # Strwythura
 
-Strwythura tutorial, based on a presentation for <GraphGeeks.org> on
-2024-08-14
+**Strwythura** tutorial, based on a presentation about GraphRAG for
+[GraphGeeks](https://graphgeeks.org/) on 2024-08-14
 
 How to construct a _knowledge graph_ from unstructured data sources
 using SOTA models for _named entity recognition_ (NER), and then
@@ -130,7 +130,7 @@ deep learning models provide narrowly-focused _point solutions_ to
 generate components for a graph: nodes, edges, properties.
 
 These steps define a generalized process, where this tutorial picks up
-at the _lexical graph_:
+at the _lexical graph_ (without the EL part yet):
 
 **Semantic overlay:**
 
@@ -152,8 +152,8 @@ at the _lexical graph_:
   6. Promote the extracted entities and relations up to the semantic overlay.
 
 Of course many vendors suggest using a _large language model_ (LLM) as
-a _one size fits all_ "black box" approach for extracting entities and
-generating an entire graph automagically.
+a _one-size-fits-all_ (OSFA) "black box" approach for extracting
+entities and generating an entire graph **automagically**.
 
 However, the business process of _resolution_ -- for both entities and
 relations -- requires _judgements_. If the entities getting resolved
@@ -215,7 +215,7 @@ poetry run baml-cli generate --from strwythura/baml_src
 ## FAQ
 
 Q: "Have you tried this with `langextract` yet?"  
-A: "I'll take `How an instructor knows a student ignored the README?` from the `FAFO` category, for $200"
+A: "I'll take `How does an instructor know a student ignored the README?` from the [`FAFO`](https://en.wiktionary.org/wiki/fuck_around_and_find_out) category, for $200"
 
 Q: "What the hell is the name of this repo about?"  
 A: "As you may have noticed, many open source projects by Derwen are named in a beautiful language called Gymraeg, which English speakers called 'Welsh', where this word [`strwythura`](https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate) translates as the verb **'structure'** in English."
