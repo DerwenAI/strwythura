@@ -14,7 +14,7 @@ from .nlp import Parser
 
 from .opt import calc_quantile_bins, stripe_column, root_mean_square
 
-from .scrape import scrape_html
+from .scrape import Scraper
 
 from .strw import Strwythura, GraphRAG
 

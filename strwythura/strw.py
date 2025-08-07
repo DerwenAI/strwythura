@@ -71,7 +71,7 @@ Constructor.
             warnings.simplefilter("ignore")
 
             self.simple_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])
-            self.entity_pipe: spacy.Language = self.parser.build_entity_pipe()
+            self.entity_pipe: typing.Optional[ spacy.Language ] = None
             self.chunk_table: typing.Optional[ lancedb.table.LanceTable ] = None
             self.sem_overlay: nx.Graph = nx.Graph()
             self.w2v_vectors: list = []
@@ -85,6 +85,7 @@ Constructor.
         *,
         debug: bool = False,
         kg_path: typing.Optional[ pathlib.Path ] = None,
+        sem_path: typing.Optional[ pathlib.Path ] = None,
         w2v_path: typing.Optional[ pathlib.Path ] = None,
         ) -> int:
         """
@@ -99,6 +100,9 @@ Builds assets for constructing a KG.
             warnings.simplefilter("ignore")
 
             try:
+                # now we have the NER labels, so build the `spaCy` pipe
+                self.entity_pipe = self.parser.build_entity_pipe()
+
                 # initialize the chunk table
                 vect_db: lancedb.db.LanceDBConnection = lancedb.connect(self.config["vect"]["lancedb_uri"])
 
@@ -124,6 +128,7 @@ Builds assets for constructing a KG.
                 # serialize assets
                 self.embed_entities(w2v_path = w2v_path)
                 self.save_graph(kg_path = kg_path)
+                self.save_semantics(sem_path = sem_path)
 
             except Exception as ex:
                 ic(ex)
@@ -179,6 +184,27 @@ Serialize the KG
             )
 
 
+    def save_semantics (
+        self,
+        *,
+        sem_path: typing.Optional[ pathlib.Path ] = None,
+        ) -> None:
+        """
+Serialize the KG
+        """
+        if sem_path is None:
+            sem_path = pathlib.Path(self.config["kg"]["sem_path"])
+
+        with sem_path.open("w", encoding = "utf-8") as fp:
+            fp.write(
+                json.dumps(
+                    self.parser.ner_labels,
+                    indent = 2,
+                    sort_keys = True,
+                )
+            )
+
+
     def gen_visualization (
         self,
         *,
@@ -201,11 +227,15 @@ Generate HTML for an interactive visualization of the graph, based on `PyVis`
         self,
         *,
         kg_path: typing.Optional[ pathlib.Path ] = None,
+        sem_path: typing.Optional[ pathlib.Path ] = None,
         w2v_path: typing.Optional[ pathlib.Path ] = None,
         ) -> int:
         """
 Load the serialized assets for a constructed KG.
         """
+        vect_db: lancedb.db.LanceDBConnection = lancedb.connect(self.config["vect"]["lancedb_uri"])
+        self.chunk_table = vect_db.open_table(self.config["vect"]["chunk_table"])
+
         if w2v_path is None:
             w2v_path = pathlib.Path(self.config["ent"]["w2v_path"])
 
@@ -220,8 +250,19 @@ Load the serialized assets for a constructed KG.
                 edges = "links",
             )
 
-        vect_db: lancedb.db.LanceDBConnection = lancedb.connect(self.config["vect"]["lancedb_uri"])
-        self.chunk_table = vect_db.open_table(self.config["vect"]["chunk_table"])
+        if sem_path is None:
+            sem_path = pathlib.Path(self.config["kg"]["sem_path"])
+
+        with pathlib.Path(sem_path).open("r", encoding = "utf-8") as fp:
+            ner_labels: typing.List[ str ] = json.load(fp)
+
+            # now we have the NER labels, so build the `spaCy` pipe
+            self.parser.update_data(
+                [],
+                ner_labels,
+            )
+
+            self.entity_pipe = self.parser.build_entity_pipe()
 
 
 class GraphRAG:

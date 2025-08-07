@@ -28,6 +28,7 @@ if __name__ == "__main__":
     url_list: typing.List[ str ] = [
         "https://aaic.alz.org/releases-2024/processed-red-meat-raises-risk-of-dementia.asp",
         "https://www.theguardian.com/society/article/2024/jul/31/eating-processed-red-meat-could-increase-risk-of-dementia-study-finds",
+        "https://www.massgeneralbrigham.org/en/about/newsroom/press-releases/red-meat-increases-risk-of-dementia",
     ]
 
     ner_labels: typing.List[ str ] = [

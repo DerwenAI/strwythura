@@ -3,6 +3,11 @@
 spacy_model = "en_core_web_md"
 gliner_model = "urchade/gliner_small-v2.1"
 
+[scraper]
+
+cache_path = "data/url_cache"
+cache_expire = 604800
+
 [ent]
 
 w2v_path = "data/entity.w2v"
@@ -22,6 +27,7 @@ tr_lookback = 3
 [kg]
 
 kg_path = "data/kg.json"
+sem_path = "data/sem.json"
 html_path = "kg.html"
 
 [rag]
