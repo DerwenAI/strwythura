@@ -13,6 +13,7 @@ import traceback
 import warnings
 
 from icecream import ic
+import baml_py
 
 from strwythura import Strwythura, GraphRAG
 from strwythura.baml_client import types as baml_types
@@ -36,16 +37,21 @@ if __name__ == "__main__":
                 if question.lower() in [ "quitter", "bye" ]:
                     break
 
+                assert len(question) > 0
+
                 response: baml_types.Response = rag.qa_cycle(
                     question,
                     debug = False, # True
                 )
 
-                ic(response.answer)
+                ic(question)
+                ic(response)
                 print("-" * 10)
 
         except EOFError:
             print("")
+        except baml_py.internal_monkeypatch.BamlValidationError as baml_ex:
+            ic(ex)
         except Exception as ex:
             ic(ex)
             traceback.print_exc()

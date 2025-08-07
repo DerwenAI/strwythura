@@ -16,7 +16,7 @@ function RAG(question: string, context: string) -> Response {
   prompt #"
     Answer the question in full sentences using the provided context.
     Do not make up an answer. If the information is not provided in the context, say so clearly.
-    
+     
     QUESTION: {{ question }}
     RELEVANT CONTEXT: {{ context }}
 
