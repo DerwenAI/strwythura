@@ -10,6 +10,7 @@ from collections import defaultdict
 import pathlib
 import typing
 
+from lancedb.index import FTS
 from icecream import ic
 import lancedb
 import networkx as nx
@@ -180,6 +181,12 @@ Construct a knowledge graph from unstructured data sources.
 
             if debug:
                 print("nodes", len(sem_overlay.nodes), "edges", len(sem_overlay.edges))
+
+        # finally, add full-text search to the chunk table in LanceDB
+        chunk_table.create_fts_index(
+            self.config["vect"]["fts_column"],
+            use_tantivy = False,
+        )
 
 
     def abstract_overlay (

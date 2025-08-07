@@ -12,6 +12,7 @@ w2v_path = "data/entity.w2v"
 lancedb_uri = "data/lancedb"
 chunk_table = "chunk"
 chunk_size = 1024
+fts_column = "text"
 
 [tr]
 
@@ -22,3 +23,7 @@ tr_lookback = 3
 
 kg_path = "data/kg.json"
 html_path = "kg.html"
+
+[rag]
+
+num_chunks = 11

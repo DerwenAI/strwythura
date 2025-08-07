@@ -1,6 +1,6 @@
 # Strwythura
 
-Strwythura tutorial, based on a presentation for GraphGeeks.org on
+Strwythura tutorial, based on a presentation for <GraphGeeks.org> on
 2024-08-14
 
 How to construct a _knowledge graph_ from unstructured data sources
@@ -24,25 +24,28 @@ Caveat: this repo provides the source code and notebooks which
 accompany an instructional tutorial; it is not intended as a packaged
 library or maintained product.
 
-That said, if you want to use this as a library, then you may want to
-copy settings in `config.toml` into your own customized configuration
-file. Then you can instantiate new `Strwythura` and `GraphRAG` objects
-using it.
+That said, if you want to use this code to build an application it may
+help to copy settings in `config.toml` into a custom configuration
+file, then instantiate new `Strwythura` and `GraphRAG` objects using
+it.
 
 
 ## Run Demo
 
-The full demo app is in `demo.py`:
+The demo for constructing a knowledge graph, plus node embeddings,
+linked to chunks in a vector store is in the `demo.py` script:
 
 ```bash
 poetry run python3 demo.py
 ```
 
-This demo scrapes text sources from a set of URLs. The default set
-includes articles about the linkage between dementia and regularly
-eating processed red meat.
+This scrapes text sources from a collection of URLs, given a set of
+classes for extracted entities. The demo data includes articles about
+the linkage between eating _processed red meat_ frequently and the
+risks of _dementia_ later in life, based on long-term studies.
 
-Then the demo iterates through multiple steps to produce results:
+This demo iterates through multiple steps to produce the assets needed
+for GraphRAG downstream:
 
   1. Scrape each URL using `requests` and `BeautifulSoup`
   2. Split the text into _chunks_
@@ -51,20 +54,20 @@ Then the demo iterates through multiple steps to produce results:
   5. Extract _entities_ from each sentence using `GLiNER`
   6. Build a _lexical graph_ from the parse trees in `NetworkX`
   7. Run a _textrank_ algorithm to rank important entities
-  8. Build an embedding for each entity using `gensim.Word2Vec`
+  8. Build an embedding model for the entities using `gensim.Word2Vec`
   9. Generate an interactive visualization using `PyVis`
 
 There's also a step "5.1" which extracts _relations_ using `GLiREL`
-though its results seem rather iffy so far.
+though its results may be a bit sparse.
 
-Note: this processing may take a few extra minutes the first time you
-run it since `PyTorch` must download a large (~2GB) file.
+Note: processing may take a few extra minutes the first time it runs
+since `PyTorch` must download a large (~2GB) file.
 
-Assets get serialized into these generated files:
+The assets get serialized into these files:
 
-  * `data/lancedb` -- vector database tables
+  * `data/lancedb` -- vector database tables in `LanceDB`
   * `data/kg.json` -- serialization of `NetworkX` graph
-  * `data/entity.w2v` -- entity embedding model
+  * `data/entity.w2v` -- node embeddings in `Gensim`
   * `kg.html` -- interactive graph visualization in `PyVis`
 
 Note: if you had a graph previously constructed from more reliable
@@ -128,32 +131,32 @@ at the _lexical graph_:
 
 **Semantic overlay:**
 
-  1. load any pre-defined controlled vocabularies directly into the KG
+  1. Load any pre-defined controlled vocabularies directly into the KG.
 
 **Data graph:**
 
-  1. load the structured data sources or updates into a data graph
-  2. perform entity resolution (ER) on PII extracted from the data graph
-  3. use ER results to generate a semantic overlay as a "backbone" for the KG
+  1. Load the structured data sources or updates into a data graph.
+  2. Perform entity resolution (ER) on PII extracted from the data graph.
+  3. Use ER results to generate a semantic overlay as a "backbone" for the KG.
 
 **Lexical graph:**
 
-  1. parse the text chunks, using lemmatization to normalize token spans
-  2. construct a lexical graph from parse trees, e.g., using a textgraph algorithm
-  3. analyze named entity recognition (NER) to extract candidate entities from NP spans
-  4. analyze relation extraction (RE) to extract relations between pairwise entities
-  5. perform entity linking (EL) leveraging the ER results
-  6. promote the extracted entities and relations up to the semantic overlay
+  1. Parse the text chunks, using lemmatization to normalize token spans.
+  2. Construct a lexical graph from parse trees, e.g., using a textgraph algorithm.
+  3. Analyze named entity recognition (NER) to extract candidate entities from NP spans.
+  4. Analyze relation extraction (RE) to extract relations between pairwise entities.
+  5. Perform entity linking (EL) leveraging the ER results.
+  6. Promote the extracted entities and relations up to the semantic overlay.
 
-In contrast, many vendors suggest using a _large language model_ (LLM)
-as a _one size fits all_ "black box" approach to generate an entire
-graph automagically.
+Of course many vendors suggest using a _large language model_ (LLM) as
+a _one size fits all_ "black box" approach for extracting entities and
+generating an entire graph automagically.
 
 However, the business process of _resolution_ -- for both entities and
-relations -- requires judgements. If the entities being resolved are
-low-risk, low-effort in nature, then yeah knock yourself out. If the
-entities represent _people_ or _organizations_, these have agency and
-may take actions when misrepresent in applications which have
+relations -- requires _judgements_. If the entities getting resolved
+are low-risk, low-effort in nature, then yeah knock yourself out. If
+the entities represent _people_ or _organizations_, these have agency
+and may take actions when misrepresented in applications which have
 consequences.
 
 Whenever judgements get delegated to _model-based_ approaches,
@@ -163,21 +166,23 @@ generalization becomes dominant -- regardless of any marketing claims
 about "AI reasoning" made by tech firms.
 
 Fortunately, decisions can be made _without models_, even in AI
-applications. For more detailed discussion, see:
+applications. Shock, horror!!! Plaease, say it isn't so!?! Brace
+yourselves, using models is a thing, but not the only thing.  For more
+detailed discussion, see:
 
   * Part 1: Let's talk about "Today's AI" <https://www.linkedin.com/pulse/lets-talk-todays-ai-paco-nathan-co60c/>
   * Part 2: Let's talk about "Resolution" <https://www.linkedin.com/pulse/lets-talk-resolution-paco-nathan-ryjhc/>
 
-Keep in mind that black box approaches don't work especially well
-for KG practices in regulated environments, where audits,
-explanations, evidence, data provenance, etc., are required.
+Also keep in mind that black box approaches don't work especially well
+for regulated environments, where audits, explanations, evidence, data
+provenance, etc., are required.
 
-Also keep in mind that KGs used in mission-critical apps, such as
-investigations, generally require periodic data updates, so
-construction isn't a one-step process. By producing a KG based on the
-approach sketched above, updates can be handled more effectively.
-Any downstream use cases, such as AI applications, also benefit from
-improved quality of semantics and representation.
+Moreover, KGs used in mission-critical apps, such as investigations,
+generally require periodic data updates, so construction isn't a
+one-step process. By producing a KG based on the approach sketched
+above, updates can be handled more effectively.  Any downstream use
+cases, such as AI applications, also benefit from improved quality of
+semantics and representation.
 
 
 ## Experimental - OpenNRE
@@ -194,10 +199,23 @@ This may not work in many environments, depending on whether the
 `OpenNRE` library is being maintained.
 
 
+## Developer Notes
+
+After each `BAML` release update, some committer needs to regenerate
+its Python client source:
+
+```bash
+poetry run baml-cli generate --from strwythura/baml_src
+```
+
+
 ## FAQ
 
 Q: "Have you tried this with `langextract` yet?"  
-A: "I'll take `How an instructor knows a student ignored the README?` for $200"
+A: "I'll take `How an instructor knows a student ignored the README?` from the `FAFO` category, for $200"
+
+Q: "What the hell is the name of this repo about?"
+A: "As you may have noticed, many open source projects by Derwen are named in a beautiful language called Gymraeg, which English speakers called 'Welsh', where this word [`strwythura`](https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate) translates to the verb **"structure"** in English."
 
 Q: "Why aren't you using an LLM instead to build the graph?"  
 A: "I promise to visit you in jail."
