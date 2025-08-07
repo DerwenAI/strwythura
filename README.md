@@ -93,10 +93,10 @@ article for more details:
 ["Unbundling the Graph in GraphRAG"](https://www.oreilly.com/radar/unbundling-the-graph-in-graphrag/).
 
 To set up, first download/install `Ollama` <https://ollama.com/>
-and pull the Llama3 model:
+and pull the Gemma3 model:
 
 ```bash
-ollama pull llama3:latest
+ollama pull gemma3:12b
 ```
 
 Then run the `rag.py` script for an interactive GraphRAG example:
