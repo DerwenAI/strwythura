@@ -37,11 +37,14 @@ if __name__ == "__main__":
                 if question.lower() in [ "quitter", "bye" ]:
                     break
 
+                assert len(question) > 0
+
                 response: baml_types.Response = rag.qa_cycle(
                     question,
                     debug = False, # True
                 )
 
+                ic(question)
                 ic(response)
                 print("-" * 10)
 
