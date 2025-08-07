@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
                 response: baml_types.Response = rag.qa_cycle(
                     question,
-                    debug = False, # True
+                    debug = True, # False
                 )
 
                 ic(question)

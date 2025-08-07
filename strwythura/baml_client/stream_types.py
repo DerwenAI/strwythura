@@ -27,6 +27,7 @@ class StreamState(BaseModel, typing.Generic[StreamStateValueT]):
 # #########################################################################
 
 class Response(BaseModel):
+    question_type: typing.Optional[typing.Union[str, str, str]] = None
     question: typing.Optional[str] = None
     answer: typing.Optional[str] = None
 

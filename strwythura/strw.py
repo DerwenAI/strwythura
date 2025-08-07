@@ -399,7 +399,7 @@ Run semantic search to produce a set of text chunks.
             [ "text" ]
         ).to_pandas()["text"].tolist()
 
-        return chunks
+        return chunks[:num_chunks]
 
 
     def gen_subgraph_paths (
