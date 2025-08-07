@@ -50,7 +50,7 @@ Run eigenvalue centrality (i.e., _Personalized PageRank_) to rank the entities.
     ]).T
 
     # renormalize the ranks
-    df_rank["rank"] = df2.apply(root_mean_square, axis=1)
+    df_rank["rank"] = df2.apply(root_mean_square, axis = 1)
     rank_col: np.ndarray = df_rank["rank"].to_numpy()
     rank_col /= sum(rank_col)
     df_rank["rank"] = rank_col

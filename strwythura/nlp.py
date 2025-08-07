@@ -41,10 +41,6 @@ relations, based on using `GLiNER`, `GLiREL`, and textgraphs.
                 "allowed_head": ["PERSON", "ORG"],
                 "allowed_tail": ["PERSON", "ORG"],
             },
-            "spouse": {
-                "allowed_head": ["PERSON"],
-                "allowed_tail": ["PERSON"],
-            },
             "child": {
                 "allowed_head": ["PERSON"],
                 "allowed_tail": ["PERSON"],

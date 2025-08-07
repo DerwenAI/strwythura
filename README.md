@@ -32,8 +32,9 @@ it.
 
 ## Run Demo
 
-The demo for constructing a knowledge graph, plus node embeddings,
-linked to chunks in a vector store is in the `demo.py` script:
+The demo for constructing a knowledge graph, plus entity embeddings,
+with nodes linked to chunks in a vector store is in the `demo.py`
+script:
 
 ```bash
 poetry run python3 demo.py
@@ -67,7 +68,9 @@ The assets get serialized into these files:
 
   * `data/lancedb` -- vector database tables in `LanceDB`
   * `data/kg.json` -- serialization of `NetworkX` graph
-  * `data/entity.w2v` -- node embeddings in `Gensim`
+  * `data/sem.json` -- serialization of semantics for NER
+  * `data/entity.w2v` -- entity embeddings in `Gensim`
+  * `data/url_cache.sqlite` -- URL cache in `SQLite`
   * `kg.html` -- interactive graph visualization in `PyVis`
 
 Note: if you had a graph previously constructed from more reliable
@@ -214,8 +217,8 @@ poetry run baml-cli generate --from strwythura/baml_src
 Q: "Have you tried this with `langextract` yet?"  
 A: "I'll take `How an instructor knows a student ignored the README?` from the `FAFO` category, for $200"
 
-Q: "What the hell is the name of this repo about?"
-A: "As you may have noticed, many open source projects by Derwen are named in a beautiful language called Gymraeg, which English speakers called 'Welsh', where this word [`strwythura`](https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate) translates to the verb **"structure"** in English."
+Q: "What the hell is the name of this repo about?"  
+A: "As you may have noticed, many open source projects by Derwen are named in a beautiful language called Gymraeg, which English speakers called 'Welsh', where this word [`strwythura`](https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate) translates as the verb **'structure'** in English."
 
 Q: "Why aren't you using an LLM instead to build the graph?"  
 A: "I promise to visit you in jail."

@@ -10,7 +10,6 @@ from collections import defaultdict
 import pathlib
 import typing
 
-from lancedb.index import FTS
 from icecream import ic
 import lancedb
 import networkx as nx
@@ -19,7 +18,7 @@ import spacy
 
 from .graph import Entity, TextChunk
 from .nlp import Parser
-from .scrape import scrape_html
+from .scrape import Scraper
 from .textrank import run_textrank, cooccur_entities
 
 
@@ -55,6 +54,7 @@ Constructor.
 Construct a knowledge graph from unstructured data sources.
         """
         # iterate through the URL list, scraping text and building chunks
+        scraper: Scraper = Scraper(self.config, parser)
         chunk_id: int = 0
 
         for url in parser.url_list:
@@ -62,8 +62,7 @@ Construct a knowledge graph from unstructured data sources.
             lex_graph: nx.Graph = nx.Graph()
             chunk_list: typing.List[ TextChunk ] = []
 
-            chunk_id = scrape_html(
-                parser,
+            chunk_id = scraper.scrape_html(
                 simple_pipe,
                 url,
                 chunk_list,
@@ -181,12 +180,6 @@ Construct a knowledge graph from unstructured data sources.
 
             if debug:
                 print("nodes", len(sem_overlay.nodes), "edges", len(sem_overlay.edges))
-
-        # finally, add full-text search to the chunk table in LanceDB
-        chunk_table.create_fts_index(
-            self.config["vect"]["fts_column"],
-            use_tantivy = False,
-        )
 
 
     def abstract_overlay (

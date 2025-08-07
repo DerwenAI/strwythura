@@ -38,7 +38,7 @@ dependencies = [
     "ollama (>=0.5.1,<0.6.0)",
     "baml-cli (>=0.1.0,<0.2.0)",
     "glirel @ git+https://github.com/ceteri/GLiREL.git",
-    "tantivy (==0.20.1)",
+    "requests-cache (>=1.2.1,<2.0.0)",
 ]
 
 
