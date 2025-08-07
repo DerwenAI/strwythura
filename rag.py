@@ -13,6 +13,7 @@ import traceback
 import warnings
 
 from icecream import ic
+import baml_py
 
 from strwythura import Strwythura, GraphRAG
 from strwythura.baml_client import types as baml_types
@@ -41,11 +42,13 @@ if __name__ == "__main__":
                     debug = False, # True
                 )
 
-                ic(response.answer)
+                ic(response)
                 print("-" * 10)
 
         except EOFError:
             print("")
+        except baml_py.internal_monkeypatch.BamlValidationError as baml_ex:
+            ic(ex)
         except Exception as ex:
             ic(ex)
             traceback.print_exc()

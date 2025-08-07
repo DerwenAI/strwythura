@@ -6,6 +6,7 @@ Builds assets for constructing a KG, then running GraphRAG downstream.
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
+import itertools
 import json
 import logging
 import os
@@ -318,56 +319,174 @@ Run semantic search to produce a set of text chunks.
         if num_chunks is None:
             num_chunks = self.strw.config["rag"]["num_chunks"]
 
-        # enumerate chunks from a vector search -- the basic RAG process
-        df_chunk: pd.DataFrame = self.strw.chunk_table.search(question).to_pandas()
+        # extract entities from the question
+        entities: typing.Set[ str ] = set(list(self.find_entities(question)))
 
         if debug:
-            ic(df_chunk)
+            ic(entities)
 
-            for row in df_chunk.itertuples():
-                ic(row.text)
+        # semantic expansion using entity embeddings
+        neighbors: typing.Set[ str ] = set()
 
-        # enumerate the nearest neighbor entities from the entity embedding model
-        neighbors: list = []
-
-        for entity in self.find_entities(question):
-            try:
+        try:
+            for entity in entities:
                 neighbor_iter = self.strw.w2v_model.wv.most_similar(
                     positive = [ entity ],
                     topn = num_chunks,
                 )
 
                 for neighbor in neighbor_iter:
-                    neighbors.append(neighbor)
-            except KeyError:
-                pass
+                    neighbors.add(neighbor)
+        except KeyError:
+            pass
 
-        df_entity: pd.DataFrame = pd.DataFrame([
-            {
-                "entity": neighbor[0],
-                "distance": neighbor[1],
-            }
-            for neighbor in neighbors
-            if neighbor[1] > 0.0
+        if debug:
+            ic(neighbors)
+
+        # map the expanded set of entities to nodes in the graph
+        expanded_entities: set = entities.union(neighbors)
+
+        anchor_nodes: set = set([
+            node
+            for node, dat in self.strw.sem_overlay.nodes(data = True)
+            if "key" in dat and dat["key"] in expanded_entities
         ])
 
         if debug:
-            ic(df_entity)
+            ic(anchor_nodes)
 
-        # perform a semantic expansion to enrich the anchor nodes
-        if len(df_entity) > 0:
-            expansion: typing.Set[ str ] = set(df_entity["entity"].values.tolist())
+        # extract a subgraph based on shortest paths between anchor nodes
+        node_iter: typing.Iterator[ int ] = self.extract_subgraph(
+            anchor_nodes,
+            debug = debug,
+        )
 
-            for node, dat in self.strw.sem_overlay.nodes(data = True):
-                if "key" in dat and dat["key"] in expansion:
+        # extract the chunk neighbors
+        chunk_iter: typing.Iterator[ int ] = self.extract_chunk_neighbors(
+            list(node_iter),
+            debug = debug,
+        )
+
+        chunk_ids: typing.List[ int ] = []
+
+        for chunk_id in chunk_iter:
+            if chunk_id not in chunk_ids:
+                chunk_ids.append(chunk_id)
+
+        # enumerate chunks from a vector search -- the basic RAG process
+        df_ann_chunk: pd.DataFrame = self.strw.chunk_table.search(
+            question
+        ).limit(
+            num_chunks
+        ).to_pandas()
+
+        for _, row in df_ann_chunk.iterrows():
+            chunk_id: int =  row["uid"]
+
+            if chunk_id not in chunk_ids:
+                chunk_ids.append(chunk_id)
+
+        if debug:
+            ic(chunk_ids)
+
+        # get the text for the combined/ranked list of chunks
+        id_list: str = ", ".join([ str(c_id) for c_id in chunk_ids ])
+        filter_term: str = f"uid IN ({id_list})"
+
+        chunks: typing.List[ str ] = self.strw.chunk_table.search().where(
+            filter_term
+        ).select(
+            [ "text" ]
+        ).to_pandas()["text"].tolist()
+
+        return chunks
+
+
+    def gen_subgraph_paths (
+        self,
+        anchor_nodes: set,
+        *,
+        debug: bool = False,
+        ) -> typing.Iterator[ str ]:
+        """
+Generate pairwise shortest paths among the nodes from semantic
+expansion, to define a subgraph.
+
+In other words, this emulates a _semantic random walk_.
+        """
+        for pair in itertools.combinations(anchor_nodes, 2):
+            if debug:
+                ic(pair)
+
+            for path in nx.all_shortest_paths(self.strw.sem_overlay, pair[0], pair[1]):
+                if debug:
+                    ic(path)
+
+                for node in path:
+                    if node not in pair:
+                        dat: dict = self.strw.sem_overlay.nodes[node]
+
+                        if debug:
+                            ic(node, dat)
+
+                        yield node
+
+
+    def extract_subgraph (
+        self,
+        anchor_nodes: set,
+        *,
+        debug: bool = False,
+        ) -> typing.Iterator[ int ]:
+        """
+Extract a subgraph, run a _centrality_ algorithm to rerank the most
+referenced entities in the subgraph.
+        """
+        subgraph_iter: typing.Iterator[ int ] = self.gen_subgraph_paths(
+            anchor_nodes,
+            debug = debug,
+        )
+
+        subgraph: nx.Graph = self.strw.sem_overlay.subgraph(
+            anchor_nodes.union(set(subgraph_iter))
+        )
+
+        rank_iter: typing.Iterator[ typing.Tuple[ int, float ] ] = nx.pagerank(
+            subgraph,
+            self.strw.config["tr"]["tr_alpha"],
+        ).items()
+
+        for node, rank in sorted(rank_iter, key = lambda x: x[1], reverse = True):
+            dat: dict = self.strw.sem_overlay.nodes[node]
+
+            if debug:
+                ic(node, rank, dat)
+
+            yield node
+
+
+    def extract_chunk_neighbors (
+        self,
+        ranked_nodes: list,
+        *,
+        debug: bool = False,
+        ) -> typing.Iterator[ int ]:
+        """
+Find the neighboring chunks for each _anchor node_ in the given list.
+        """
+        for node in ranked_nodes:
+            if debug:
+                ic(node)
+
+            for neighbor in self.strw.sem_overlay.neighbors(node):
+                dat: dict = self.strw.sem_overlay.nodes[neighbor]
+
+                if dat["kind"] == "Chunk":
                     if debug:
-                        ic(node, dat)
+                        ic(neighbor, dat)
 
-        # return a list of text chunks
-        return [
-            row.text
-            for row in df_chunk.itertuples()
-        ]
+                    chunk_id: int = int(neighbor.replace("chunk_", ""))
+                    yield chunk_id
 
 
     def qa_cycle (
