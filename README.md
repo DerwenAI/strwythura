@@ -3,12 +3,50 @@
 **Strwythura** tutorial, based on a presentation about GraphRAG for
 [GraphGeeks](https://graphgeeks.org/) on 2024-08-14
 
-How to construct a _knowledge graph_ from unstructured data sources
-using SOTA models for _named entity recognition_ (NER), and then
-implement GraphRAG.
+How to construct a _knowledge graph_ (KG) from unstructured data
+sources using _state of the art_ (SOTA) models for _named entity
+recognition_ (NER), and then implement an enhanced _GraphRAG_
+approach.
 
   * video: <https://youtu.be/B6_NfvQL-BE>
   * slides: <https://derwen.ai/s/2njz#1>
+
+Motivation for this tutorial comes from the stark fact that the
+term "GraphRAG" means many things, based on multiple conflicting
+definitions. Several popular implementations reveal a relatively 
+cursory understanding about either _natural language processing_ (NLP)
+or graph algorithms, plus a _vendor bias_ toward their own query language.
+
+See this article for more details and history:
+["Unbundling the Graph in GraphRAG"](https://www.oreilly.com/radar/unbundling-the-graph-in-graphrag/).
+
+Instead of delegating KG construction to a _large language model_
+(LLM), this tutorial shows the use of sophisticated NLP pipelines
+based on `spaCy`, `GLiNER`, _TextRank_, and related libraries.
+Results are better/faster/cheaper, plus this provides more control
+and oversight for _intentional arrangement_ of the KG. Then for
+downstream usage in a question/answer chat bot, an enhanced GraphRAG
+approach leverages graph algorithms (e.g., _semantic random walk_)
+to optimize retrieval of text chunks which ultimately get presented
+to an LLM for _summarization_ to produce responses.
+
+For more detailed discussions, see:
+
+  * enhanced GraphRAG: ["GraphRAG to enhance LLM-based apps"](https://derwen.ai/s/hm7h#3)
+  * intentional arrangement: ["Intentional Arrangement"](https://jessicatalisman.substack.com/) by Jessica Talisman
+  * `spaCy`: <https://spacy.io/>
+  * `GLiNER`: <https://huggingface.co/urchade/gliner_base>
+  * _TextRank_: <https://www.derwen.ai/docs/ptr/explain_algo/>
+
+A few key issues regarding KG construction with LLMs still have not
+been addressed by the graph community in general:
+
+  1. LLMs tend to mangle cross-domain semantics when used for building graphs; see _Mai2024_ referenced in the "GraphRAG to enhance LLM-based apps" talk above.
+  2. Most all LLMs perform _question rewriting_ in ways which cannot be disabled, even when the `temperature` parameter is set to zero; this leads to relative degrees of "hallucinated questions" for which there are no clear workarounds.
+  3. Any _model_ used for prediction introduces reasoning based on _generalization_, even more so when the model uses a _loss function_ for training; this tends to be the point where KG structure and semantics turn into crap; see the "Let's talk about ..." articles linked below.
+  4. The approach outlined here is faster and less expensive, and produces better results than if you'd delegated KG construction to an LLM.
+
+Of course, YMMV.
 
 
 ## Set Up
@@ -30,32 +68,36 @@ file, then instantiate new `Strwythura` and `GraphRAG` objects using
 it.
 
 
-## Run Demo
+## Run Demo - part 1, build assets
 
-The demo for constructing a knowledge graph, plus entity embeddings,
-with nodes linked to chunks in a vector store is in the `demo.py`
-script:
+Given as input:
+
+  * a list of URLs from which to scrape content
+  * a set of classes defining semantics for extracted entities
+
+Then the `build.py` script scrapes text sources and constructs a
+_knowledge graph_ plus _entity embeddings_, with nodes linked to
+chunks in a _vector store_:
 
 ```bash
-poetry run python3 demo.py
+poetry run python3 build.py
 ```
 
-This scrapes text sources from a collection of URLs, given a set of
-classes for extracted entities. The demo data includes articles about
-the linkage between eating _processed red meat_ frequently and the
-risks of _dementia_ later in life, based on long-term studies.
+Demo data used in this case includes articles about the linkage
+between eating _processed red meat_ frequently and the risks of
+_dementia_ later in life, based on long-term studies.
 
-This demo iterates through multiple steps to produce the assets needed
-for GraphRAG downstream:
+The approach in this tutorial iterates through multiple steps to
+produce the assets needed for GraphRAG downstream:
 
   1. Scrape each URL using `requests` and `BeautifulSoup`
   2. Split the text into _chunks_
-  3. Build  _vector embeddings_ for each chunk, stored in `LanceDB`
+  3. Build _vector embeddings_ for each chunk, in `LanceDB`
   4. Parse each text chunk using `spaCy`, iterating per sentence
   5. Extract _entities_ from each sentence using `GLiNER`
   6. Build a _lexical graph_ from the parse trees in `NetworkX`
   7. Run a _textrank_ algorithm to rank important entities
-  8. Build an embedding model for the entities using `gensim.Word2Vec`
+  8. Build an embedding model for entities using `gensim.Word2Vec`
   9. Generate an interactive visualization using `PyVis`
 
 There's also a step "5.1" which extracts _relations_ using `GLiREL`
@@ -68,7 +110,7 @@ The assets get serialized into these files:
 
   * `data/lancedb` -- vector database tables in `LanceDB`
   * `data/kg.json` -- serialization of `NetworkX` graph
-  * `data/sem.json` -- serialization of semantics for NER
+  * `data/sem.json` -- serialization of semantics used for `GliNER`
   * `data/entity.w2v` -- entity embeddings in `Gensim`
   * `data/url_cache.sqlite` -- URL cache in `SQLite`
   * `kg.html` -- interactive graph visualization in `PyVis`
@@ -79,21 +121,17 @@ i.e., a "backbone" for the KG -- to organize the entities and
 relations which get abstracted from from the lexical graph.
 
 
-## About GraphRAG
+## Run Demo - part 2, GraphRAG chat bot
 
 A good downstream use case for exploring a newly constructed KG is
-[_GraphRAG_](https://derwen.ai/s/hm7h), used for grounding the
-responses by an LLM in a question/answer chat.
+GraphRAG, used for grounding the responses by an LLM in a
+question/answer chat.
 
 This implementation uses `BAML` <https://docs.boundaryml.com/home>
 and leverages the KG using _semantic random walks_.
 
-Note: the term "GraphRAG" means many different things ... see this
-article for more details:
-["Unbundling the Graph in GraphRAG"](https://www.oreilly.com/radar/unbundling-the-graph-in-graphrag/).
-
 To set up, first download/install `Ollama` <https://ollama.com/>
-and pull the Gemma3 model:
+and pull the Gemma3 model <https://huggingface.co/google/gemma-3-12b-it>
 
 ```bash
 ollama pull gemma3:12b
@@ -117,8 +155,8 @@ these workflows:
 
   * Part 1: `construct.ipynb` -- detailed KG construction using a lexical graph
   * Part 2: `chunk.ipynb` -- simple example of how to scrape and chunk text
-  * Part 3: `vector.ipynb` -- query LanceDB table for text chunk embeddings (after running `demo.py`)
-  * Part 4: `embed.ipynb` -- query the entity embedding model (after running `demo.py`)
+  * Part 3: `vector.ipynb` -- query LanceDB table for text chunk embeddings (after running `build.py`)
+  * Part 4: `embed.ipynb` -- query the entity embedding model (after running `build.py`)
 
 
 ## Generalized, Unbundled Process
@@ -211,6 +249,8 @@ its Python client source:
 poetry run baml-cli generate --from strwythura/baml_src
 ```
 
+Kudos to @prrao87, @hellovai, @louisguitton, @cj2001
+
 
 ## FAQ
 
@@ -218,7 +258,7 @@ Q: "Have you tried this with `langextract` yet?"
 A: "I'll take `How does an instructor know a student ignored the README?` from the [`FAFO`](https://en.wiktionary.org/wiki/fuck_around_and_find_out) category, for $200"
 
 Q: "What the hell is the name of this repo about?"  
-A: "As you may have noticed, many open source projects by Derwen are named in a beautiful language called Gymraeg, which English speakers called 'Welsh', where this word [`strwythura`](https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate) translates as the verb **'structure'** in English."
+A: "As you may have noticed, many open source projects by Derwen are named in a beautiful language called Gymraeg, which English speakers call 'Welsh', where this word [`strwythura`](https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate) translates as the verb **'structure'** in English."
 
 Q: "Why aren't you using an LLM instead to build the graph?"  
 A: "I promise to visit you in jail."

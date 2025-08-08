@@ -26,7 +26,7 @@ def run_textrank (
 Run eigenvalue centrality (i.e., _Personalized PageRank_) to rank the entities.
     """
     # build a dataframe of node ranks and counts
-    df_rank: pd.DataFrame = pd.DataFrame.from_dict([
+    df_rank: pd.DataFrame = pd.DataFrame.from_dict([  # type: ignore
         {
             "node_id": node,
             "weight": rank,
@@ -45,7 +45,7 @@ Run eigenvalue centrality (i.e., _Personalized PageRank_) to rank the entities.
 
     # stripe each columns
     df2: pd.DataFrame = pd.DataFrame([
-        stripe_column(values, bins)
+        stripe_column(values, bins)  # type: ignore
         for _, values in df1.items()
     ]).T
 
@@ -80,9 +80,9 @@ Connect entities which co-occur within the same sentence.
 
     for ent in span_decoder.values():
         if ent.node is not None:
-            ent_map[ent.sent_id].add(ent.node)    
+            ent_map[ent.sent_id].add(ent.node)
 
-    for sent_id, nodes in ent_map.items():
+    for nodes in ent_map.values():
         for pair in itertools.combinations(list(nodes), 2):
             if not lex_graph.has_edge(*pair):
                 lex_graph.add_edge(

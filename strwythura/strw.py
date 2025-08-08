@@ -16,9 +16,9 @@ import traceback
 import typing
 import warnings
 
-from icecream import ic
-import gensim
-import lancedb
+from icecream import ic  # type: ignore
+import gensim  # type: ignore
+import lancedb  # type: ignore
 import networkx as nx
 import pandas as pd
 import spacy
@@ -32,7 +32,7 @@ from .nlp import Parser
 from .vis import gen_pyvis
 
 
-class Strwythura:
+class Strwythura:  # pylint: disable=R0902
     """
 Builds assets for constructing a KG, then running GraphRAG downstream.
     """
@@ -61,7 +61,8 @@ Constructor.
         ## none of this works!
         #os.environ["TQDM_DISABLE"] = "1"
         #loguru.logger.disable(gliner_spacy.pipeline.__name__)
-        #loggers: dict = { name:logging.getLogger(name) for name in logging.root.manager.loggerDict }
+        #loggers: dict =
+        # { name:logging.getLogger(name) for name in logging.root.manager.loggerDict }
         #ic(loggers)
         #logging.getLogger("glirel.spacy_integration").setLevel(logging.ERROR)
 
@@ -79,7 +80,7 @@ Constructor.
             self.w2v_model: typing.Optional[ gensim.models.Word2Vec ] = None
 
 
-    def build_assets (
+    def build_assets (  # pylint: disable=R0913
         self,
         url_list: typing.List[ str ],
         ner_labels: typing.List[ str ],
@@ -88,7 +89,7 @@ Constructor.
         kg_path: typing.Optional[ pathlib.Path ] = None,
         sem_path: typing.Optional[ pathlib.Path ] = None,
         w2v_path: typing.Optional[ pathlib.Path ] = None,
-        ) -> int:
+        ) -> None:
         """
 Builds assets for constructing a KG.
         """
@@ -105,7 +106,7 @@ Builds assets for constructing a KG.
                 self.entity_pipe = self.parser.build_entity_pipe()
 
                 # initialize the chunk table
-                vect_db: lancedb.db.LanceDBConnection = lancedb.connect(self.config["vect"]["lancedb_uri"])
+                vect_db: lancedb.db.LanceDBConnection = lancedb.connect(self.config["vect"]["lancedb_uri"])  # pylint: disable=C0301
 
                 self.chunk_table = vect_db.create_table(
                     self.config["vect"]["chunk_table"],
@@ -131,7 +132,7 @@ Builds assets for constructing a KG.
                 self.save_graph(kg_path = kg_path)
                 self.save_semantics(sem_path = sem_path)
 
-            except Exception as ex:
+            except Exception as ex:  # pylint: disable=W0718
                 ic(ex)
                 traceback.print_exc()
 
@@ -144,7 +145,7 @@ Builds assets for constructing a KG.
         """
 Train a `gensim.Word2Vec` model for entity embeddings.
         """
-        w2v_max: int = max([
+        w2v_max: int = max([  # pylint: disable=R1728
             len(vec) - 1
             for vec in self.w2v_vectors
         ])
@@ -177,7 +178,7 @@ Serialize the KG
                 json.dumps(
                     nx.node_link_data(
                         self.sem_overlay,
-                        edges = "links",
+                        edges = "edges",
                     ),
                     indent = 2,
                     sort_keys = True,
@@ -230,7 +231,7 @@ Generate HTML for an interactive visualization of the graph, based on `PyVis`
         kg_path: typing.Optional[ pathlib.Path ] = None,
         sem_path: typing.Optional[ pathlib.Path ] = None,
         w2v_path: typing.Optional[ pathlib.Path ] = None,
-        ) -> int:
+        ) -> None:
         """
 Load the serialized assets for a constructed KG.
         """
@@ -248,7 +249,7 @@ Load the serialized assets for a constructed KG.
         with pathlib.Path(kg_path).open("r", encoding = "utf-8") as fp:
             self.sem_overlay = nx.node_link_graph(
                 json.load(fp),
-                edges = "links",
+                edges = "edges",
             )
 
         if sem_path is None:
@@ -290,8 +291,8 @@ Constructor.
         """
 Extract entity spans from a text question.
         """
-        doc: spacy.tokens.doc.Doc = list(
-            self.strw.entity_pipe.pipe(
+        doc: spacy.tokens.doc.Doc = list(  # pylint: disable=I1101
+            self.strw.entity_pipe.pipe(  # type: ignore
                 [( question, Parser.RE_LABELS )],
                 as_tuples = True,
             )
@@ -302,11 +303,11 @@ Extract entity spans from a text question.
                 tok.pos_ + "." + tok.lemma_.strip().lower()
                 for tok in span
             ])
-        
+
             yield key
 
 
-    def get_chunks (
+    def get_chunks (  # pylint: disable=R0914
         self,
         question: str,
         *,
@@ -330,7 +331,7 @@ Run semantic search to produce a set of text chunks.
 
         try:
             for entity in entities:
-                neighbor_iter = self.strw.w2v_model.wv.most_similar(
+                neighbor_iter = self.strw.w2v_model.wv.most_similar(  # type: ignore
                     positive = [ entity ],
                     topn = num_chunks,
                 )
@@ -346,11 +347,11 @@ Run semantic search to produce a set of text chunks.
         # map the expanded set of entities to nodes in the graph
         expanded_entities: set = entities.union(neighbors)
 
-        anchor_nodes: set = set([
+        anchor_nodes: set = {
             node
             for node, dat in self.strw.sem_overlay.nodes(data = True)
             if "key" in dat and dat["key"] in expanded_entities
-        ])
+        }
 
         if debug:
             ic(anchor_nodes)
@@ -374,14 +375,14 @@ Run semantic search to produce a set of text chunks.
                 chunk_ids.append(chunk_id)
 
         # enumerate chunks from a vector search -- the basic RAG process
-        df_ann_chunk: pd.DataFrame = self.strw.chunk_table.search(
+        df_ann_chunk: pd.DataFrame = self.strw.chunk_table.search(  # type: ignore
             question
         ).limit(
             num_chunks
         ).to_pandas()
 
         for _, row in df_ann_chunk.iterrows():
-            chunk_id: int =  row["uid"]
+            chunk_id: int =  row["uid"]  # type: ignore
 
             if chunk_id not in chunk_ids:
                 chunk_ids.append(chunk_id)
@@ -393,7 +394,7 @@ Run semantic search to produce a set of text chunks.
         id_list: str = ", ".join([ str(c_id) for c_id in chunk_ids ])
         filter_term: str = f"uid IN ({id_list})"
 
-        chunks: typing.List[ str ] = self.strw.chunk_table.search().where(
+        chunks: typing.List[ str ] = self.strw.chunk_table.search().where(  # type: ignore
             filter_term
         ).select(
             [ "text" ]
@@ -442,7 +443,7 @@ In other words, this emulates a _semantic random walk_.
 Extract a subgraph, run a _centrality_ algorithm to rerank the most
 referenced entities in the subgraph.
         """
-        subgraph_iter: typing.Iterator[ int ] = self.gen_subgraph_paths(
+        subgraph_iter: typing.Iterator[ str ] = self.gen_subgraph_paths(
             anchor_nodes,
             debug = debug,
         )
@@ -451,7 +452,7 @@ referenced entities in the subgraph.
             anchor_nodes.union(set(subgraph_iter))
         )
 
-        rank_iter: typing.Iterator[ typing.Tuple[ int, float ] ] = nx.pagerank(
+        rank_iter: dict = nx.pagerank(  # type: ignore
             subgraph,
             self.strw.config["tr"]["tr_alpha"],
         ).items()

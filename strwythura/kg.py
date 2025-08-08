@@ -7,11 +7,10 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
 from collections import defaultdict
-import pathlib
 import typing
 
-from icecream import ic
-import lancedb
+from icecream import ic  # type: ignore
+import lancedb  # type: ignore
 import networkx as nx
 import pandas as pd
 import spacy
@@ -39,7 +38,7 @@ Constructor.
         self.known_lemma: typing.List[ str ] = []
 
 
-    def build_graph (
+    def build_graph (  # pylint: disable=R0912,R0913,R0914,R0917,W0102
         self,
         parser: Parser,
         simple_pipe: spacy.Language,
@@ -75,7 +74,7 @@ Construct a knowledge graph from unstructured data sources.
             for chunk in chunk_list:
                 span_decoder: typing.Dict[ tuple, Entity ] = {}
 
-                doc: spacy.tokens.doc.Doc = parser.parse_text(
+                doc: spacy.tokens.doc.Doc = parser.parse_text(  # pylint: disable=I1101
                     entity_pipe,
                     self.known_lemma,
                     lex_graph,
@@ -88,7 +87,7 @@ Construct a knowledge graph from unstructured data sources.
 
                 # keep track of sentence numbers per chunk, to use later
                 # for entity co-occurrence links
-                sent_map: typing.Dict[ spacy.tokens.span.Span, int ] = {}
+                sent_map: typing.Dict[ spacy.tokens.span.Span, int ] = {}  # pylint: disable=I1101
 
                 for sent_id, sent in enumerate(doc.sents):
                     sent_map[sent] = sent_id
@@ -182,7 +181,7 @@ Construct a knowledge graph from unstructured data sources.
                 print("nodes", len(sem_overlay.nodes), "edges", len(sem_overlay.edges))
 
 
-    def abstract_overlay (
+    def abstract_overlay (  # pylint: disable=R0914
         self,
         url: str,
         chunk_list: typing.List[ TextChunk ],
@@ -217,7 +216,7 @@ the latter first-class citizens within the KG.
 
         for node_id, node_attr in lex_graph.nodes(data = True):
             if node_attr["kind"] == "Entity":
-                kept_nodes.add(node_id)                
+                kept_nodes.add(node_id)
                 count: int = node_attr["count"]
 
                 if not sem_overlay.has_node(node_id):
@@ -262,14 +261,14 @@ the latter first-class citizens within the KG.
                         )
 
 
-    def make_entity (
+    def make_entity (  # pylint: disable=R0913
         self,
         span_decoder: typing.Dict[ tuple, Entity ],
-        sent_map: typing.Dict[ spacy.tokens.span.Span, int ],
-        span: spacy.tokens.span.Span,
+        sent_map: typing.Dict[ spacy.tokens.span.Span, int ],  # pylint: disable=I1101
+        span: spacy.tokens.span.Span,  # pylint: disable=I1101
         chunk: TextChunk,
         *,
-        debug: bool = False,
+        debug: bool = False,  # pylint: disable=W0613
         ) -> Entity:
         """
 Instantiate one `Entity` object, adding to our working "vocabulary".
@@ -292,7 +291,7 @@ Instantiate one `Entity` object, adding to our working "vocabulary".
         if ent.loc not in span_decoder:
             span_decoder[ent.loc] = ent
 
-            if False: # debug
+            if False: # debug  # pylint: disable=W0125
                 ic(ent)
 
         return ent
@@ -303,7 +302,7 @@ Instantiate one `Entity` object, adding to our working "vocabulary".
         lex_graph: nx.Graph,
         ent: Entity,
         *,
-        debug: bool = False,
+        debug: bool = False,  # pylint: disable=W0613
         ) -> None:
         """
 Link one `Entity` into this doc's lexical graph.
@@ -355,17 +354,17 @@ Link one `Entity` into this doc's lexical graph.
             # select the more specific label
             if "label" not in node or node["label"] == "NP":
                 node["label"] = ent.label
-    
-        if False: # debug
+
+        if False: # debug  # pylint: disable=W0125
             ic(ent)
 
 
-    def extract_relations (
+    def extract_relations (  # pylint: disable=R0913,R0914,R0917
         self,
         lex_graph: nx.Graph,
         span_decoder: typing.Dict[ tuple, Entity ],
-        sent_map: typing.Dict[ spacy.tokens.span.Span, int ],
-        doc: spacy.tokens.doc.Doc,
+        sent_map: typing.Dict[ spacy.tokens.span.Span, int ],  # pylint: disable=I1101
+        doc: spacy.tokens.doc.Doc,  # pylint: disable=I1101
         chunk: TextChunk,
         *,
         debug: bool = False,
@@ -385,7 +384,7 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
             redact_rel: bool = False
 
             if src_loc not in span_decoder:
-                if False: # debug
+                if False: # debug  # pylint: disable=W0125
                     print("MISSING src entity:", item["head_text"], item["head_pos"])
 
                 src_ent: Entity = self.make_entity(
@@ -406,7 +405,7 @@ Extract the relations inferred by `GLiREL` adding these to the graph.
                     )
 
             if dst_loc not in span_decoder:
-                if False: # debug
+                if False: # debug  # pylint: disable=W0125
                     print("MISSING dst entity:", item["tail_text"], item["tail_pos"])
 
                 dst_ent: Entity = self.make_entity(
