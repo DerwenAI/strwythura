@@ -9,7 +9,7 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 import math
 
 import networkx as nx
-import pyvis
+import pyvis  # type: ignore
 
 
 def gen_pyvis (
@@ -32,14 +32,14 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
     for node_id, node_attr in graph.nodes(data = True):
         if node_attr.get("kind") == "Entity":
             color: str = "hsla(65, 46%, 58%, 0.80)"
-            size: int = round(20 * math.log(1.0 + math.sqrt(float(node_attr.get("count"))) / num_docs))
-            label: str = node_attr.get("text")
-            title: str = node_attr.get("key")
+            size: int = round(20 * math.log(1.0 + math.sqrt(float(node_attr.get("count"))) / num_docs))  # type: ignore # pylint: disable=C0301
+            label: str = node_attr.get("text")  # type: ignore
+            title: str = node_attr.get("key")  # type: ignore
         else:
             color = "hsla(306, 45%, 57%, 0.95)"
             size = 5
             label = node_id
-            title = node_attr.get("url")
+            title = node_attr.get("url")  # type: ignore
 
         pv_net.add_node(
             node_id,

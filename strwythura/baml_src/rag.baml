@@ -1,31 +1,42 @@
+// --- Data Models ---
+
 class Response {
   question_type "verbatim" | "reworded" | "new"
   question string
-  answer string
+  answer string | null @description("A concise answer to the question in 1-3 sentences")
 }
 
-client<llm> Llama3Client {
+client<llm> GenericClient {
   provider "openai-generic"
   options {
-    base_url "http://localhost:11434/v1"
     model gemma3:12b
+    base_url "http://localhost:11434/v1"
+    temperature 0.0
   }
 }
 
+
+// --- Functions ---
+
 function RAG(question: string, context: string) -> Response {
-  client Llama3Client
+  client GenericClient
   prompt #"
-    Answer the question in full sentences using the provided context.
-    Do not make up an answer. If the information is not provided in the context, say so clearly.
+    Answer the question using the provided context.
+    Do not make up an answer. If you don't know the answer, return a null response.
+    Always strive to provide concise, helpful, and context-aware answers.
      
-    RELEVANT CONTEXT: {{ context }}
-    QUESTION: {{ question }}
+    CONTEXT: {{ context }}
 
     {{ ctx.output_format }}
+
+    QUESTION: {{ question }}
 
     RESPONSE:
   "#
 }
+
+
+// --- Tests ---
 
 test TestMissingContext{
   functions [RAG]

@@ -9,8 +9,9 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 import typing
 import unicodedata
 
-from gliner_spacy.pipeline import GlinerSpacy
-import glirel
+from gliner_spacy.pipeline import GlinerSpacy  # type: ignore # pylint: disable=W0611
+from icecream import ic  # type: ignore
+import glirel  # type: ignore # pylint: disable=W0611
 import networkx as nx
 import spacy
 
@@ -65,7 +66,9 @@ relations, based on using `GLiNER`, `GLiREL`, and textgraphs.
     }
 
     STOP_WORDS: typing.Set[ str ] = set([
+        "PRON.he",
         "PRON.it",
+        "PRON.she",
         "PRON.that",
         "PRON.they",
         "PRON.those",
@@ -123,7 +126,7 @@ installing the repo.
                 "chunk_size": self.config["vect"]["chunk_size"],
             },
         )
-        
+
         entity_pipe.add_pipe(
             "glirel",
             after = "ner",
@@ -132,19 +135,19 @@ installing the repo.
         return entity_pipe
 
 
-    def parse_text (
+    def parse_text (  # pylint: disable=R0913,R0914
         self,
         entity_pipe: spacy.Language,
         known_lemma: typing.List[ str ],
         lex_graph: nx.Graph,
         chunk: TextChunk,
         *,
-        debug: bool = False,
-        ) -> spacy.tokens.doc.Doc:
+        debug: bool = False,  # pylint: disable=W0613
+        ) -> spacy.tokens.doc.Doc:  # pylint: disable=I1101
         """
 Parse an input text chunk, returning a `spaCy` document.
         """
-        doc: spacy.tokens.doc.Doc = list(
+        doc: spacy.tokens.doc.Doc = list(  # pylint: disable=I1101
             entity_pipe.pipe(
                 [( chunk.text, self.RE_LABELS )],
                 as_tuples = True,
@@ -156,16 +159,16 @@ Parse an input text chunk, returning a `spaCy` document.
         for sent in doc.sents:
             node_seq: typing.List[ int ] = []
 
-            if False: # debug
+            if False: # debug  # pylint: disable=W0125
                 ic(sent)
 
             for tok in sent:
                 text: str = tok.text.strip()
-        
+
                 if tok.pos_ in [ "NOUN", "PROPN" ]:
                     key: str = tok.pos_ + "." + tok.lemma_.strip().lower()
                     prev_known: bool = False
-    
+
                     if key not in known_lemma:
                         # create a new node
                         known_lemma.append(key)
@@ -193,13 +196,13 @@ Parse an input text chunk, returning a `spaCy` document.
 
             # create the _textrank_ edges for the lexical graph,
             # which will get used for ranking, but discarded later
-            if False: # debug
+            if False: # debug  # pylint: disable=W0125
                 ic(node_seq)
 
             for hop in range(self.config["tr"]["tr_lookback"]):
-                for node_id, node in enumerate(node_seq[: -1 - hop]):            
+                for node_id, node in enumerate(node_seq[: -1 - hop]):  # type: ignore
                     neighbor: int = node_seq[hop + node_id + 1]
-    
+
                     if not lex_graph.has_edge(node, neighbor):
                         lex_graph.add_edge(
                             node,
@@ -212,7 +215,7 @@ Parse an input text chunk, returning a `spaCy` document.
 
     def uni_scrubber (
         self,
-        span: spacy.tokens.span.Span,
+        span: spacy.tokens.span.Span,  # pylint: disable=I1101
         ) -> str:
         """
 Applies multiple approaches for aggressively removing garbled Unicode
@@ -231,14 +234,14 @@ OH: "It scrubs the garble from its stream... or it gets the debugger again!"
         limpio = limpio.replace("‘", "'").replace("’", "'").replace("`", "'").replace("â", "'")
         limpio = limpio.replace("…", "...").replace("–", "-")
 
-        limpio = str(unicodedata.normalize("NFKD", limpio).encode("ascii", "ignore").decode("utf-8"))
+        limpio = str(unicodedata.normalize("NFKD", limpio).encode("ascii", "ignore").decode("utf-8"))  # pylint: disable=C0301
 
         return limpio
 
 
     def make_chunk (
         self,
-        doc: spacy.tokens.doc.Doc,
+        doc: spacy.tokens.doc.Doc,  # pylint: disable=I1101
         url: str,
         chunk_list: typing.List[ TextChunk ],
         chunk_id: int,
@@ -251,11 +254,12 @@ BTW, for ideal text chunk size see
         chunks: typing.List[ str ] = []
         chunk_total: int = 0
         prev_line: str = ""
+        sent_id: int = 0
 
         for sent_id, sent in enumerate(doc.sents):
             line: str = self.uni_scrubber(sent)
             line_len: int = len(line)
-    
+
             if (chunk_total + line_len) > self.config["vect"]["chunk_size"]:
                 # emit the current chunk
                 chunk_list.append(

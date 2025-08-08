@@ -14,6 +14,8 @@ from .nlp import Parser
 
 from .opt import calc_quantile_bins, stripe_column, root_mean_square
 
+from .profile import PerfProfiler
+
 from .scrape import Scraper
 
 from .strw import Strwythura, GraphRAG
@@ -21,4 +23,3 @@ from .strw import Strwythura, GraphRAG
 from .textrank import run_textrank, cooccur_entities
 
 from .vis import gen_pyvis
-

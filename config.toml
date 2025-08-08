@@ -1,7 +1,7 @@
 [nlp]
 
 spacy_model = "en_core_web_md"
-gliner_model = "urchade/gliner_small-v2.1"
+gliner_model = "urchade/gliner_medium-v2.1"
 
 [scraper]
 

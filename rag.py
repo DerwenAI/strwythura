@@ -15,15 +15,19 @@ import warnings
 from icecream import ic
 import baml_py
 
-from strwythura import Strwythura, GraphRAG
+from strwythura import Strwythura, GraphRAG, PerfProfiler
 from strwythura.baml_client import types as baml_types
 
 
 if __name__ == "__main__":
+    # start the performance profiling
+    profiler: PerfProfiler = PerfProfiler()
+    profiler.start()
+
+    # build a GraphRAG instance
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
 
-        # build a GraphRAG instance
         strw: Strwythura = Strwythura()
         strw.load_assets()
 
@@ -58,3 +62,6 @@ if __name__ == "__main__":
         finally:
             print("\nÀ bientôt!\n")
             time.sleep(.1)
+
+    # report the performance profiler stats
+    profiler.report()

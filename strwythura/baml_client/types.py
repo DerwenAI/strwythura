@@ -47,7 +47,7 @@ def all_succeeded(checks: typing.Dict[CheckName, Check]) -> bool:
 class Response(BaseModel):
     question_type: typing.Union[typing_extensions.Literal['verbatim'], typing_extensions.Literal['reworded'], typing_extensions.Literal['new']]
     question: str
-    answer: str
+    answer: typing.Optional[str] = None
 
 # #########################################################################
 # Generated type aliases (0)
