@@ -207,7 +207,7 @@ generalization becomes dominant -- regardless of any marketing claims
 about "AI reasoning" made by tech firms.
 
 Fortunately, decisions can be made _without models_, even in AI
-applications. Shock, horror!!! Plaease, say it isn't so!?! Brace
+applications. Shock, horror!!! Please, say it isn't so!?! Brace
 yourselves, using models is a thing, but not the only thing.  For more
 detailed discussion, see:
 
