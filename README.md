@@ -106,6 +106,10 @@ though its results may be a bit sparse.
 Note: processing may take a few extra minutes the first time it runs
 since `PyTorch` must download a large (~2GB) file.
 
+If you look at the performance statistics, it takes almost twice as
+long to generate an interactive graph visualization as it does to
+perform everything else.
+
 The assets get serialized into these files:
 
   * `data/lancedb` -- vector database tables in `LanceDB`
@@ -255,7 +259,7 @@ Kudos to @prrao87, @hellovai, @louisguitton, @cj2001
 ## FAQ
 
 Q: "Have you tried this with `langextract` yet?"  
-A: "I'll take `How does an instructor know a student ignored the README?` from the [`FAFO`](https://en.wiktionary.org/wiki/fuck_around_and_find_out) category, for $200"
+A: "I'll take `How does an instructor know a student ignored the README?` from the [`FAFO`](https://en.wiktionary.org/wiki/fuck_around_and_find_out) category, for $200" ... but yes of course, it's an interesting package, building on other interesting work used here.
 
 Q: "What the hell is the name of this repo about?"  
 A: "As you may have noticed, many open source projects by Derwen are named in a beautiful language called Gymraeg, which English speakers call 'Welsh', where this word [`strwythura`](https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate) translates as the verb **'structure'** in English."
