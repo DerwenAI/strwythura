@@ -14,6 +14,7 @@ from icecream import ic  # type: ignore
 import glirel  # type: ignore # pylint: disable=W0611
 import networkx as nx
 import spacy
+import w3lib.html
 
 from .graph import TextChunk
 
@@ -229,6 +230,7 @@ OH: "It scrubs the garble from its stream... or it gets the debugger again!"
             print("not a string?", type(text), text)
 
         limpio: str = " ".join(map(lambda s: s.strip(), text.split("\n"))).strip()
+        limpio = w3lib.html.replace_escape_chars(limpio)
 
         limpio = limpio.replace('“', '"').replace('”', '"')
         limpio = limpio.replace("‘", "'").replace("’", "'").replace("`", "'").replace("â", "'")
