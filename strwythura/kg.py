@@ -226,6 +226,7 @@ the latter first-class citizens within the KG.
                         key = node_attr["key"],
                         text = node_attr["text"],
                         label = node_attr["label"],
+                        rank = node_attr["rank"],
                         count = count,
                     )
                 else:
