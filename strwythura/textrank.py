@@ -13,6 +13,7 @@ import typing
 import networkx as nx
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from .opt import calc_quantile_bins, stripe_column, root_mean_square
 from .graph import Entity
@@ -21,7 +22,7 @@ from .graph import Entity
 def run_textrank (
     config: dict,
     lex_graph: nx.Graph,
-    ) -> pd.DataFrame:
+    ) -> pl.DataFrame:
     """
 Run eigenvalue centrality (i.e., _Personalized PageRank_) to rank the entities.
     """
@@ -60,11 +61,14 @@ Run eigenvalue centrality (i.e., _Personalized PageRank_) to rank the entities.
         node: int = row["node_id"]
         lex_graph.nodes[node]["rank"] = row["rank"]
 
-    df: pd.DataFrame = pd.DataFrame([
+    df: pl.DataFrame = pl.DataFrame([
         node_attr
         for node, node_attr in lex_graph.nodes(data = True)
         if node_attr["kind"] == "Entity"
-    ]).sort_values(by = [ "rank" ], ascending = False)
+    ]).sort(
+        [ "rank" ],
+        descending = True,
+    )
 
     return df
 

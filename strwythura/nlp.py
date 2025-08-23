@@ -67,15 +67,21 @@ relations, based on using `GLiNER`, `GLiREL`, and textgraphs.
     }
 
     STOP_WORDS: typing.Set[ str ] = set([
+        "PRON.each",
         "PRON.he",
         "PRON.it",
         "PRON.she",
+        "PRON.some",
+        "PRON.someone",
         "PRON.that",
+        "PRON.their",
         "PRON.they",
         "PRON.those",
         "PRON.we",
+        "PRON.what",
         "PRON.which",
         "PRON.who",
+        "PRON.you",
     ])
 
 

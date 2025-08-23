@@ -5,8 +5,9 @@
 
 How to construct a _knowledge graph_ (KG) from unstructured data
 sources using _state of the art_ (SOTA) models for _named entity
-recognition_ (NER), and then implement an enhanced _GraphRAG_
-approach.
+recognition_ (NER), then implement an enhanced _GraphRAG_ approach,
+and curate semantics for optimizing AI app outcomes within a
+specific domain.
 
   * video: <https://youtu.be/B6_NfvQL-BE>
   * slides: <https://derwen.ai/s/2njz#1>
@@ -49,12 +50,19 @@ been addressed by the graph community in general:
 Of course, YMMV.
 
 
-## Set Up
+## Set up
 
 ```bash
 poetry update
 poetry run python3 -m spacy download en_core_web_md
 ```
+
+Note: if you're working with text documents in another language,
+change the `spaCy` model downloaded here, and also the model setting
+in the `config.toml` file. It's a shame this *cannot* be done
+programmatically in a more fluent Pythonic way, for a variety of
+complex reasons.
+
 
 ## Usage
 
@@ -68,7 +76,7 @@ file, then instantiate new `Strwythura` and `GraphRAG` objects using
 it.
 
 
-## Run Demo - part 1, build assets
+## Part 1: Build assets
 
 Given as input:
 
@@ -115,17 +123,13 @@ The assets get serialized into these files:
   * `data/lancedb` -- vector database tables in `LanceDB`
   * `data/kg.json` -- serialization of `NetworkX` graph
   * `data/sem.json` -- serialization of semantics used for `GliNER`
+  * `data/sem.csv` -- entity semantics from `curate.py`
   * `data/entity.w2v` -- entity embeddings in `Gensim`
   * `data/url_cache.sqlite` -- URL cache in `SQLite`
   * `kg.html` -- interactive graph visualization in `PyVis`
 
-Note: if you had a graph previously constructed from more reliable
-_structured data sources_, this demo could use a _semantic layer_ --
-i.e., a "backbone" for the KG -- to organize the entities and
-relations which get abstracted from from the lexical graph.
 
-
-## Run Demo - part 2, GraphRAG chat bot
+## Part 2: GraphRAG chat bot
 
 A good downstream use case for exploring a newly constructed KG is
 GraphRAG, used for grounding the responses by an LLM in a
@@ -147,11 +151,28 @@ Then run the `rag.py` script for an interactive GraphRAG example:
 poetry run python3 rag.py
 ```
 
+## Part 3: Semantics curation (WIP)
 
-## Tutorial Notebooks
+If you had a graph previously constructed from more reliable
+_structured data sources_, this demo could use a _semantic layer_ --
+i.e., a "backbone" for the KG -- to organize the entities and
+relations which get abstracted from from the lexical graph.
 
-A collection of Jupyter notebooks illustrate important steps within
-these workflows:
+For now, run the `curate.py` script to generate a view of the
+ranked NER results, serialized as the `data/sem.csv` file.
+This can be viewed in a spreadsheet to understand how to
+iterate on the semantic definitions for more effective graph
+organization in the domain of the scraped documents.
+
+```bash
+poetry run python3 curate.py
+```
+
+
+## Tutorial notebooks
+
+A collection of Jupyter notebooks illustrate some important
+intermediate steps within these workflows:
 
 ```bash
 .venv/bin/jupyter-lab
@@ -230,21 +251,33 @@ cases, such as AI applications, also benefit from improved quality of
 semantics and representation.
 
 
-## Experimental - OpenNRE
+## Experiment: Relation Extraction library evals
 
-The `OpenNRE` library also provides _relation extraction_ and there is
-some experimental code which illustrates this.
+TL;DR: current Python libraries for _relation extraction_ (RE) are
+probably best characterized as "experimental research projects"
+and in particular their tokenization approaches tend to make the
+mistake of "throwing the baby out with the bath water" by not
+leveraging other information which we have in _textgraph_
+representation of the parsed documents.
 
+This project uses `GLiREL` although its results are quite sparse, and
+could likely be replaced by a BAML or DSPy workflow in the near future.
+
+Other libraries which have been evaluated:
+
+  * `ReLIK`: <https://github.com/SapienzaNLP/relik>
   * `OpenNRE`: <https://github.com/thunlp/OpenNRE>
+  * `mREBEL`: <https://github.com/Babelscape/rebel>
 
+There is some experimental code which illustrates `OpenNRE` evaluation.
 Use the `nre.sh` script to load OpenNRE pre-trained models before
 running the `opennre.ipynb` notebook.
 
-This may not work in many environments, depending on whether the
+This may not work in many environments, depending on how well the
 `OpenNRE` library is being maintained.
 
 
-## Developer Notes
+## Developer notes
 
 After each `BAML` release update, some committer needs to regenerate
 its Python client source:
@@ -262,7 +295,7 @@ Q: "Have you tried this with `langextract` yet?"
 A: "I'll take `How does an instructor know a student ignored the README?` from the [`FAFO`](https://en.wiktionary.org/wiki/fuck_around_and_find_out) category, for $200" ... but yes of course, it's an interesting package, building on other interesting work used here.
 
 Q: "What the hell is the name of this repo about?"  
-A: "As you may have noticed, many open source projects by Derwen are named in a beautiful language called Gymraeg, which English speakers call 'Welsh', where this word [`strwythura`](https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate) translates as the verb **'structure'** in English."
+A: "As you may have noticed, many open source projects by Derwen are named in a beautiful language Gymraeg, which English speakers call 'Welsh', where this word [`strwythura`](https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate) translates as the verb **'structure'** in English."
 
 Q: "Why aren't you using an LLM instead to build the graph?"  
 A: "I promise to visit you in jail."
