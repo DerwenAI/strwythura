@@ -12,7 +12,7 @@ import typing
 from icecream import ic  # type: ignore
 import lancedb  # type: ignore
 import networkx as nx
-import pandas as pd
+import polars as pl
 import spacy
 
 from .graph import Entity, TextChunk
@@ -160,7 +160,7 @@ Construct a knowledge graph from unstructured data sources.
 
             # apply _textrank_ to the graph (in the url/doc iteration)
             # then report the top-ranked extracted entities
-            df: pd.DataFrame = run_textrank(
+            df: pl.DataFrame = run_textrank(
                 self.config,
                 lex_graph,
             )

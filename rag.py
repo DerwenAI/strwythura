@@ -38,10 +38,11 @@ if __name__ == "__main__":
             while True:
                 question: str = input("\nQuoi? ").strip()
 
+                if len(question) < 1:
+                    continue
+
                 if question.lower() in [ "quitter", "bye" ]:
                     break
-
-                assert len(question) > 0
 
                 response: baml_types.Response = rag.qa_cycle(
                     question,

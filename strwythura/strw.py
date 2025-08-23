@@ -20,7 +20,7 @@ from icecream import ic  # type: ignore
 import gensim  # type: ignore
 import lancedb  # type: ignore
 import networkx as nx
-import pandas as pd
+import polars as pl
 import spacy
 import transformers
 
@@ -375,13 +375,13 @@ Run semantic search to produce a set of text chunks.
                 chunk_ids.append(chunk_id)
 
         # enumerate chunks from a vector search -- the basic RAG process
-        df_ann_chunk: pd.DataFrame = self.strw.chunk_table.search(  # type: ignore
+        df_ann_chunk: pl.DataFrame = self.strw.chunk_table.search(  # type: ignore
             question
         ).limit(
             num_chunks
-        ).to_pandas()
+        ).to_polars()
 
-        for _, row in df_ann_chunk.iterrows():
+        for row in df_ann_chunk.iter_rows(named = True):
             chunk_id: int =  row["uid"]  # type: ignore
 
             if chunk_id not in chunk_ids:
@@ -398,7 +398,7 @@ Run semantic search to produce a set of text chunks.
             filter_term
         ).select(
             [ "text" ]
-        ).to_pandas()["text"].tolist()
+        ).to_polars()["text"].to_list()
 
         return chunks[:num_chunks]
 
