@@ -1477,7 +1477,7 @@ transformers = "*"
 [package.source]
 type = "git"
 url = "https://github.com/ceteri/GLiREL.git"
-reference = "HEAD"
+reference = "v1.2.1"
 resolved_reference = "3aa6a91d218e945c9be64d8a9d08834350283539"
 
 [[package]]
@@ -6880,4 +6880,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.12"
-content-hash = "c51b2ac231d2451e26c947b8432525d7b94d9c23b6fbb4ece18d454987ea3cab"
+content-hash = "dbad1ad9f412929eaa1b4132e5e07db1e2e0e5bba162ac943c92c967a09243a6"

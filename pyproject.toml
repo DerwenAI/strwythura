@@ -1,8 +1,22 @@
+[build-system]
+
+requires = [
+    "poetry-core>=2.0.0,<3.0.0"
+]
+
+build-backend = "poetry.core.masonry.api"
+
+
 [project]
 
 name = "strwythura"
-version = "0.2.0"
-description = "Tutorial for how to construct knowledge graphs from unstructured data sources"
+description = """
+Construct a _knowledge graph_ (KG) from unstructured data
+sources using _state of the art_ (SOTA) models for _named entity
+recognition_ (NER), then implement an enhanced _GraphRAG_ approach,
+and curate semantics for optimizing AI app outcomes within a
+specific domain.
+"""
 
 authors = [
     { name = "Paco Nathan", email = "paco@derwen.ai"}
@@ -10,6 +24,8 @@ authors = [
 
 readme = "README.md"
 license = { text = "MIT" }
+
+version = "1.0.1"
 
 requires-python = ">=3.11,<3.12"
 
@@ -37,20 +53,18 @@ dependencies = [
     "bs4 (>=0.0.2,<0.0.3)",
     "ollama (>=0.5.1,<0.6.0)",
     "baml-cli (>=0.1.0,<0.2.0)",
-    "glirel @ git+https://github.com/ceteri/GLiREL.git",
+    "glirel @ git+https://github.com/ceteri/GLiREL.git@v1.2.1",
     "requests-cache (>=1.2.1,<2.0.0)",
     "w3lib (>=2.3.1,<3.0.0)",
     "polars (>=1.32.3,<2.0.0)",
 ]
 
 
-[build-system]
+[project.urls]
 
-requires = [
-    "poetry-core>=2.0.0,<3.0.0"
-]
+homepage = "https://github.com/DerwenAI/strwythura"
+doi = "https://doi.org/10.5281/zenodo.16934079"
 
-build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.group.dev.dependencies]
 
