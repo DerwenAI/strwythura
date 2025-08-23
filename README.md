@@ -1,5 +1,7 @@
 # Strwythura
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.16934079.svg)](https://doi.org/10.5281/zenodo.16934079)
+
 **Strwythura** tutorial, based on a presentation about GraphRAG for
 [GraphGeeks](https://graphgeeks.org/) on 2024-08-14
 
