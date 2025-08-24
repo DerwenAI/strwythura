@@ -1,9 +1,17 @@
 # Strwythura
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.16934079.svg)](https://doi.org/10.5281/zenodo.16934079)
+![Licence](https://img.shields.io/github/license/DerwenAI/strwythura)
+![Repo size](https://img.shields.io/github/repo-size/DerwenAI/strwythura)
+[![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/DerwenAI/strwythura?style=plastic)
 
-**Strwythura** tutorial, based on a presentation about GraphRAG for
+
+**Strwythura** library/tutorial, based on a presentation about GraphRAG for
 [GraphGeeks](https://graphgeeks.org/) on 2024-08-14
+
+<details>
+  <summary>Overview</summary>
 
 How to construct a _knowledge graph_ (KG) from unstructured data
 sources using _state of the art_ (SOTA) models for _named entity
@@ -36,13 +44,13 @@ to an LLM for _summarization_ to produce responses.
 For more detailed discussions, see:
 
   * enhanced GraphRAG: ["GraphRAG to enhance LLM-based apps"](https://derwen.ai/s/hm7h#3)
-  * ontology pipeline: ["Intentional Arrangement"](https://jessicatalisman.substack.com/) by Jessica Talisman
+  * ontology pipeline: ["Intentional Arrangement"](https://jessicatalisman.substack.com/) by **Jessica Talisman**
   * `spaCy`: <https://spacy.io/>
   * `GLiNER`: <https://huggingface.co/urchade/gliner_base>
   * _TextRank_: <https://www.derwen.ai/docs/ptr/explain_algo/>
 
-A few key issues regarding KG construction with LLMs still have not
-been addressed by the graph community in general:
+Some key issues regarding KG construction with LLMs haven't been
+addressed by the graph community and AI community in general:
 
   1. LLMs tend to mangle cross-domain semantics when used for building graphs; see _Mai2024_ referenced in the "GraphRAG to enhance LLM-based apps" talk above.
   2. You need to introduce a _semantic layer_ for representing the domain context, which follows more of a _neurosymbolic AI_ approach.
@@ -61,39 +69,45 @@ best practices from:
   * _context engineering_
   * _human-in-the-loop_
 
-to illustrate a reference implementation for _entity-resolved
+This illustrates a reference implementation for _entity-resolved
 retrieval-augmented generation_ (ER-RAG).
+</details>
 
 
-## Set up
+## Usage in applications
+
+To `pip` install from [PyPi](https://pypi.org/project/strwythura/):
+
+```bash
+python3 -m pip install strwathura
+python3 -m spacy download en_core_web_md
+```
+
+Then to integrate this library within an application:
+
+  1. Run `Ollama` and have already downloaded the Gemma3 LLM as described below.
+  2. Copy settings in `config.toml` into a custom configuration file.
+  3. Define semantics in `domain.ttl` for the domain context of the use case.
+  4. Instantiate new `Strwythura` and `GraphRAG` objects.
+
+Follow the example patterns in `build.py` and `errag.py` respectively.
 
 Caveat: this code runs with Python 3.11, though the range of versions
 may be extended soon.
+
+
+## Set up for demo or development
 
 ```bash
 poetry update
 poetry run python3 -m spacy download en_core_web_md
 ```
 
-Note: if you're working with text documents in another language,
-change the `spaCy` model downloaded here, and also the model setting
-in the `config.toml` file. It's a shame this *cannot* be done
-programmatically in a more fluent Pythonic way, for a variety of
-complex reasons.
+Note: if you're working with text documents in another language, change the `spaCy` model downloaded here, and also the model setting in the `config.toml` file. That's not possible to handle programmatically in a more fluent Pythonic way, for a variety of complicated reasons.
 
 
-## Usage
-
-If you want to use this library within an application:
-
-  1. Copy settings in `config.toml` into a custom configuration file.
-  2. Define semantics in `domain.ttl` for the domain context of your use case.
-  3. Instantiate new `Strwythura` and `GraphRAG` objects.
-
-Follow the example patterns in `build.py` and `errage.py` respectively.
-
-
-## Part 1: Build assets
+<details>
+  <summary>Demo Part 1: Build assets</summary>
 
 Given as input:
 
@@ -145,9 +159,10 @@ The assets get serialized into these files:
   * `data/entity.w2v` -- entity embeddings in `Gensim`
   * `data/url_cache.sqlite` -- URL cache in `SQLite`
   * `kg.html` -- interactive graph visualization in `PyVis`
+</details>
 
-
-## Part 2: GraphRAG chat bot
+<details>
+  <summary>Demo Part 2: GraphRAG chat bot</summary>
 
 A good downstream use case for exploring a newly constructed KG is
 GraphRAG, used for grounding the responses by an LLM in a
@@ -168,8 +183,10 @@ Then run the `errag.py` script for an interactive GraphRAG example:
 ```bash
 poetry run python3 errag.py
 ```
+</details>
 
-## Part 3: Semantics curation (WIP)
+<details>
+  <summary>Demo Part 3: Curating an ontology pipeline</summary>
 
 This code uses a _semantic layer_ -- in other words, a "backbone" for
 the KG -- to organize the entities and relations which get abstracted
@@ -188,9 +205,11 @@ scraped documents.
 ```bash
 poetry run python3 curate.py
 ```
+</details>
 
 
-## Generalized, Unbundled Process
+<details>
+  <summary>GraphRAG: a generalized, unbundled process</summary>
 
 **Objective:**
 
@@ -199,25 +218,25 @@ deep learning models provide narrowly-focused _point solutions_ to
 generate components for a graph: nodes, edges, properties.
 
 These steps define a generalized process, where this tutorial picks up
-at the _lexical graph_ (without the EL part yet):
+at the _lexical graph_, without the _entity linking_ (EL) part yet:
 
 **Semantic overlay:**
 
-  1. Load any pre-defined controlled vocabularies directly into the KG.
+  1. Load any semantic context from pre-defined controlled vocabularies, taxonomies, thesauri, ontologies, etc., directly into the KG.
 
 **Data graph:**
 
   1. Load the structured data sources or updates into a data graph.
-  2. Perform entity resolution (ER) on PII extracted from the data graph.
+  2. Perform _entity resolution_ (ER) on PII extracted from the data graph.
   3. Use ER results to generate a semantic overlay as a "backbone" for the KG.
 
 **Lexical graph:**
 
   1. Parse the text chunks, using lemmatization to normalize token spans.
   2. Construct a lexical graph from parse trees, e.g., using a textgraph algorithm.
-  3. Analyze named entity recognition (NER) to extract candidate entities from NP spans.
-  4. Analyze relation extraction (RE) to extract relations between pairwise entities.
-  5. Perform entity linking (EL) leveraging the ER results.
+  3. Analyze _named entity recognition_ (NER) to extract candidate entities from noun phrase spans.
+  4. Analyze _relation extraction_ (RE) to extract relations between pairwise entities.
+  5. Perform _entity linking_ (EL) leveraging the ER results.
   6. Promote the extracted entities and relations up to the semantic overlay.
 
 Of course many vendors suggest using a _large language model_ (LLM) as
@@ -255,9 +274,11 @@ one-step process. By producing a KG based on the approach sketched
 above, updates can be handled more effectively.  Any downstream use
 cases, such as AI applications, also benefit from improved quality of
 semantics and representation.
+</details>
 
 
-## Experiment: Relation Extraction library evals
+<details>
+  <summary>Experimental: Relation Extraction evaluation</summary>
 
 Current Python libraries for _relation extraction_ (RE) are
 probably best characterized as "experimental research projects".
@@ -285,25 +306,11 @@ before running the `archive/opennre.ipynb` notebook.
 
 This may not work in many environments, depending on how well the
 `OpenNRE` library is being maintained.
+</details>
 
 
-## Tutorial notebooks
-
-There is a collection of Jupyter notebooks (now archived) which
-were used to prototype code. These help illustrate important
-intermediate steps within these workflows:
-
-```bash
-.venv/bin/jupyter-lab
-```
-
-  * Part 1: `archive/construct.ipynb` -- detailed KG construction using a lexical graph
-  * Part 2: `archive/chunk.ipynb` -- simple example of how to scrape and chunk text
-  * Part 3: `archive/vector.ipynb` -- query LanceDB table for text chunk embeddings (after running `build.py`)
-  * Part 4: `archive/embed.ipynb` -- query the entity embedding model (after running `build.py`)
-
-
-## Developer notes
+<details>
+  <summary>Developer notes</summary>
 
 After each `BAML` release update, some committer needs to regenerate
 its Python client source:
@@ -311,29 +318,97 @@ its Python client source:
 ```bash
 poetry run baml-cli generate --from strwythura/baml_src
 ```
-
-Kudos to @prrao87, @hellovai, @louisguitton, @cj2001
-
-
-## FAQ
-
-Q: "Have you tried this with `langextract` yet?"  
-A: "I'll take `How does an instructor know a student ignored the README?` from the [`FAFO`](https://en.wiktionary.org/wiki/fuck_around_and_find_out) category, for $200" ... but yes of course, it's an interesting package, building on other interesting work used here.
-
-Q: "What the hell is the name of this repo about?"  
-A: "As you may have noticed, many open source projects by Derwen are named in a beautiful language Gymraeg, which English speakers call 'Welsh', where this word [`strwythura`](https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate) translates as the verb **'structure'** in English."
-
-Q: "Why aren't you using an LLM instead to build the graph?"  
-A: "I promise to visit you in jail."
+</details>
 
 
-## License and Copyright
+<details>
+  <summary>Experimental: Tutorial notebooks</summary>
 
-Source code, documentation, and examples have an
-[MIT license](https://spdx.org/licenses/MIT.html)
-which is succinct andsimplifies use in commercial applications.
+<p>
+A collection of Jupyter notebooks were used to prototype code. These
+help illustrate important intermediate steps within these workflows:
+<p>
+```bash
+.venv/bin/jupyter-lab
+```
+
+<ul>
+<li>Part 1: `archive/construct.ipynb` -- detailed KG construction using a lexical graph</li>
+<li>Part 2: `archive/chunk.ipynb` -- simple example of how to scrape and chunk text</li>
+<li>Part 3: `archive/vector.ipynb` -- query LanceDB table for text chunk embeddings (after running `build.py`)</li>
+<li>Part 4: `archive/embed.ipynb` -- query the entity embedding model (after running `build.py`)</li>
+</ul>
+
+<p>
+These are now archived, though kept available for study.
+</p>
+</details>
+
+
+<details>
+  <summary>FAQ</summary>
+
+<dl>
+<dt>Q:</dt><dd>"Have you tried this with <code>langextract</code> yet?"</dd>
+<dt>A:</dt><dd>"I'll take <code>How does an instructor know a student ignored the README?</code> from the <a href="https://en.wiktionary.org/wiki/fuck_around_and_find_out" target="_blank"><em>What is FAFO?</em></a> category, for $200" ... but yes of course, it's an interesting package, which builds on other interesting work used here. Except that key parts of it miss the point entirely, in ways that only a hyperscaler could possibly fuck up so badly.</dd>
+</dl>
+
+<dl>
+<dt>Q:</dt><dd>"What the hell is the name of this repo about?"</dd>
+<dt>A:</dt><dd>"As you may have noticed, many open source projects by Derwen are named in a beautiful language Gymraeg, which English speakers call 'Welsh', where this word <a href="https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate" target="_blank"><code>strwythura</code></a> translates as the verb <strong>structure</strong> in English."</dd>
+</dl>
+
+<dl>
+<dt>Q:</dt><dd>"Why aren't you using an LLM to build the graph instead?"</dd>
+<dt>A:</dt><dd>"I promise to visit you in jail."</dd>
+</dl>
+
+<dl>
+<dt>Q:</dt><dd>"Um, yeah, like, didn't Karpathy say to use <em>vibe coding</em>, or something? #justsayin"
+<dt>A:</dt><dd>"<a href="https://effinbirds.com/" target="_blank">Piss the eff off</a> tech bro. Srsly, like yesterday -- you're embarrassing our entire industry with your overly exuberant ignorance."</dd>
+</dl>
+
+</details>
+
+
+<details>
+  <summary>License and Copyright</summary>
+
+Source code for **Strwythura** plus its logo, documentation, and examples
+have an [MIT license](https://spdx.org/licenses/MIT.html) which is
+succinct and simplifies use in commercial applications.
 
 All materials herein are Copyright © 2024-2025 Senzing, Inc.
+</details>
+
+
+<details>
+  <summary>Attribution</summary>
+Please use the following BibTeX entry for citing **Strwythura** if you use
+it in your research or software.
+Citations are helpful for the continued development and maintenance of
+this library.
+
+```bibtex
+@software{strwythura,
+  author = {Paco Nathan},
+  title = {{strwythura: construct a knowledge graph from unstructured data sources, organized by results from entity resolution, implementing an enhanced GraphRAG approach, and also implementing an ontology pipeline plus context engineering for optimizing AI application outcomes within a specific domain}},
+  year = 2024,
+  publisher = {Senzing},
+  doi = {10.5281/zenodo.16934079},
+  url = {https://github.com/DerwenAI/strwythura}
+}
+```
+
+Kudos to 
+[@louisguitton](https://github.com/louisguitton), 
+[@cj2001](https://github.com/cj2001),
+[@prrao87](https://github.com/prrao87), 
+[@hellovai](https://github.com/hellovai),
+[@docktermj](https://github.com/docktermj), 
+[@jbutcher21](https://github.com/jbutcher21),  
+and the kind folks at [GraphGeeks](https://graphgeeks.org/) for their support.
+</details>
 
 
 ## Star History
