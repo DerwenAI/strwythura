@@ -353,7 +353,8 @@ This may not work in many environments, depending on how well the
 <p>
 A collection of Jupyter notebooks were used to prototype code. These
 help illustrate important intermediate steps within these workflows:
-<p>
+</p>
+
 ```bash
 .venv/bin/jupyter-lab
 ```
@@ -384,6 +385,7 @@ All materials herein are Copyright © 2024-2025 Senzing, Inc.
 
 <details>
   <summary>Kudos and Attribution</summary>
+
 Please use the following BibTeX entry for citing **Strwythura** if you use
 it in your research or software.
 Citations are helpful for the continued development and maintenance of
