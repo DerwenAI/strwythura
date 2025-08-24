@@ -394,7 +394,7 @@ this library.
 ```bibtex
 @software{strwythura,
   author = {Paco Nathan},
-  title = {{strwythura: construct a knowledge graph from unstructured data sources, organized by results from entity resolution, implementing an enhanced GraphRAG approach, and also implementing an ontology pipeline plus context engineering for optimizing AI application outcomes within a specific domain}},
+  title = {{Strwythura: construct a knowledge graph from unstructured data sources, organized by results from entity resolution, implementing an enhanced GraphRAG approach, and also implementing an ontology pipeline plus context engineering for optimizing AI application outcomes within a specific domain}},
   year = 2024,
   publisher = {Senzing},
   doi = {10.5281/zenodo.16934079},
