@@ -76,6 +76,9 @@ _entity-resolved retrieval-augmented generation_ (ER-RAG).
 
 ## Usage in applications
 
+This runs with Python 3.11, though the range of versions may be
+extended soon.
+
 To `pip` install from [PyPi](https://pypi.org/project/strwythura/):
 
 ```bash
@@ -92,18 +95,23 @@ Then to integrate this library within an application:
 
 Follow the example patterns in `build.py` and `errag.py` respectively.
 
-Caveat: this code runs with Python 3.11, though the range of versions
-may be extended soon.
+If you're working with documents in a language other than English,
+well first that's absolutely fantastic. Next, you need to:
+
+  * Update model settings in the `config.toml` file.
+  * Change the `spaCy` model downloaded here.
+  * Also change the language tags used in `domain.ttl` as needed.
 
 
 ## Set up for demo or development
+
+This library uses [`poetry`](https://python-poetry.org/docs/) for
+package management, and first you need to install it. Then run:
 
 ```bash
 poetry update
 poetry run python3 -m spacy download en_core_web_md
 ```
-
-Note: if you're working with text documents in another language, change the `spaCy` model downloaded here, and also the model setting in the `config.toml` file. That's not possible to handle programmatically in a more fluent Pythonic way, for a variety of complicated reasons.
 
 
 <details>
