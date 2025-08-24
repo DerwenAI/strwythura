@@ -22,7 +22,7 @@ if __name__ == "__main__":
     profiler: PerfProfiler = PerfProfiler()
     profiler.start()
 
-    # construct the KG and build the assets for GraphRAG later
+    # construct the KG and build the assets for running GraphRAG later
     url_list: typing.List[ str ] = [
         "https://aaic.alz.org/releases-2024/processed-red-meat-raises-risk-of-dementia.asp",
         "https://www.theguardian.com/society/article/2024/jul/31/eating-processed-red-meat-could-increase-risk-of-dementia-study-finds",
@@ -30,31 +30,10 @@ if __name__ == "__main__":
         "https://www.alz.org/alzheimers-dementia/what-is-dementia",
     ]
 
-    ner_labels: typing.List[ str ] = [
-        "Behavior",
-        "City",
-        "Company",    
-        "Condition",
-        "Conference",
-        "Country",
-        "Food",
-        "Food Additive",
-        "Hospital",
-        "Organ",
-        "Organization",
-        "People Group",
-        "Person",
-        "Publication",
-        "Research",
-        "Science",
-        "University",
-    ]
-
     strw: Strwythura = Strwythura()
 
     strw.build_assets(
         url_list,
-        ner_labels,
         debug = True,
     )
 

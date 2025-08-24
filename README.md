@@ -83,7 +83,7 @@ it.
 Given as input:
 
   * a list of URLs from which to scrape content
-  * a set of classes defining semantics for extracted entities
+  * `domain.ttl` -- semantic layer definitions for the domain context
 
 Then the `build.py` script scrapes text sources and constructs a
 _knowledge graph_ plus _entity embeddings_, with nodes linked to
@@ -169,21 +169,6 @@ organization in the domain of the scraped documents.
 ```bash
 poetry run python3 curate.py
 ```
-
-
-## Tutorial notebooks
-
-A collection of Jupyter notebooks illustrate some important
-intermediate steps within these workflows:
-
-```bash
-.venv/bin/jupyter-lab
-```
-
-  * Part 1: `construct.ipynb` -- detailed KG construction using a lexical graph
-  * Part 2: `chunk.ipynb` -- simple example of how to scrape and chunk text
-  * Part 3: `vector.ipynb` -- query LanceDB table for text chunk embeddings (after running `build.py`)
-  * Part 4: `embed.ipynb` -- query the entity embedding model (after running `build.py`)
 
 
 ## Generalized, Unbundled Process
@@ -272,11 +257,27 @@ Other libraries which have been evaluated:
   * `mREBEL`: <https://github.com/Babelscape/rebel>
 
 There is some experimental code which illustrates `OpenNRE` evaluation.
-Use the `nre.sh` script to load OpenNRE pre-trained models before
-running the `opennre.ipynb` notebook.
+Use the `archive/nre.sh` script to load OpenNRE pre-trained models
+before running the `archive/opennre.ipynb` notebook.
 
 This may not work in many environments, depending on how well the
 `OpenNRE` library is being maintained.
+
+
+## Tutorial notebooks
+
+There is a collection of Jupyter notebooks (now archived) which
+were used to prototype code. These help illustrate important
+intermediate steps within these workflows:
+
+```bash
+.venv/bin/jupyter-lab
+```
+
+  * Part 1: `archive/construct.ipynb` -- detailed KG construction using a lexical graph
+  * Part 2: `archive/chunk.ipynb` -- simple example of how to scrape and chunk text
+  * Part 3: `archive/vector.ipynb` -- query LanceDB table for text chunk embeddings (after running `build.py`)
+  * Part 4: `archive/embed.ipynb` -- query the entity embedding model (after running `build.py`)
 
 
 ## Developer notes

@@ -2,9 +2,11 @@
 ## Where do we go next?
 
   * add a SKOS-based semantic layer, to leverage during graph algos in RAG
+    - TODO: add concepts into the `NetworkX` graph, linking entities
+
     - illustrate Human-in-the-loop approaches in KG construction
-    - `curate.py` to iterate on SKOS
     - prototype a minimal thesaurus for dementia research domain
+    - `curate.py` to iterate on SKOS definitions
 
   * Streamlit dashboard view of `rag.py`
 
@@ -12,12 +14,20 @@
 
 
 ## Code TODOs
+  * back-out `GLiREL` since its logging is so bad; prevents publishing to PyPi
+    - replace with BAML or DSPy <https://arxiv.org/html/2502.09956v1>
+
   * back-out `pandas` replaced by `polars`:
     - `textrank.py`
 
-  * integrate with Kuzu for graph persistence
+  * integrate `kglab.standards` for OWL/RDFS closure and SHACL capabilities
+
+  * integrate with Kuzu for graph persistence?
+
 
 ----------------------------------------------------------------------
+
+
 ## Semantics
 
     Person
