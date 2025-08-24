@@ -11,7 +11,7 @@
 [GraphGeeks](https://graphgeeks.org/) on 2024-08-14
 
 <details>
-  <summary>Overview</summary>
+  <summary><h2>Overview</h2></summary>
 
 How to construct a _knowledge graph_ (KG) from unstructured data
 sources using _state of the art_ (SOTA) models for _named entity
@@ -49,8 +49,8 @@ For more detailed discussions, see:
   * `GLiNER`: <https://huggingface.co/urchade/gliner_base>
   * _TextRank_: <https://www.derwen.ai/docs/ptr/explain_algo/>
 
-Some key issues regarding KG construction with LLMs haven't been
-addressed by the graph community and AI community in general:
+Some key issues regarding KG construction with LLMs which don't get
+addressed much by the graph community and AI community in general:
 
   1. LLMs tend to mangle cross-domain semantics when used for building graphs; see _Mai2024_ referenced in the "GraphRAG to enhance LLM-based apps" talk above.
   2. You need to introduce a _semantic layer_ for representing the domain context, which follows more of a _neurosymbolic AI_ approach.
@@ -60,8 +60,8 @@ addressed by the graph community and AI community in general:
 
 Of course, YMMV.
 
-Overall, this approach leverages _neurosymbolic AI_ methods, combining
-best practices from:
+This approach leverages _neurosymbolic AI_ methods, combining
+practices from:
 
   * _natural language processing_
   * _graph data science_
@@ -69,8 +69,8 @@ best practices from:
   * _context engineering_
   * _human-in-the-loop_
 
-This illustrates a reference implementation for _entity-resolved
-retrieval-augmented generation_ (ER-RAG).
+Overall, this illustrates a reference implementation for
+_entity-resolved retrieval-augmented generation_ (ER-RAG).
 </details>
 
 
@@ -107,7 +107,7 @@ Note: if you're working with text documents in another language, change the `spa
 
 
 <details>
-  <summary>Demo Part 1: Build assets</summary>
+  <summary><h2>Demo Part 1: Build Assets</h2></summary>
 
 Given as input:
 
@@ -162,7 +162,7 @@ The assets get serialized into these files:
 </details>
 
 <details>
-  <summary>Demo Part 2: GraphRAG chat bot</summary>
+  <summary><h2>Demo Part 2: GraphRAG chat bot</h2></summary>
 
 A good downstream use case for exploring a newly constructed KG is
 GraphRAG, used for grounding the responses by an LLM in a
@@ -186,7 +186,7 @@ poetry run python3 errag.py
 </details>
 
 <details>
-  <summary>Demo Part 3: Curating an ontology pipeline</summary>
+  <summary><h2>Demo Part 3: Curating an Ontology Pipeline</h2></summary>
 
 This code uses a _semantic layer_ -- in other words, a "backbone" for
 the KG -- to organize the entities and relations which get abstracted
@@ -209,7 +209,7 @@ poetry run python3 curate.py
 
 
 <details>
-  <summary>GraphRAG: a generalized, unbundled process</summary>
+  <summary><h2>GraphRAG: a generalized, unbundled process</h2></summary>
 
 **Objective:**
 
@@ -278,7 +278,33 @@ semantics and representation.
 
 
 <details>
-  <summary>Experimental: Relation Extraction evaluation</summary>
+  <summary><h2>FAQ</h2></summary>
+
+<dl>
+<dt>Q:</dt><dd>"Have you tried this with <code>langextract</code> yet?"</dd>
+<dt>A:</dt><dd>"I'll take <code>How does an instructor know a student ignored the README?</code> from the <a href="https://en.wiktionary.org/wiki/fuck_around_and_find_out" target="_blank"><em>What is FAFO?</em></a> category, for $200" ... but yes of course, it's an interesting package, which builds on other interesting work used here. Except that key parts of it miss the point entirely, in ways that only a hyperscaler could possibly fuck up so badly.</dd>
+</dl>
+
+<dl>
+<dt>Q:</dt><dd>"What the hell is the name of this repo about?"</dd>
+<dt>A:</dt><dd>"As you may have noticed, many open source projects by Derwen are named in a beautiful language Gymraeg, which English speakers call 'Welsh', where this word <a href="https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate" target="_blank"><code>strwythura</code></a> translates as the verb <strong>structure</strong> in English."</dd>
+</dl>
+
+<dl>
+<dt>Q:</dt><dd>"Why aren't you using an LLM to build the graph instead?"</dd>
+<dt>A:</dt><dd>"I promise to visit you in jail."</dd>
+</dl>
+
+<dl>
+<dt>Q:</dt><dd>"Um, yeah, like, didn't Karpathy say to use <em>vibe coding</em>, or something? #justsayin"
+<dt>A:</dt><dd>"<a href="https://effinbirds.com/" target="_blank">Piss the eff off</a> tech bro. Srsly, like yesterday -- you're embarrassing our entire industry with your overly exuberant ignorance."</dd>
+</dl>
+
+</details>
+
+
+<details>
+  <summary><h2>Experimental: Relation Extraction evaluation</h2></summary>
 
 Current Python libraries for _relation extraction_ (RE) are
 probably best characterized as "experimental research projects".
@@ -310,7 +336,7 @@ This may not work in many environments, depending on how well the
 
 
 <details>
-  <summary>Developer notes</summary>
+  <summary><h2>Developer Notes</h2></summary>
 
 After each `BAML` release update, some committer needs to regenerate
 its Python client source:
@@ -322,7 +348,7 @@ poetry run baml-cli generate --from strwythura/baml_src
 
 
 <details>
-  <summary>Experimental: Tutorial notebooks</summary>
+  <summary><h2>Experimental: Tutorial notebooks</h2></summary>
 
 <p>
 A collection of Jupyter notebooks were used to prototype code. These
@@ -346,33 +372,7 @@ These are now archived, though kept available for study.
 
 
 <details>
-  <summary>FAQ</summary>
-
-<dl>
-<dt>Q:</dt><dd>"Have you tried this with <code>langextract</code> yet?"</dd>
-<dt>A:</dt><dd>"I'll take <code>How does an instructor know a student ignored the README?</code> from the <a href="https://en.wiktionary.org/wiki/fuck_around_and_find_out" target="_blank"><em>What is FAFO?</em></a> category, for $200" ... but yes of course, it's an interesting package, which builds on other interesting work used here. Except that key parts of it miss the point entirely, in ways that only a hyperscaler could possibly fuck up so badly.</dd>
-</dl>
-
-<dl>
-<dt>Q:</dt><dd>"What the hell is the name of this repo about?"</dd>
-<dt>A:</dt><dd>"As you may have noticed, many open source projects by Derwen are named in a beautiful language Gymraeg, which English speakers call 'Welsh', where this word <a href="https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate" target="_blank"><code>strwythura</code></a> translates as the verb <strong>structure</strong> in English."</dd>
-</dl>
-
-<dl>
-<dt>Q:</dt><dd>"Why aren't you using an LLM to build the graph instead?"</dd>
-<dt>A:</dt><dd>"I promise to visit you in jail."</dd>
-</dl>
-
-<dl>
-<dt>Q:</dt><dd>"Um, yeah, like, didn't Karpathy say to use <em>vibe coding</em>, or something? #justsayin"
-<dt>A:</dt><dd>"<a href="https://effinbirds.com/" target="_blank">Piss the eff off</a> tech bro. Srsly, like yesterday -- you're embarrassing our entire industry with your overly exuberant ignorance."</dd>
-</dl>
-
-</details>
-
-
-<details>
-  <summary>License and Copyright</summary>
+  <summary><h2>License and Copyright</h2></summary>
 
 Source code for **Strwythura** plus its logo, documentation, and examples
 have an [MIT license](https://spdx.org/licenses/MIT.html) which is
@@ -383,7 +383,7 @@ All materials herein are Copyright © 2024-2025 Senzing, Inc.
 
 
 <details>
-  <summary>Attribution</summary>
+  <summary><h2>Kudos and Attribution</h2></summary>
 Please use the following BibTeX entry for citing **Strwythura** if you use
 it in your research or software.
 Citations are helpful for the continued development and maintenance of
