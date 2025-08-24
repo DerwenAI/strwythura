@@ -124,7 +124,6 @@ The assets get serialized into these files:
 
   * `data/lancedb` -- vector database tables in `LanceDB`
   * `data/kg.json` -- serialization of `NetworkX` graph
-  * `data/sem.json` -- serialization of semantics used for `GliNER`
   * `data/sem.csv` -- entity semantics from `curate.py`
   * `data/entity.w2v` -- entity embeddings in `Gensim`
   * `data/url_cache.sqlite` -- URL cache in `SQLite`

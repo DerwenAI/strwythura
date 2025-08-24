@@ -111,7 +111,6 @@ nodes within the semantic layer definition for this domain context.
         *,
         debug: bool = False,
         kg_path: typing.Optional[ pathlib.Path ] = None,
-        sem_path: typing.Optional[ pathlib.Path ] = None,
         w2v_path: typing.Optional[ pathlib.Path ] = None,
         ) -> None:
         """
@@ -154,7 +153,6 @@ Builds assets for constructing a KG.
                 # serialize assets
                 self.embed_entities(w2v_path = w2v_path)
                 self.save_graph(kg_path = kg_path)
-                self.save_semantics(sem_path = sem_path)
 
             except Exception as ex:  # pylint: disable=W0718
                 ic(ex)
@@ -210,27 +208,6 @@ Serialize the KG
             )
 
 
-    def save_semantics (
-        self,
-        *,
-        sem_path: typing.Optional[ pathlib.Path ] = None,
-        ) -> None:
-        """
-Serialize the KG
-        """
-        if sem_path is None:
-            sem_path = pathlib.Path(self.config["kg"]["sem_path"])
-
-        with sem_path.open("w", encoding = "utf-8") as fp:
-            fp.write(
-                json.dumps(
-                    self.parser.ner_labels,
-                    indent = 2,
-                    sort_keys = True,
-                )
-            )
-
-
     def gen_visualization (
         self,
         *,
@@ -253,7 +230,6 @@ Generate HTML for an interactive visualization of the graph, based on `PyVis`
         self,
         *,
         kg_path: typing.Optional[ pathlib.Path ] = None,
-        sem_path: typing.Optional[ pathlib.Path ] = None,
         w2v_path: typing.Optional[ pathlib.Path ] = None,
         ) -> None:
         """
@@ -276,19 +252,13 @@ Load the serialized assets for a constructed KG.
                 edges = "edges",
             )
 
-        if sem_path is None:
-            sem_path = pathlib.Path(self.config["kg"]["sem_path"])
+        # build the `spaCy` pipe, no need for input URL list
+        self.parser.update_data(
+            [],
+            self.get_ner_labels(),
+        )
 
-        with pathlib.Path(sem_path).open("r", encoding = "utf-8") as fp:
-            ner_labels: typing.List[ str ] = json.load(fp)
-
-            # now we have the NER labels, so build the `spaCy` pipe
-            self.parser.update_data(
-                [],
-                ner_labels,
-            )
-
-            self.entity_pipe = self.parser.build_entity_pipe()
+        self.entity_pipe = self.parser.build_entity_pipe()
 
 
 class GraphRAG:
