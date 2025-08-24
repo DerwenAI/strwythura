@@ -170,7 +170,7 @@ The assets get serialized into these files:
 </details>
 
 <details>
-  <summary><h2>Demo Part 2: GraphRAG chat bot</h2></summary>
+  <summary><h2>Demo Part 2: Enhanced GraphRAG chat bot</h2></summary>
 
 A good downstream use case for exploring a newly constructed KG is
 GraphRAG, used for grounding the responses by an LLM in a
@@ -217,7 +217,7 @@ poetry run python3 curate.py
 
 
 <details>
-  <summary><h2>GraphRAG: a generalized, unbundled process</h2></summary>
+  <summary><h2>Unbundling GraphRAG</h2></summary>
 
 **Objective:**
 
@@ -228,15 +228,15 @@ generate components for a graph: nodes, edges, properties.
 These steps define a generalized process, where this tutorial picks up
 at the _lexical graph_, without the _entity linking_ (EL) part yet:
 
-**Semantic overlay:**
+**Semantic layer:**
 
-  1. Load any semantic context from pre-defined controlled vocabularies, taxonomies, thesauri, ontologies, etc., directly into the KG.
+  1. Load any semantics for domain context from pre-defined controlled vocabularies, taxonomies, thesauri, ontologies, etc., directly into the KG.
 
 **Data graph:**
 
   1. Load the structured data sources or updates into a data graph.
   2. Perform _entity resolution_ (ER) on PII extracted from the data graph.
-  3. Use ER results to generate a semantic overlay as a "backbone" for the KG.
+  3. Use ER results to generate a semantic layer as a "backbone" for the KG.
 
 **Lexical graph:**
 
@@ -245,7 +245,7 @@ at the _lexical graph_, without the _entity linking_ (EL) part yet:
   3. Analyze _named entity recognition_ (NER) to extract candidate entities from noun phrase spans.
   4. Analyze _relation extraction_ (RE) to extract relations between pairwise entities.
   5. Perform _entity linking_ (EL) leveraging the ER results.
-  6. Promote the extracted entities and relations up to the semantic overlay.
+  6. Promote the extracted entities and relations up to the semantic layer.
 
 Of course many vendors suggest using a _large language model_ (LLM) as
 a _one-size-fits-all_ (OSFA) "black box" approach for extracting
