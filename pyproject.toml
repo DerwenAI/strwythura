@@ -10,16 +10,16 @@ build-backend = "poetry.core.masonry.api"
 [project]
 
 name = "strwythura"
-description = "Construct a _knowledge graph_ (KG) from unstructured data sources using _state of the art_ (SOTA) models for _named entity recognition_ (NER), then implement an enhanced _GraphRAG_ approach, and curate semantics for optimizing AI app outcomes within a specific domain."
+description = "Construct a knowledge graph from unstructured data sources, organized by results from entity resolution, implementing an enhanced GraphRAG approach, and also implementing an ontology pipeline plus context engineering for optimizing AI application outcomes within a specific domain."
 
 authors = [
-    { name = "Paco Nathan", email = "paco@derwen.ai"}
+    { name = "Paco Nathan", email = "paco@senzing.com"}
 ]
 
 readme = "README.md"
 license = { text = "MIT" }
 
-version = "1.2.3"
+version = "1.2.4"
 
 classifiers = [
     "Programming Language :: Python",

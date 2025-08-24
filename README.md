@@ -282,12 +282,12 @@ semantics and representation.
 
 <dl>
 <dt>Q:</dt><dd>"Have you tried this with <code>langextract</code> yet?"</dd>
-<dt>A:</dt><dd>"I'll take <code>How does an instructor know a student ignored the README?</code> from the <a href="https://en.wiktionary.org/wiki/fuck_around_and_find_out" target="_blank"><em>What is FAFO?</em></a> category, for $200" ... but yes of course, it's an interesting package, which builds on other interesting work used here. Except that key parts of it miss the point entirely, in ways that only a hyperscaler could possibly fuck up so badly."</dd>
+<dt>A:</dt><dd>"I'll take <code>How does an instructor know a student ignored the README?</code> from the <a href="https://en.wiktionary.org/wiki/fuck_around_and_find_out" target="_blank"><em>What is FAFO?</em></a> category, for $200 ... but yes of course, it's an interesting package, which builds on other interesting work used here. Except that key parts of it miss the point entirely, in ways that only a hyperscaler could possibly fuck up so badly."</dd>
 </dl>
 
 <dl>
 <dt>Q:</dt><dd>"What the hell is the name of this repo about?"</dd>
-<dt>A:</dt><dd>"As you may have noticed, many open source projects by Derwen are named in a beautiful language Gymraeg, which English speakers call 'Welsh', where this word <a href="https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate" target="_blank"><code>strwythura</code></a> translates as the verb <strong>structure</strong> in English."</dd>
+<dt>A:</dt><dd>"As you may have noticed, many open source projects published in this GitHub organization are named in a beautiful language Gymraeg, which English speakers call 'Welsh', where this word <a href="https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate" target="_blank"><code>strwythura</code></a> translates as the verb <strong>structure</strong> in English."</dd>
 </dl>
 
 <dl>
