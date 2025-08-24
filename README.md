@@ -282,7 +282,7 @@ semantics and representation.
 
 <dl>
 <dt>Q:</dt><dd>"Have you tried this with <code>langextract</code> yet?"</dd>
-<dt>A:</dt><dd>"I'll take <code>How does an instructor know a student ignored the README?</code> from the <a href="https://en.wiktionary.org/wiki/fuck_around_and_find_out" target="_blank"><em>What is FAFO?</em></a> category, for $200" ... but yes of course, it's an interesting package, which builds on other interesting work used here. Except that key parts of it miss the point entirely, in ways that only a hyperscaler could possibly fuck up so badly.</dd>
+<dt>A:</dt><dd>"I'll take <code>How does an instructor know a student ignored the README?</code> from the <a href="https://en.wiktionary.org/wiki/fuck_around_and_find_out" target="_blank"><em>What is FAFO?</em></a> category, for $200" ... but yes of course, it's an interesting package, which builds on other interesting work used here. Except that key parts of it miss the point entirely, in ways that only a hyperscaler could possibly fuck up so badly."</dd>
 </dl>
 
 <dl>
@@ -304,7 +304,19 @@ semantics and representation.
 
 
 <details>
-  <summary><h2>Experimental: Relation Extraction evaluation</h2></summary>
+  <summary>Developer Notes</summary>
+
+After each `BAML` release update, some committer needs to regenerate
+its Python client source:
+
+```bash
+poetry run baml-cli generate --from strwythura/baml_src
+```
+</details>
+
+
+<details>
+  <summary>Experimental: Relation Extraction evaluation</summary>
 
 Current Python libraries for _relation extraction_ (RE) are
 probably best characterized as "experimental research projects".
@@ -336,24 +348,13 @@ This may not work in many environments, depending on how well the
 
 
 <details>
-  <summary><h2>Developer Notes</h2></summary>
-
-After each `BAML` release update, some committer needs to regenerate
-its Python client source:
-
-```bash
-poetry run baml-cli generate --from strwythura/baml_src
-```
-</details>
-
-
-<details>
-  <summary><h2>Experimental: Tutorial notebooks</h2></summary>
+  <summary>Experimental: Tutorial notebooks</summary>
 
 <p>
 A collection of Jupyter notebooks were used to prototype code. These
 help illustrate important intermediate steps within these workflows:
-<p>
+</p>
+
 ```bash
 .venv/bin/jupyter-lab
 ```
@@ -372,7 +373,7 @@ These are now archived, though kept available for study.
 
 
 <details>
-  <summary><h2>License and Copyright</h2></summary>
+  <summary>License and Copyright</summary>
 
 Source code for **Strwythura** plus its logo, documentation, and examples
 have an [MIT license](https://spdx.org/licenses/MIT.html) which is
@@ -383,7 +384,8 @@ All materials herein are Copyright © 2024-2025 Senzing, Inc.
 
 
 <details>
-  <summary><h2>Kudos and Attribution</h2></summary>
+  <summary>Kudos and Attribution</summary>
+
 Please use the following BibTeX entry for citing **Strwythura** if you use
 it in your research or software.
 Citations are helpful for the continued development and maintenance of
