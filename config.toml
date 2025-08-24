@@ -26,8 +26,8 @@ tr_lookback = 3
 
 [kg]
 
+domain_path = "domain.ttl"
 kg_path = "data/kg.json"
-sem_path = "data/sem.json"
 html_path = "kg.html"
 
 [rag]

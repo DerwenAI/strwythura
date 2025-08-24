@@ -17,10 +17,12 @@ import typing
 import warnings
 
 from icecream import ic  # type: ignore
+from rdflib.namespace import RDF, SKOS
 import gensim  # type: ignore
 import lancedb  # type: ignore
 import networkx as nx
 import polars as pl
+import rdflib
 import spacy
 import transformers
 
@@ -66,7 +68,16 @@ Constructor.
         #ic(loggers)
         #logging.getLogger("glirel.spacy_integration").setLevel(logging.ERROR)
 
-        # initial data structures for assets
+        # load the semantic layer: define a context for the domain
+        domain_path: pathlib.Path = pathlib.Path(self.config["kg"]["domain_path"])
+        self.domain_graph: rdflib.Graph = rdflib.Graph()
+
+        self.domain_graph.parse(
+            domain_path.as_posix(),
+            format = "turtle",
+        )
+
+        # initialize the data structures used for assets
         self.parser: Parser = Parser(self.config)
 
         with warnings.catch_warnings():
@@ -80,14 +91,26 @@ Constructor.
             self.w2v_model: typing.Optional[ gensim.models.Word2Vec ] = None
 
 
+    def get_ner_labels (
+        self,
+        ) -> typing.List[ str ]:
+        """
+Extract the labels used for zero-shot NER and corresponding graph
+nodes within the semantic layer definition for this domain context.
+        """
+        return [
+            str(label)
+            for concept in self.domain_graph.subjects(RDF.type, SKOS.Concept)
+            for label in self.domain_graph.objects(concept, SKOS.prefLabel, unique = True)
+        ]
+
+
     def build_assets (  # pylint: disable=R0913
         self,
         url_list: typing.List[ str ],
-        ner_labels: typing.List[ str ],
         *,
         debug: bool = False,
         kg_path: typing.Optional[ pathlib.Path ] = None,
-        sem_path: typing.Optional[ pathlib.Path ] = None,
         w2v_path: typing.Optional[ pathlib.Path ] = None,
         ) -> None:
         """
@@ -95,7 +118,7 @@ Builds assets for constructing a KG.
         """
         self.parser.update_data(
             url_list,
-            ner_labels,
+            self.get_ner_labels(),
         )
 
         with warnings.catch_warnings():
@@ -130,7 +153,6 @@ Builds assets for constructing a KG.
                 # serialize assets
                 self.embed_entities(w2v_path = w2v_path)
                 self.save_graph(kg_path = kg_path)
-                self.save_semantics(sem_path = sem_path)
 
             except Exception as ex:  # pylint: disable=W0718
                 ic(ex)
@@ -186,27 +208,6 @@ Serialize the KG
             )
 
 
-    def save_semantics (
-        self,
-        *,
-        sem_path: typing.Optional[ pathlib.Path ] = None,
-        ) -> None:
-        """
-Serialize the KG
-        """
-        if sem_path is None:
-            sem_path = pathlib.Path(self.config["kg"]["sem_path"])
-
-        with sem_path.open("w", encoding = "utf-8") as fp:
-            fp.write(
-                json.dumps(
-                    self.parser.ner_labels,
-                    indent = 2,
-                    sort_keys = True,
-                )
-            )
-
-
     def gen_visualization (
         self,
         *,
@@ -229,7 +230,6 @@ Generate HTML for an interactive visualization of the graph, based on `PyVis`
         self,
         *,
         kg_path: typing.Optional[ pathlib.Path ] = None,
-        sem_path: typing.Optional[ pathlib.Path ] = None,
         w2v_path: typing.Optional[ pathlib.Path ] = None,
         ) -> None:
         """
@@ -252,19 +252,13 @@ Load the serialized assets for a constructed KG.
                 edges = "edges",
             )
 
-        if sem_path is None:
-            sem_path = pathlib.Path(self.config["kg"]["sem_path"])
+        # build the `spaCy` pipe, no need for input URL list
+        self.parser.update_data(
+            [],
+            self.get_ner_labels(),
+        )
 
-        with pathlib.Path(sem_path).open("r", encoding = "utf-8") as fp:
-            ner_labels: typing.List[ str ] = json.load(fp)
-
-            # now we have the NER labels, so build the `spaCy` pipe
-            self.parser.update_data(
-                [],
-                ner_labels,
-            )
-
-            self.entity_pipe = self.parser.build_entity_pipe()
+        self.entity_pipe = self.parser.build_entity_pipe()
 
 
 class GraphRAG:

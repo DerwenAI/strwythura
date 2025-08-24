@@ -45,9 +45,10 @@ A few key issues regarding KG construction with LLMs still have not
 been addressed by the graph community in general:
 
   1. LLMs tend to mangle cross-domain semantics when used for building graphs; see _Mai2024_ referenced in the "GraphRAG to enhance LLM-based apps" talk above.
-  2. Most all LLMs perform _question rewriting_ in ways which cannot be disabled, even when the `temperature` parameter is set to zero; this leads to relative degrees of "hallucinated questions" for which there are no clear workarounds.
-  3. Any _model_ used for prediction introduces reasoning based on _generalization_, even more so when the model uses a _loss function_ for training; this tends to be the point where KG structure and semantics turn into crap; see the "Let's talk about ..." articles linked below.
-  4. The approach outlined here is faster and less expensive, and produces better results than if you'd delegated KG construction to an LLM.
+  2. You need to introduce a _semantic layer_ for representing the domain context, which follows more of a _neurosymbolic AI_ approach.
+  3. Most all LLMs perform _question rewriting_ in ways which cannot be disabled, even when the `temperature` parameter is set to zero; this leads to relative degrees of "hallucinated questions" for which there are no clear workarounds.
+  4. Any _model_ used for prediction introduces reasoning based on _generalization_, even more so when the model uses a _loss function_ for training; this tends to be the point where KG structure and semantics turn into crap; see the "Let's talk about ..." articles linked below.
+  5. The approach outlined here is faster and less expensive, and produces better results than if you'd delegated KG construction to an LLM.
 
 Of course, YMMV.
 
@@ -83,9 +84,15 @@ it.
 Given as input:
 
   * a list of URLs from which to scrape content
-  * a set of classes defining semantics for extracted entities
+  * `domain.ttl` -- semantics for the domain context
 
-Then the `build.py` script scrapes text sources and constructs a
+Note: the `domain.ttl` file provides a _vocabulary_ / _taxonomy_ /
+_thesaurus_ / _ontology_ for the given domain, as the basis for
+constructing a _semantic layer_, and along with the `curate.py` script
+described below this illustrates _human-in-the-loop_ approaches in KG
+construction.
+
+The `build.py` script scrapes text sources and constructs a
 _knowledge graph_ plus _entity embeddings_, with nodes linked to
 chunks in a _vector store_:
 
@@ -124,7 +131,6 @@ The assets get serialized into these files:
 
   * `data/lancedb` -- vector database tables in `LanceDB`
   * `data/kg.json` -- serialization of `NetworkX` graph
-  * `data/sem.json` -- serialization of semantics used for `GliNER`
   * `data/sem.csv` -- entity semantics from `curate.py`
   * `data/entity.w2v` -- entity embeddings in `Gensim`
   * `data/url_cache.sqlite` -- URL cache in `SQLite`
@@ -169,21 +175,6 @@ organization in the domain of the scraped documents.
 ```bash
 poetry run python3 curate.py
 ```
-
-
-## Tutorial notebooks
-
-A collection of Jupyter notebooks illustrate some important
-intermediate steps within these workflows:
-
-```bash
-.venv/bin/jupyter-lab
-```
-
-  * Part 1: `construct.ipynb` -- detailed KG construction using a lexical graph
-  * Part 2: `chunk.ipynb` -- simple example of how to scrape and chunk text
-  * Part 3: `vector.ipynb` -- query LanceDB table for text chunk embeddings (after running `build.py`)
-  * Part 4: `embed.ipynb` -- query the entity embedding model (after running `build.py`)
 
 
 ## Generalized, Unbundled Process
@@ -272,11 +263,27 @@ Other libraries which have been evaluated:
   * `mREBEL`: <https://github.com/Babelscape/rebel>
 
 There is some experimental code which illustrates `OpenNRE` evaluation.
-Use the `nre.sh` script to load OpenNRE pre-trained models before
-running the `opennre.ipynb` notebook.
+Use the `archive/nre.sh` script to load OpenNRE pre-trained models
+before running the `archive/opennre.ipynb` notebook.
 
 This may not work in many environments, depending on how well the
 `OpenNRE` library is being maintained.
+
+
+## Tutorial notebooks
+
+There is a collection of Jupyter notebooks (now archived) which
+were used to prototype code. These help illustrate important
+intermediate steps within these workflows:
+
+```bash
+.venv/bin/jupyter-lab
+```
+
+  * Part 1: `archive/construct.ipynb` -- detailed KG construction using a lexical graph
+  * Part 2: `archive/chunk.ipynb` -- simple example of how to scrape and chunk text
+  * Part 3: `archive/vector.ipynb` -- query LanceDB table for text chunk embeddings (after running `build.py`)
+  * Part 4: `archive/embed.ipynb` -- query the entity embedding model (after running `build.py`)
 
 
 ## Developer notes

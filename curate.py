@@ -7,33 +7,22 @@ Strwythura: curate/iterate on the semantic layer.
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
-import json
 import pathlib
-import tomllib
 import typing
+import warnings
 
 from icecream import ic
-import networkx as nx
 import polars as pl
+
+from strwythura import Strwythura
 
 
 def main ():
-    # load the graph data
-    with open(pathlib.Path("config.toml"), mode = "rb") as fp:
-        config: dict = tomllib.load(fp)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
 
-    sem_path: pathlib.Path = pathlib.Path(config["kg"]["sem_path"])
-
-    with pathlib.Path(sem_path).open("r", encoding = "utf-8") as fp:
-        ner_labels: typing.List[ str ] = json.load(fp)
-
-    kg_path: pathlib.Path = pathlib.Path(config["kg"]["kg_path"])
-
-    with pathlib.Path(kg_path).open("r", encoding = "utf-8") as fp:
-        sem_overlay: nx.Graph = nx.node_link_graph(
-            json.load(fp),
-            edges = "edges",
-        )
+        strw: Strwythura = Strwythura()
+        strw.load_assets()
 
     # construct a DataFrame as a view of the entities
     df: pl.DataFrame = pl.DataFrame([
@@ -45,7 +34,7 @@ def main ():
             "key": data["key"],
             "id": node,
         }
-        for node, data in sem_overlay.nodes(data = True)
+        for node, data in strw.sem_overlay.nodes(data = True)
         if data["kind"] in [ "Entity", ]
     ]).sort(
         "label",
