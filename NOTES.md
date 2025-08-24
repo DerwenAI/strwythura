@@ -4,10 +4,6 @@
   * add a SKOS-based semantic layer, to leverage during graph algos in RAG
     - TODO: add concepts into the `NetworkX` graph, linking entities
 
-    - illustrate Human-in-the-loop approaches in KG construction
-    - prototype a minimal thesaurus for dementia research domain
-    - `curate.py` to iterate on SKOS definitions
-
   * Streamlit dashboard view of `rag.py`
 
   * Entity linking - combine structured and unstructured sources
