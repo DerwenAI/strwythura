@@ -11,7 +11,6 @@ import unicodedata
 
 from gliner_spacy.pipeline import GlinerSpacy  # type: ignore # pylint: disable=W0611
 from icecream import ic  # type: ignore
-import glirel  # type: ignore # pylint: disable=W0611
 import networkx as nx
 import spacy
 import w3lib.html
@@ -21,51 +20,9 @@ from .graph import TextChunk
 
 class Parser:
     """
-Wrapper class for the spaCy NLP pipeline used to extract entities and
-relations, based on using `GLiNER`, `GLiREL`, and textgraphs.
+Wrapper class for the `spaCy` NLP pipeline used to extract entities
+and relations, based on using `GLiNER`, BAML, and textgraphs.
     """
-    RE_LABELS: dict = {
-        "glirel_labels": {
-            "no_relation": {},
-            "co_founder": {
-                "allowed_head": ["PERSON"],
-                "allowed_tail": ["ORG"],
-            },
-            "country_of_origin": {
-                "allowed_head": ["PERSON", "ORG"],
-                "allowed_tail": ["LOC", "GPE"],
-            },
-            "parent": {
-                "allowed_head": ["PERSON"],
-                "allowed_tail": ["PERSON"],
-            },
-            "followed_by": {
-                "allowed_head": ["PERSON", "ORG"],
-                "allowed_tail": ["PERSON", "ORG"],
-            },
-            "child": {
-                "allowed_head": ["PERSON"],
-                "allowed_tail": ["PERSON"],
-            },
-            "founder": {
-                "allowed_head": ["PERSON"],
-                "allowed_tail": ["ORG"],
-            },
-            "headquartered_in": {
-                "allowed_head": ["ORG"],
-                "allowed_tail": ["LOC", "GPE", "FAC"],
-            },
-            "acquired_by": {
-                "allowed_head": ["ORG"],
-                "allowed_tail": ["ORG", "PERSON"],
-            },
-            "subsidiary_of": {
-                "allowed_head": ["ORG"],
-                "allowed_tail": ["ORG", "PERSON"],
-            },
-        }
-    }
-
     STOP_WORDS: typing.Set[ str ] = set([
         "PRON.each",
         "PRON.he",
@@ -117,7 +74,7 @@ Update the input data for the parsing run:
         ) -> spacy.Language:
         """
 Initialize the `spaCy` pipeline used for NER + RE, by loading models
-for `spaCy`, `GLiNER`, `GLiREL`
+for `spaCy`, `GLiNER`
 
 Note: this may take several minutes when run the first time after
 installing the repo.
@@ -132,11 +89,6 @@ installing the repo.
                 "gliner_model": self.config["nlp"]["gliner_model"],
                 "chunk_size": self.config["vect"]["chunk_size"],
             },
-        )
-
-        entity_pipe.add_pipe(
-            "glirel",
-            after = "ner",
         )
 
         return entity_pipe
@@ -156,7 +108,7 @@ Parse an input text chunk, returning a `spaCy` document.
         """
         doc: spacy.tokens.doc.Doc = list(  # pylint: disable=I1101
             entity_pipe.pipe(
-                [( chunk.text, self.RE_LABELS )],
+                [( chunk.text, {} )],
                 as_tuples = True,
             )
         )[0][0]

@@ -131,14 +131,7 @@ Construct a knowledge graph from unstructured data sources.
                         )
 
                 # extract relations for co-occurring entity pairs
-                self.extract_relations(
-                    lex_graph,
-                    span_decoder,
-                    sent_map,
-                    doc,
-                    chunk,
-                    debug = debug,
-                )
+                ## PLACEHOLDER
 
                 # connect entities which co-occur within the same sentence
                 cooccur_entities(
@@ -358,88 +351,3 @@ Link one `Entity` into this doc's lexical graph.
 
         if False: # debug  # pylint: disable=W0125
             ic(ent)
-
-
-    def extract_relations (  # pylint: disable=R0913,R0914,R0917
-        self,
-        lex_graph: nx.Graph,
-        span_decoder: typing.Dict[ tuple, Entity ],
-        sent_map: typing.Dict[ spacy.tokens.span.Span, int ],  # pylint: disable=I1101
-        doc: spacy.tokens.doc.Doc,  # pylint: disable=I1101
-        chunk: TextChunk,
-        *,
-        debug: bool = False,
-        ) -> None:
-        """
-Extract the relations inferred by `GLiREL` adding these to the graph.
-        """
-        relations: typing.List[ dict ] = sorted(
-            doc._.relations,
-            key = lambda item: item["score"],
-            reverse = True,
-        )
-
-        for item in relations:
-            src_loc: typing.Tuple[ int ] = tuple(item["head_pos"])
-            dst_loc: typing.Tuple[ int ] = tuple(item["tail_pos"])
-            redact_rel: bool = False
-
-            if src_loc not in span_decoder:
-                if False: # debug  # pylint: disable=W0125
-                    print("MISSING src entity:", item["head_text"], item["head_pos"])
-
-                src_ent: Entity = self.make_entity(
-                    span_decoder,
-                    sent_map,
-                    doc[ item["head_pos"][0] : item["head_pos"][1] ],
-                    chunk,
-                    debug = False, # debug
-                )
-
-                if src_ent.key in Parser.STOP_WORDS:
-                    redact_rel = True
-                else:
-                    self.extract_entity(
-                        lex_graph,
-                        src_ent,
-                        debug = debug
-                    )
-
-            if dst_loc not in span_decoder:
-                if False: # debug  # pylint: disable=W0125
-                    print("MISSING dst entity:", item["tail_text"], item["tail_pos"])
-
-                dst_ent: Entity = self.make_entity(
-                    span_decoder,
-                    sent_map,
-                    doc[ item["tail_pos"][0] : item["tail_pos"][1] ],
-                    chunk,
-                    debug = False, # debug
-                )
-
-                if dst_ent.key in Parser.STOP_WORDS:
-                    redact_rel = True
-                else:
-                    self.extract_entity(
-                        lex_graph,
-                        dst_ent,
-                        debug = debug
-                    )
-
-            # link the connected nodes
-            if not redact_rel:
-                src_ent = span_decoder[src_loc]
-                dst_ent = span_decoder[dst_loc]
-
-                rel: str = item["label"].strip().replace(" ", "_").upper()
-                prob: float = round(item["score"], 3)
-
-                if debug:
-                    print(f"{src_ent.text} -> {rel} -> {dst_ent.text} | {prob}")
-
-                lex_graph.add_edge(
-                    src_ent.node,
-                    dst_ent.node,
-                    rel = rel,
-                    prob = prob,
-                )

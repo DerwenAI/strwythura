@@ -11,7 +11,7 @@ recognition_ (NER), then implement an enhanced _GraphRAG_ approach,
 and curate semantics for optimizing AI app outcomes within a
 specific domain.
 
-  * video: <https://youtu.be/B6_NfvQL-BE>
+  * videos: <https://youtu.be/B6_NfvQL-BE>, <https://senzing.com/gph-graph-rag-llm-knowledge-graphs/>
   * slides: <https://derwen.ai/s/2njz#1>
 
 Motivation for this tutorial comes from the stark fact that the
@@ -36,7 +36,7 @@ to an LLM for _summarization_ to produce responses.
 For more detailed discussions, see:
 
   * enhanced GraphRAG: ["GraphRAG to enhance LLM-based apps"](https://derwen.ai/s/hm7h#3)
-  * intentional arrangement: ["Intentional Arrangement"](https://jessicatalisman.substack.com/) by Jessica Talisman
+  * ontology pipeline: ["Intentional Arrangement"](https://jessicatalisman.substack.com/) by Jessica Talisman
   * `spaCy`: <https://spacy.io/>
   * `GLiNER`: <https://huggingface.co/urchade/gliner_base>
   * _TextRank_: <https://www.derwen.ai/docs/ptr/explain_algo/>
@@ -52,8 +52,23 @@ been addressed by the graph community in general:
 
 Of course, YMMV.
 
+Overall, this approach leverages _neurosymbolic AI_ methods, combining
+best practices from:
+
+  * _natural language processing
+  * _graph data science_
+  * _ontology pipeline_
+  * _context engineering_
+  * _human-in-the-loop_
+
+to illustrate a reference implementation for _entity-resolved
+retrieval-augmented generation_ (ER-RAG).
+
 
 ## Set up
+
+Caveat: this code runs with Python 3.11, though the range of versions
+may be extended soon.
 
 ```bash
 poetry update
@@ -86,11 +101,10 @@ Given as input:
   * a list of URLs from which to scrape content
   * `domain.ttl` -- semantics for the domain context
 
-Note: the `domain.ttl` file provides a _vocabulary_ / _taxonomy_ /
-_thesaurus_ / _ontology_ for the given domain, as the basis for
-constructing a _semantic layer_, and along with the `curate.py` script
-described below this illustrates _human-in-the-loop_ approaches in KG
-construction.
+Note: the `domain.ttl` file provides a _ontology pipeline_ for the
+given domain, used as the _human-in-the-loop_ basis for constructing a
+_semantic layer_.  Along with the `curate.py` script described below
+this illustrates _human-in-the-loop_ approaches in KG construction.
 
 The `build.py` script scrapes text sources and constructs a
 _knowledge graph_ plus _entity embeddings_, with nodes linked to
@@ -116,9 +130,6 @@ produce the assets needed for GraphRAG downstream:
   7. Run a _textrank_ algorithm to rank important entities
   8. Build an embedding model for entities using `gensim.Word2Vec`
   9. Generate an interactive visualization using `PyVis`
-
-There's also a step "5.1" which extracts _relations_ using `GLiREL`
-though its results may be a bit sparse.
 
 Note: processing may take a few extra minutes the first time it runs
 since `PyTorch` must download a large (~2GB) file.
@@ -153,24 +164,27 @@ and pull the Gemma3 model <https://huggingface.co/google/gemma-3-12b-it>
 ollama pull gemma3:12b
 ```
 
-Then run the `rag.py` script for an interactive GraphRAG example:
+Then run the `errag.py` script for an interactive GraphRAG example:
 
 ```bash
-poetry run python3 rag.py
+poetry run python3 errag.py
 ```
 
 ## Part 3: Semantics curation (WIP)
 
-If you had a graph previously constructed from more reliable
-_structured data sources_, this demo could use a _semantic layer_ --
-i.e., a "backbone" for the KG -- to organize the entities and
-relations which get abstracted from from the lexical graph.
+This code uses a _semantic layer_ -- in other words, a "backbone" for
+the KG -- to organize the entities and relations which get abstracted
+from the lexical graph.
 
-For now, run the `curate.py` script to generate a view of the
-ranked NER results, serialized as the `data/sem.csv` file.
-This can be viewed in a spreadsheet to understand how to
-iterate on the semantic definitions for more effective graph
-organization in the domain of the scraped documents.
+If you had previously run _entity resolution_ from _structured data
+sources_, which tend to be more reliable than unstructured content,
+this approach could integrate those results as well.
+
+For now, run the `curate.py` script to generate a view of the ranked
+NER results, serialized as the `data/sem.csv` file.  This can be
+viewed in a spreadsheet to understand how to iterate on the semantic
+definitions for more effective graph organization in the domain of the
+scraped documents.
 
 ```bash
 poetry run python3 curate.py
@@ -246,21 +260,25 @@ semantics and representation.
 
 ## Experiment: Relation Extraction library evals
 
-TL;DR: current Python libraries for _relation extraction_ (RE) are
-probably best characterized as "experimental research projects"
-and in particular their tokenization approaches tend to make the
-mistake of "throwing the baby out with the bath water" by not
-leveraging other information which we have in _textgraph_
-representation of the parsed documents.
+Current Python libraries for _relation extraction_ (RE) are
+probably best characterized as "experimental research projects".
 
-This project uses `GLiREL` although its results are quite sparse, and
-could likely be replaced by a BAML or DSPy workflow in the near future.
+Their tokenization approaches tend to make the mistake of "throwing
+the baby out with the bath water" by not leveraging other available
+information, e.g., what we have in the _textgraph_ representation of
+the parsed documents. Also, they tend to ignore the semantic
+constraints of the domain context, while computationally boiling
+the ocean.
 
-Other libraries which have been evaluated:
+RE libraries which have been evaluated:
 
+  * `GLiREL`: <https://github.com/jackboyla/GLiREL>
   * `ReLIK`: <https://github.com/SapienzaNLP/relik>
   * `OpenNRE`: <https://github.com/thunlp/OpenNRE>
   * `mREBEL`: <https://github.com/Babelscape/rebel>
+
+This project had used `GLiREL` although its results were quite sparse.
+RE will be replaced by `BAML` or `DSPy` workflows in the near future.
 
 There is some experimental code which illustrates `OpenNRE` evaluation.
 Use the `archive/nre.sh` script to load OpenNRE pre-trained models
