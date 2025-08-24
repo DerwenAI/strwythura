@@ -66,7 +66,6 @@ Constructor.
         #loggers: dict =
         # { name:logging.getLogger(name) for name in logging.root.manager.loggerDict }
         #ic(loggers)
-        #logging.getLogger("glirel.spacy_integration").setLevel(logging.ERROR)
 
         # load the semantic layer: define a context for the domain
         domain_path: pathlib.Path = pathlib.Path(self.config["kg"]["domain_path"])
@@ -125,7 +124,7 @@ Builds assets for constructing a KG.
             warnings.simplefilter("ignore")
 
             try:
-                # now we have the NER labels, so build the `spaCy` pipe
+                # given the NER labels, build the `spaCy` pipe
                 self.entity_pipe = self.parser.build_entity_pipe()
 
                 # initialize the chunk table
@@ -285,12 +284,7 @@ Constructor.
         """
 Extract entity spans from a text question.
         """
-        doc: spacy.tokens.doc.Doc = list(  # pylint: disable=I1101
-            self.strw.entity_pipe.pipe(  # type: ignore
-                [( question, Parser.RE_LABELS )],
-                as_tuples = True,
-            )
-        )[0][0]
+        doc: spacy.tokens.doc.Doc = self.strw.entity_pipe(question)  # type: ignore  # pylint: disable=I1101
 
         for span in doc.ents:
             key: str = " ".join([

@@ -2,6 +2,7 @@
 ## Where do we go next?
 
   * add a SKOS-based semantic layer, to leverage during graph algos in RAG
+    - TODO: add SKOS:Concept definitions as "chunks" in `LanceDB`
     - TODO: add concepts into the `NetworkX` graph, linking entities
 
   * Streamlit dashboard view of `rag.py`
@@ -10,8 +11,7 @@
 
 
 ## Code TODOs
-  * back-out `GLiREL` since its logging is so bad; prevents publishing to PyPi
-    - replace with BAML or DSPy <https://arxiv.org/html/2502.09956v1>
+  - replace RE with BAML or DSPy <https://arxiv.org/html/2502.09956v1>
 
   * back-out `pandas` replaced by `polars`:
     - `textrank.py`
