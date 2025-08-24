@@ -11,7 +11,7 @@
 [GraphGeeks](https://graphgeeks.org/) on 2024-08-14
 
 <details>
-  <summary>Overview</summary>
+  <summary><h2>Overview</h2></summary>
 
 How to construct a _knowledge graph_ (KG) from unstructured data
 sources using _state of the art_ (SOTA) models for _named entity
@@ -49,8 +49,8 @@ For more detailed discussions, see:
   * `GLiNER`: <https://huggingface.co/urchade/gliner_base>
   * _TextRank_: <https://www.derwen.ai/docs/ptr/explain_algo/>
 
-Some key issues regarding KG construction with LLMs haven't been
-addressed by the graph community and AI community in general:
+Some key issues regarding KG construction with LLMs which don't get
+addressed much by the graph community and AI community in general:
 
   1. LLMs tend to mangle cross-domain semantics when used for building graphs; see _Mai2024_ referenced in the "GraphRAG to enhance LLM-based apps" talk above.
   2. You need to introduce a _semantic layer_ for representing the domain context, which follows more of a _neurosymbolic AI_ approach.
@@ -60,8 +60,8 @@ addressed by the graph community and AI community in general:
 
 Of course, YMMV.
 
-Overall, this approach leverages _neurosymbolic AI_ methods, combining
-best practices from:
+This approach leverages _neurosymbolic AI_ methods, combining
+practices from:
 
   * _natural language processing_
   * _graph data science_
@@ -69,8 +69,8 @@ best practices from:
   * _context engineering_
   * _human-in-the-loop_
 
-This illustrates a reference implementation for _entity-resolved
-retrieval-augmented generation_ (ER-RAG).
+Overall, this illustrates a reference implementation for
+_entity-resolved retrieval-augmented generation_ (ER-RAG).
 </details>
 
 
