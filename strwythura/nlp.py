@@ -106,15 +106,10 @@ installing the repo.
         """
 Parse an input text chunk, returning a `spaCy` document.
         """
-        doc: spacy.tokens.doc.Doc = list(  # pylint: disable=I1101
-            entity_pipe.pipe(
-                [( chunk.text, {} )],
-                as_tuples = True,
-            )
-        )[0][0]
+        doc: spacy.tokens.doc.Doc = entity_pipe(chunk.text)  # type: ignore  # pylint: disable=I1101
 
-        # scan the document tokens to add lemmas to _lexical graph_ using
-        # a _textgraph_ approach called "textrank"
+        # scan the document tokens to add lemmas into the _lexical graph_
+        # then use a _textgraph_ distillation approach called "textrank"
         for sent in doc.sents:
             node_seq: typing.List[ int ] = []
 

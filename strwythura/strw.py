@@ -284,12 +284,7 @@ Constructor.
         """
 Extract entity spans from a text question.
         """
-        doc: spacy.tokens.doc.Doc = list(  # pylint: disable=I1101
-            self.strw.entity_pipe.pipe(  # type: ignore
-                [( question, {} )],
-                as_tuples = True,
-            )
-        )[0][0]
+        doc: spacy.tokens.doc.Doc = self.strw.entity_pipe(question)  # type: ignore  # pylint: disable=I1101
 
         for span in doc.ents:
             key: str = " ".join([
