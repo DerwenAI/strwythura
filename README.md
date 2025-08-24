@@ -55,7 +55,7 @@ Of course, YMMV.
 Overall, this approach leverages _neurosymbolic AI_ methods, combining
 best practices from:
 
-  * _natural language processing
+  * _natural language processing_
   * _graph data science_
   * _ontology pipeline_
   * _context engineering_
@@ -84,14 +84,13 @@ complex reasons.
 
 ## Usage
 
-Caveat: this repo provides the source code and notebooks which
-accompany an instructional tutorial; it is not intended as a packaged
-library or maintained product.
+If you want to use this library within an application:
 
-That said, if you want to use this code to build an application it may
-help to copy settings in `config.toml` into a custom configuration
-file, then instantiate new `Strwythura` and `GraphRAG` objects using
-it.
+  1. Copy settings in `config.toml` into a custom configuration file.
+  2. Define semantics in `domain.ttl` for the domain context of your use case.
+  3. Instantiate new `Strwythura` and `GraphRAG` objects.
+
+Follow the example patterns in `build.py` and `errage.py` respectively.
 
 
 ## Part 1: Build assets

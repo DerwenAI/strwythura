@@ -19,7 +19,48 @@ authors = [
 readme = "README.md"
 license = { text = "MIT" }
 
-version = "1.2.1"
+version = "1.2.2"
+
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Human Machine Interfaces",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Indexing",
+]
+
+keywords = [
+    "baml",
+    "context engineering",
+    "entity-linking",
+    "entity-resolution",
+    "graph algorithms",
+    "graphrag",
+    "interactive visualization",
+    "knowledge-graph",
+    "named-entity-recognition",
+    "nlp",
+    "ontology",
+    "ontology-pipeline",
+    "relation-extraction",
+    "semantic-expansion",
+    "semantic-layer",
+    "semantic-random-walk",
+    "textgraphs",
+    "unstructured-data",
+    "vector-database",
+]
 
 requires-python = ">=3.11,<3.12"
 
