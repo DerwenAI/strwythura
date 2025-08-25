@@ -76,6 +76,9 @@ _entity-resolved retrieval-augmented generation_ (ER-RAG).
 
 ## Usage in applications
 
+This runs with Python 3.11, though the range of versions may be
+extended soon.
+
 To `pip` install from [PyPi](https://pypi.org/project/strwythura/):
 
 ```bash
@@ -92,18 +95,23 @@ Then to integrate this library within an application:
 
 Follow the example patterns in `build.py` and `errag.py` respectively.
 
-Caveat: this code runs with Python 3.11, though the range of versions
-may be extended soon.
+If you're working with documents in a language other than English,
+well first that's absolutely fantastic. Next, you need to:
+
+  * Update model settings in the `config.toml` file.
+  * Change the `spaCy` model downloaded here.
+  * Also change the language tags used in `domain.ttl` as needed.
 
 
 ## Set up for demo or development
+
+This library uses [`poetry`](https://python-poetry.org/docs/) for
+package management, and first you need to install it. Then run:
 
 ```bash
 poetry update
 poetry run python3 -m spacy download en_core_web_md
 ```
-
-Note: if you're working with text documents in another language, change the `spaCy` model downloaded here, and also the model setting in the `config.toml` file. That's not possible to handle programmatically in a more fluent Pythonic way, for a variety of complicated reasons.
 
 
 <details>
@@ -114,14 +122,25 @@ Given as input:
   * a list of URLs from which to scrape content
   * `domain.ttl` -- semantics for the domain context
 
-Note: the `domain.ttl` file provides a _ontology pipeline_ for the
-given domain, used as the _human-in-the-loop_ basis for constructing a
-_semantic layer_.  Along with the `curate.py` script described below
-this illustrates _human-in-the-loop_ approaches in KG construction.
+The `domain.ttl` file provides a basis for iterating with an _ontology
+pipeline_ process, to represent the semantics for the given domain.
+It specifies metadata in terms of _vocabulary_, _taxonomy_, and
+_thesaurus_ -- to use in representing the core entities and relations
+in the KG.
 
-The `build.py` script scrapes text sources and constructs a
-_knowledge graph_ plus _entity embeddings_, with nodes linked to
-chunks in a _vector store_:
+The `curate.py` script described below then will introduce the
+_human-in-the-loop_ part of this process, where you can review
+entities extracted from documents. Based on this analysis, decide
+where to refine the domain context to be able to _extract_,
+_classify_, and _connect_ more of what gets extracted from
+_unstructured data sources_ and linked into the KG.  Overall, this
+process distills elements of the _lexical graph_, linking them with
+elements from the _data graph_, to produce a more abstracted (i.e.,
+less noisy) _semantic layer_ as the resulting KG.
+
+Meanwhle, let's get started. The `build.py` script scrapes text
+sources and constructs a _knowledge graph_ plus _entity embeddings_,
+with nodes linked to chunks in a _vector store_:
 
 ```bash
 poetry run python3 build.py
@@ -162,7 +181,7 @@ The assets get serialized into these files:
 </details>
 
 <details>
-  <summary><h2>Demo Part 2: GraphRAG chat bot</h2></summary>
+  <summary><h2>Demo Part 2: Enhanced GraphRAG chat bot</h2></summary>
 
 A good downstream use case for exploring a newly constructed KG is
 GraphRAG, used for grounding the responses by an LLM in a
@@ -209,7 +228,7 @@ poetry run python3 curate.py
 
 
 <details>
-  <summary><h2>GraphRAG: a generalized, unbundled process</h2></summary>
+  <summary><h2>Unbundling GraphRAG</h2></summary>
 
 **Objective:**
 
@@ -220,15 +239,15 @@ generate components for a graph: nodes, edges, properties.
 These steps define a generalized process, where this tutorial picks up
 at the _lexical graph_, without the _entity linking_ (EL) part yet:
 
-**Semantic overlay:**
+**Semantic layer:**
 
-  1. Load any semantic context from pre-defined controlled vocabularies, taxonomies, thesauri, ontologies, etc., directly into the KG.
+  1. Load any semantics for domain context from pre-defined controlled vocabularies, taxonomies, thesauri, ontologies, etc., directly into the KG.
 
 **Data graph:**
 
   1. Load the structured data sources or updates into a data graph.
   2. Perform _entity resolution_ (ER) on PII extracted from the data graph.
-  3. Use ER results to generate a semantic overlay as a "backbone" for the KG.
+  3. Use ER results to generate a semantic layer as a "backbone" for the KG.
 
 **Lexical graph:**
 
@@ -237,7 +256,7 @@ at the _lexical graph_, without the _entity linking_ (EL) part yet:
   3. Analyze _named entity recognition_ (NER) to extract candidate entities from noun phrase spans.
   4. Analyze _relation extraction_ (RE) to extract relations between pairwise entities.
   5. Perform _entity linking_ (EL) leveraging the ER results.
-  6. Promote the extracted entities and relations up to the semantic overlay.
+  6. Promote the extracted entities and relations up to the semantic layer.
 
 Of course many vendors suggest using a _large language model_ (LLM) as
 a _one-size-fits-all_ (OSFA) "black box" approach for extracting
@@ -282,12 +301,12 @@ semantics and representation.
 
 <dl>
 <dt>Q:</dt><dd>"Have you tried this with <code>langextract</code> yet?"</dd>
-<dt>A:</dt><dd>"I'll take <code>How does an instructor know a student ignored the README?</code> from the <a href="https://en.wiktionary.org/wiki/fuck_around_and_find_out" target="_blank"><em>What is FAFO?</em></a> category, for $200" ... but yes of course, it's an interesting package, which builds on other interesting work used here. Except that key parts of it miss the point entirely, in ways that only a hyperscaler could possibly fuck up so badly."</dd>
+<dt>A:</dt><dd>"I'll take <code>How does an instructor know a student ignored the README?</code> from the <a href="https://en.wiktionary.org/wiki/fuck_around_and_find_out" target="_blank"><em>What is FAFO?</em></a> category, for $200 ... but yes of course, it's an interesting package, which builds on other interesting work used here. Except that key parts of it miss the point entirely, in ways that only a hyperscaler could possibly fuck up so badly."</dd>
 </dl>
 
 <dl>
 <dt>Q:</dt><dd>"What the hell is the name of this repo about?"</dd>
-<dt>A:</dt><dd>"As you may have noticed, many open source projects by Derwen are named in a beautiful language Gymraeg, which English speakers call 'Welsh', where this word <a href="https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate" target="_blank"><code>strwythura</code></a> translates as the verb <strong>structure</strong> in English."</dd>
+<dt>A:</dt><dd>"As you may have noticed, many open source projects published in this GitHub organization are named in a beautiful language Gymraeg, which English speakers call 'Welsh', where this word <a href="https://translate.google.com/details?sl=cy&tl=en&text=strwythura&op=translate" target="_blank"><code>strwythura</code></a> translates as the verb <strong>structure</strong> in English."</dd>
 </dl>
 
 <dl>
@@ -394,7 +413,7 @@ this library.
 ```bibtex
 @software{strwythura,
   author = {Paco Nathan},
-  title = {{strwythura: construct a knowledge graph from unstructured data sources, organized by results from entity resolution, implementing an enhanced GraphRAG approach, and also implementing an ontology pipeline plus context engineering for optimizing AI application outcomes within a specific domain}},
+  title = {{Strwythura: construct a knowledge graph from unstructured data sources, organized by results from entity resolution, implementing an enhanced GraphRAG approach, and also implementing an ontology pipeline plus context engineering for optimizing AI application outcomes within a specific domain}},
   year = 2024,
   publisher = {Senzing},
   doi = {10.5281/zenodo.16934079},

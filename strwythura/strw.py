@@ -69,9 +69,9 @@ Constructor.
 
         # load the semantic layer: define a context for the domain
         domain_path: pathlib.Path = pathlib.Path(self.config["kg"]["domain_path"])
-        self.domain_graph: rdflib.Graph = rdflib.Graph()
+        self.domain_context: rdflib.Graph = rdflib.Graph()
 
-        self.domain_graph.parse(
+        self.domain_context.parse(
             domain_path.as_posix(),
             format = "turtle",
         )
@@ -99,8 +99,8 @@ nodes within the semantic layer definition for this domain context.
         """
         return [
             str(label)
-            for concept in self.domain_graph.subjects(RDF.type, SKOS.Concept)
-            for label in self.domain_graph.objects(concept, SKOS.prefLabel, unique = True)
+            for concept in self.domain_context.subjects(RDF.type, SKOS.Concept)
+            for label in self.domain_context.objects(concept, SKOS.prefLabel, unique = True)
         ]
 
 

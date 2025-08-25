@@ -48,6 +48,7 @@ strw:concept_company rdf:type skos:Concept ;
  skos:prefLabel "Company"@en ;
  skos:altLabel "Enterprise"@en ;
  strw:lemma_phrase "NOUN.company"@en ;
+ strw:lemma_phrase "NOUN.enterprise"@en ;
  skos:definition "legal entity representing an association of people, whether natural, legal or a mixture of both, with a specific objective"@en ;
  dct:identifier wd:Q783794 ;
  skos:broader strw:concept_organization
@@ -107,6 +108,7 @@ strw:concept_publication rdf:type skos:Concept ;
  skos:prefLabel "Publication"@en ;
  skos:altLabel "Journal"@en ;
  strw:lemma_phrase "NOUN.publication"@en ;
+ strw:lemma_phrase "NOUN.journal"@en ;
  skos:definition "content made available to the general public"@en ;
  dct:identifier wd:Q732577 ;
  skos:broader strw:concept_company ;
@@ -160,6 +162,7 @@ strw:concept_food rdf:type skos:Concept ;
  skos:prefLabel "Food"@en ;
  skos:altLabel "Nutrition"@en ;
  strw:lemma_phrase "NOUN.food"@en ;
+ strw:lemma_phrase "NOUN.nutrition"@en ;
  skos:definition "any substance consumed to provide nutritional support for the body; form of energy stored in chemical"@en ;
  dct:identifier wd:Q2095
  .
@@ -169,6 +172,7 @@ strw:concept_food_additive rdf:type skos:Concept ;
  skos:prefLabel "Food Additive"@en ;
  skos:altLabel "Additive"@en ;
  strw:lemma_phrase "NOUN.food NOUN.additive"@en ;
+ strw:lemma_phrase "NOUN.additive"@en ;
  skos:definition "substances added to food to preserve flavor or enhance its taste, appearance, or other qualities"@en ;
  dct:identifier wd:Q189567 ;
  skos:broader strw:concept_food
@@ -212,4 +216,17 @@ strw:concept_disease rdf:type skos:Concept ;
  dct:identifier wd:Q12136 ;
  skos:broader strw:concept_condition ;
  skos:related strw:concept_organ, strw:concept_behavior, strw:concept_medicine
+ .
+
+
+strw:concept_doctor rdf:type skos:Concept ;
+ skos:inScheme strw:DementiaScheme ;
+ skos:prefLabel "Doctor"@en ;
+ skos:altLabel "Physician"@en ;
+ strw:lemma_phrase "NOUN.doctor"@en ;
+ strw:lemma_phrase "NOUN.physician"@en ;
+ skos:definition "professional who practices medicine"@en ;
+ dct:identifier wd:Q39631 ;
+ skos:broader strw:concept_person ;
+ skos:related strw:concept_medicine, strw:concept_hospital
  .
