@@ -122,14 +122,25 @@ Given as input:
   * a list of URLs from which to scrape content
   * `domain.ttl` -- semantics for the domain context
 
-Note: the `domain.ttl` file provides a _ontology pipeline_ for the
-given domain, used as the _human-in-the-loop_ basis for constructing a
-_semantic layer_.  Along with the `curate.py` script described below
-this illustrates _human-in-the-loop_ approaches in KG construction.
+The `domain.ttl` file provides a basis for iterating with an _ontology
+pipeline_ process, to represent the semantics for the given domain.
+It specifies metadata in terms of _vocabulary_, _taxonomy_, and
+_thesaurus_ -- to use in representing the core entities and relations
+in the KG.
 
-The `build.py` script scrapes text sources and constructs a
-_knowledge graph_ plus _entity embeddings_, with nodes linked to
-chunks in a _vector store_:
+The `curate.py` script described below then will introduce the
+_human-in-the-loop_ part of this process, where you can review
+entities extracted from documents. Based on this analysis, decide
+where to refine the domain context to be able to _extract_,
+_classify_, and _connect_ more of what gets extracted from
+_unstructured data sources_ and linked into the KG.  Overall, this
+process distills elements of the _lexical graph_, linking them with
+elements from the _data graph_, to produce a more abstracted (i.e.,
+less noisy) _semantic layer_ as the resulting KG.
+
+Meanwhle, let's get started. The `build.py` script scrapes text
+sources and constructs a _knowledge graph_ plus _entity embeddings_,
+with nodes linked to chunks in a _vector store_:
 
 ```bash
 poetry run python3 build.py
