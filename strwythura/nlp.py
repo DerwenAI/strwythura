@@ -50,35 +50,23 @@ and relations, based on using `GLiNER`, BAML, and textgraphs.
 Constructor.
         """
         self.config: dict = config
-        self.url_list: typing.List[ str ] = []
         self.ner_labels: typing.List[ str ] = []
-
-
-    def update_data (
-    	self,
-        url_list: typing.List[ str ],
-        ner_labels: typing.List[ str ],
-        ) -> None:
-        """
-Update the input data for the parsing run:
-
-  - `url_list`: URLs to crawl
-  - `ner_labels`: semantics to apply for zero-shot NER
-        """
-        self.url_list = url_list
-        self.ner_labels = ner_labels
 
 
     def build_entity_pipe (
         self,
+        ner_labels: typing.List[ str ],
         ) -> spacy.Language:
         """
 Initialize the `spaCy` pipeline used for NER + RE, by loading models
 for `spaCy`, `GLiNER`
 
+  - `ner_labels`: semantics to apply for zero-shot NER
+
 Note: this may take several minutes when run the first time after
 installing the repo.
         """
+        self.ner_labels = ner_labels
         entity_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])
 
         entity_pipe.add_pipe(

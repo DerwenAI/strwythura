@@ -17,17 +17,16 @@ import typing
 import warnings
 
 from icecream import ic  # type: ignore
-from rdflib.namespace import RDF, SKOS
 import gensim  # type: ignore
 import lancedb  # type: ignore
 import networkx as nx
 import polars as pl
-import rdflib
 import spacy
 import transformers
 
 from .baml_client import b
 from .baml_client import types as baml_types
+from .context import DomainContext
 from .graph import TextChunk
 from .kg import KnowledgeGraph
 from .nlp import Parser
@@ -67,16 +66,8 @@ Constructor.
         # { name:logging.getLogger(name) for name in logging.root.manager.loggerDict }
         #ic(loggers)
 
-        # load the semantic layer: define a context for the domain
-        domain_path: pathlib.Path = pathlib.Path(self.config["kg"]["domain_path"])
-        self.domain_context: rdflib.Graph = rdflib.Graph()
-
-        self.domain_context.parse(
-            domain_path.as_posix(),
-            format = "turtle",
-        )
-
         # initialize the data structures used for assets
+        self.domain_context: DomainContext = DomainContext(self.config)
         self.parser: Parser = Parser(self.config)
 
         with warnings.catch_warnings():
@@ -85,23 +76,9 @@ Constructor.
             self.simple_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])
             self.entity_pipe: typing.Optional[ spacy.Language ] = None
             self.chunk_table: typing.Optional[ lancedb.table.LanceTable ] = None
-            self.sem_overlay: nx.Graph = nx.Graph()
+            self.sem_layer: nx.Graph = nx.Graph()
             self.w2v_vectors: list = []
             self.w2v_model: typing.Optional[ gensim.models.Word2Vec ] = None
-
-
-    def get_ner_labels (
-        self,
-        ) -> typing.List[ str ]:
-        """
-Extract the labels used for zero-shot NER and corresponding graph
-nodes within the semantic layer definition for this domain context.
-        """
-        return [
-            str(label)
-            for concept in self.domain_context.subjects(RDF.type, SKOS.Concept)
-            for label in self.domain_context.objects(concept, SKOS.prefLabel, unique = True)
-        ]
 
 
     def build_assets (  # pylint: disable=R0913
@@ -115,17 +92,14 @@ nodes within the semantic layer definition for this domain context.
         """
 Builds assets for constructing a KG.
         """
-        self.parser.update_data(
-            url_list,
-            self.get_ner_labels(),
-        )
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
             try:
                 # given the NER labels, build the `spaCy` pipe
-                self.entity_pipe = self.parser.build_entity_pipe()
+                self.entity_pipe = self.parser.build_entity_pipe(
+                    self.domain_context.get_ner_labels()
+                )
 
                 # initialize the chunk table
                 vect_db: lancedb.db.LanceDBConnection = lancedb.connect(self.config["vect"]["lancedb_uri"])  # pylint: disable=C0301
@@ -140,11 +114,12 @@ Builds assets for constructing a KG.
                 kg: KnowledgeGraph = KnowledgeGraph(self.config)
 
                 kg.build_graph(
+                    url_list,
                     self.parser,
                     self.simple_pipe,
                     self.entity_pipe,
                     self.chunk_table,
-                    self.sem_overlay,
+                    self.sem_layer,
                     self.w2v_vectors,
                     debug = debug,
                 )
@@ -198,7 +173,7 @@ Serialize the KG
             fp.write(
                 json.dumps(
                     nx.node_link_data(
-                        self.sem_overlay,
+                        self.sem_layer,
                         edges = "edges",
                     ),
                     indent = 2,
@@ -209,6 +184,7 @@ Serialize the KG
 
     def gen_visualization (
         self,
+        url_list: typing.List[ str ],
         *,
         html_path: typing.Optional[ pathlib.Path ] = None,
         ) -> None:
@@ -219,9 +195,9 @@ Generate HTML for an interactive visualization of the graph, based on `PyVis`
             html_path = pathlib.Path(self.config["kg"]["html_path"])
 
         gen_pyvis(
-            self.sem_overlay,
+            self.sem_layer,
             html_path.as_posix(),
-            num_docs = len(self.parser.url_list),
+            num_docs = len(url_list),
         )
 
 
@@ -246,18 +222,15 @@ Load the serialized assets for a constructed KG.
             kg_path = pathlib.Path(self.config["kg"]["kg_path"])
 
         with pathlib.Path(kg_path).open("r", encoding = "utf-8") as fp:
-            self.sem_overlay = nx.node_link_graph(
+            self.sem_layer = nx.node_link_graph(
                 json.load(fp),
                 edges = "edges",
             )
 
         # build the `spaCy` pipe, no need for input URL list
-        self.parser.update_data(
-            [],
-            self.get_ner_labels(),
+        self.entity_pipe = self.parser.build_entity_pipe(
+            self.domain_context.get_ner_labels()
         )
-
-        self.entity_pipe = self.parser.build_entity_pipe()
 
 
 class GraphRAG:
@@ -337,7 +310,7 @@ Run semantic search to produce a set of text chunks.
 
         anchor_nodes: set = {
             node
-            for node, dat in self.strw.sem_overlay.nodes(data = True)
+            for node, dat in self.strw.sem_layer.nodes(data = True)
             if "key" in dat and dat["key"] in expanded_entities
         }
 
@@ -407,13 +380,13 @@ In other words, this emulates a _semantic random walk_.
             if debug:
                 ic(pair)
 
-            for path in nx.all_shortest_paths(self.strw.sem_overlay, pair[0], pair[1]):
+            for path in nx.all_shortest_paths(self.strw.sem_layer, pair[0], pair[1]):
                 if debug:
                     ic(path)
 
                 for node in path:
                     if node not in pair:
-                        dat: dict = self.strw.sem_overlay.nodes[node]
+                        dat: dict = self.strw.sem_layer.nodes[node]
 
                         if debug:
                             ic(node, dat)
@@ -436,7 +409,7 @@ referenced entities in the subgraph.
             debug = debug,
         )
 
-        subgraph: nx.Graph = self.strw.sem_overlay.subgraph(
+        subgraph: nx.Graph = self.strw.sem_layer.subgraph(
             anchor_nodes.union(set(subgraph_iter))
         )
 
@@ -446,7 +419,7 @@ referenced entities in the subgraph.
         ).items()
 
         for node, rank in sorted(rank_iter, key = lambda x: x[1], reverse = True):
-            dat: dict = self.strw.sem_overlay.nodes[node]
+            dat: dict = self.strw.sem_layer.nodes[node]
 
             if debug:
                 ic(node, rank, dat)
@@ -467,8 +440,8 @@ Find the neighboring chunks for each _anchor node_ in the given list.
             if debug:
                 ic(node)
 
-            for neighbor in self.strw.sem_overlay.neighbors(node):
-                dat: dict = self.strw.sem_overlay.nodes[neighbor]
+            for neighbor in self.strw.sem_layer.neighbors(node):
+                dat: dict = self.strw.sem_layer.nodes[neighbor]
 
                 if dat["kind"] == "Chunk":
                     if debug:

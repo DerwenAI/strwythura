@@ -38,7 +38,9 @@ if __name__ == "__main__":
     )
 
     # generate an interactive visualization in HTML
-    strw.gen_visualization()
+    strw.gen_visualization(
+        url_list,
+    )
 
     # report the performance profiler stats
     profiler.report()

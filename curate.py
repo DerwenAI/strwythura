@@ -34,7 +34,7 @@ def main ():
             "key": data["key"],
             "id": node,
         }
-        for node, data in strw.sem_overlay.nodes(data = True)
+        for node, data in strw.sem_layer.nodes(data = True)
         if data["kind"] in [ "Entity", ]
     ]).sort(
         "label",

@@ -40,11 +40,12 @@ Constructor.
 
     def build_graph (  # pylint: disable=R0912,R0913,R0914,R0917,W0102
         self,
+        url_list: typing.List[ str ],
         parser: Parser,
         simple_pipe: spacy.Language,
         entity_pipe: spacy.Language,
         chunk_table: lancedb.table.LanceTable,
-        sem_overlay: nx.Graph,
+        sem_layer: nx.Graph,
         w2v_vectors: list = [],
         *,
         debug: bool = False,
@@ -56,7 +57,7 @@ Construct a knowledge graph from unstructured data sources.
         scraper: Scraper = Scraper(self.config, parser)
         chunk_id: int = 0
 
-        for url in parser.url_list:
+        for url in url_list:
             # define data structures intialized for each parsed document
             lex_graph: nx.Graph = nx.Graph()
             chunk_list: typing.List[ TextChunk ] = []
@@ -167,11 +168,11 @@ Construct a knowledge graph from unstructured data sources.
                 url,
                 chunk_list,
                 lex_graph,
-                sem_overlay,
+                sem_layer,
             )
 
             if debug:
-                print("nodes", len(sem_overlay.nodes), "edges", len(sem_overlay.edges))
+                print("nodes", len(sem_layer.nodes), "edges", len(sem_layer.edges))
 
 
     def abstract_overlay (  # pylint: disable=R0914
@@ -179,7 +180,7 @@ Construct a knowledge graph from unstructured data sources.
         url: str,
         chunk_list: typing.List[ TextChunk ],
         lex_graph: nx.Graph,
-        sem_overlay: nx.Graph,
+        sem_layer: nx.Graph,
         ) -> None:
         """
 Abstract a _semantic overlay_ from the lexical graph -- in other words
@@ -200,7 +201,7 @@ the latter first-class citizens within the KG.
         }
 
         for chunk_id, node_id in chunk_nodes.items():
-            sem_overlay.add_node(
+            sem_layer.add_node(
                 node_id,
                 kind = "Chunk",
                 chunk = chunk_id,
@@ -212,8 +213,8 @@ the latter first-class citizens within the KG.
                 kept_nodes.add(node_id)
                 count: int = node_attr["count"]
 
-                if not sem_overlay.has_node(node_id):
-                    sem_overlay.add_node(
+                if not sem_layer.has_node(node_id):
+                    sem_layer.add_node(
                         node_id,
                         kind = "Entity",
                         key = node_attr["key"],
@@ -223,9 +224,9 @@ the latter first-class citizens within the KG.
                         count = count,
                     )
                 else:
-                    sem_overlay.nodes[node_id]["count"] += count
+                    sem_layer.nodes[node_id]["count"] += count
 
-                sem_overlay.add_edge(
+                sem_layer.add_edge(
                     node_id,
                     chunk_nodes[node_attr["chunk"]],
                     rel = "WITHIN",
@@ -241,17 +242,17 @@ the latter first-class citizens within the KG.
                     prob = edge_attr["prob"]
 
                 if rel not in skipped_rel:
-                    if not sem_overlay.has_edge(src_id, dst_id):
-                        sem_overlay.add_edge(
+                    if not sem_layer.has_edge(src_id, dst_id):
+                        sem_layer.add_edge(
                             src_id,
                             dst_id,
                             rel = rel,
                             prob = prob,
                         )
                     else:
-                        sem_overlay[src_id][dst_id]["prob"] = max(
+                        sem_layer[src_id][dst_id]["prob"] = max(
                             prob,
-                            sem_overlay.edges[(src_id, dst_id)]["prob"],
+                            sem_layer.edges[(src_id, dst_id)]["prob"],
                         )
 
 
