@@ -6,12 +6,17 @@ Manage the domain context, using `RDFlib` and related libraries.
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
+from collections import defaultdict
+import json
 import pathlib
 import typing
 
 from rdflib.namespace import DCTERMS, RDF, SKOS
+import gensim  # type: ignore
 import networkx as nx
 import rdflib
+
+from .graph import Entity, TextChunk
 
 
 class DomainContext:  # pylint: disable=R0902,R0903
@@ -31,6 +36,8 @@ Constructor.
         """
         self.config: dict = {}
         self.rdf_graph: rdflib.Graph = rdflib.Graph()
+        self.w2v_vectors: list = []
+        self.w2v_model: typing.Optional[ gensim.models.Word2Vec ] = None
         self.known_lemma: typing.List[ str ] = []
         self.sem_layer: nx.Graph = nx.Graph()
 
@@ -140,7 +147,7 @@ Get the attributes for a `SKOS:Concept` entity.
 
         self.sem_layer.add_node(
             node_id,
-            kind = "Entity",
+            kind = "Taxonomy",
             key = lemma_key,
             text = self.rdf_graph.value(
                 concept_iri,
@@ -207,4 +214,86 @@ Iterate through `SKOS:Concept` entities, loading into `NetworkX`
                         src_id,
                         dst_id,
                         rel = rel_iri,
+                        prob = 1.0,
                     )
+
+
+    def add_w2v_vectors (
+        self,
+        span_decoder: typing.Dict[ tuple, Entity ],
+        ) -> None:
+        """
+Build the vector input for entity embeddings.
+        """
+        w2v_map: typing.Dict[ int, typing.Set[ str ]] = defaultdict(set)
+
+        for ent in span_decoder.values():
+            if ent.node is not None:
+                w2v_map[ent.sent_id].add(ent.key)
+
+        for sent_id, ents in w2v_map.items():
+            vec: list = list(ents)
+            vec.insert(0, str(sent_id))
+            self.w2v_vectors.append(vec)
+
+
+    def embed_entities (
+        self,
+        *,
+        w2v_path: typing.Optional[ pathlib.Path ] = None,
+        ) -> None:
+        """
+Train a `gensim.Word2Vec` model for entity embeddings.
+        """
+        w2v_max: int = max([  # pylint: disable=R1728
+            len(vec) - 1
+            for vec in self.w2v_vectors
+        ])
+
+        self.w2v_model = gensim.models.Word2Vec(
+            self.w2v_vectors,
+            min_count = 2,
+            window = w2v_max,
+        )
+
+        if w2v_path is None:
+            w2v_path = pathlib.Path(self.config["ent"]["w2v_path"])
+
+        self.w2v_model.save(w2v_path.as_posix())
+
+
+    def save_sem_layer (
+        self,
+        *,
+        kg_path: typing.Optional[ pathlib.Path ] = None,
+        ) -> None:
+        """
+Serialize the KG
+        """
+        if kg_path is None:
+            kg_path = pathlib.Path(self.config["kg"]["kg_path"])
+
+        with kg_path.open("w", encoding = "utf-8") as fp:
+            fp.write(
+                json.dumps(
+                    nx.node_link_data(
+                        self.sem_layer,
+                        edges = "edges",
+                    ),
+                    indent = 2,
+                    sort_keys = True,
+                )
+            )
+
+
+    def serialize_assets (
+        self,
+        *,
+        kg_path: typing.Optional[ pathlib.Path ] = None,
+        w2v_path: typing.Optional[ pathlib.Path ] = None,
+        ) -> None:
+        """
+Serialize the assets for reusing a constructed KG.
+        """
+        self.embed_entities(w2v_path = w2v_path)
+        self.save_sem_layer(kg_path = kg_path)

@@ -6,7 +6,6 @@ Construct the knowledge graph.
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
-from collections import defaultdict
 import typing
 
 from icecream import ic  # type: ignore
@@ -46,7 +45,6 @@ Constructor.
         simple_pipe: spacy.Language,
         entity_pipe: spacy.Language,
         chunk_table: lancedb.table.LanceTable,
-        w2v_vectors: list = [],
         *,
         debug: bool = False,
         ) -> None:
@@ -141,17 +139,7 @@ Construct a knowledge graph from unstructured data sources.
                     span_decoder,
                 )
 
-                # build the vector input for entity embeddings
-                w2v_map: typing.Dict[ int, typing.Set[ str ]] = defaultdict(set)
-
-                for ent in span_decoder.values():
-                    if ent.node is not None:
-                        w2v_map[ent.sent_id].add(ent.key)
-
-                for sent_id, ents in w2v_map.items():
-                    vec: list = list(ents)
-                    vec.insert(0, str(sent_id))
-                    w2v_vectors.append(vec)
+                domain_context.add_w2v_vectors(span_decoder)
 
             # apply _textrank_ to the graph (in the url/doc iteration)
             # then report the top-ranked extracted entities

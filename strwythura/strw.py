@@ -79,17 +79,13 @@ Constructor.
             self.simple_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])
             self.entity_pipe: typing.Optional[ spacy.Language ] = None
             self.chunk_table: typing.Optional[ lancedb.table.LanceTable ] = None
-            self.w2v_vectors: list = []
-            self.w2v_model: typing.Optional[ gensim.models.Word2Vec ] = None
 
 
-    def build_assets (  # pylint: disable=R0913
+    def build_assets (
         self,
         url_list: typing.List[ str ],
         *,
         debug: bool = False,
-        kg_path: typing.Optional[ pathlib.Path ] = None,
-        w2v_path: typing.Optional[ pathlib.Path ] = None,
         ) -> None:
         """
 Builds assets for constructing a KG.
@@ -122,66 +118,12 @@ Builds assets for constructing a KG.
                     self.simple_pipe,
                     self.entity_pipe,
                     self.chunk_table,
-                    self.w2v_vectors,
                     debug = debug,
                 )
-
-                # serialize assets
-                self.embed_entities(w2v_path = w2v_path)
-                self.save_graph(kg_path = kg_path)
 
             except Exception as ex:  # pylint: disable=W0718
                 ic(ex)
                 traceback.print_exc()
-
-
-    def embed_entities (
-        self,
-        *,
-        w2v_path: typing.Optional[ pathlib.Path ] = None,
-        ) -> None:
-        """
-Train a `gensim.Word2Vec` model for entity embeddings.
-        """
-        w2v_max: int = max([  # pylint: disable=R1728
-            len(vec) - 1
-            for vec in self.w2v_vectors
-        ])
-
-        self.w2v_model = gensim.models.Word2Vec(
-            self.w2v_vectors,
-            min_count = 2,
-            window = w2v_max,
-        )
-
-        if w2v_path is None:
-            w2v_path = pathlib.Path(self.config["ent"]["w2v_path"])
-
-        self.w2v_model.save(w2v_path.as_posix())
-
-
-    def save_graph (
-        self,
-        *,
-        kg_path: typing.Optional[ pathlib.Path ] = None,
-        ) -> None:
-        """
-Serialize the KG
-        """
-        if kg_path is None:
-            kg_path = pathlib.Path(self.config["kg"]["kg_path"])
-
-        with kg_path.open("w", encoding = "utf-8") as fp:
-            fp.write(
-                json.dumps(
-                    nx.node_link_data(
-                        self.domain_context.sem_layer,
-                        edges = "edges",
-                    ),
-                    indent = 2,
-                    sort_keys = True,
-                )
-            )
 
 
     def gen_visualization (
@@ -218,7 +160,7 @@ Load the serialized assets for a constructed KG.
         if w2v_path is None:
             w2v_path = pathlib.Path(self.config["ent"]["w2v_path"])
 
-        self.w2v_model = gensim.models.Word2Vec.load(w2v_path.as_posix())
+        self.domain_context.w2v_model = gensim.models.Word2Vec.load(w2v_path.as_posix())
 
         if kg_path is None:
             kg_path = pathlib.Path(self.config["kg"]["kg_path"])
@@ -294,7 +236,7 @@ Run semantic search to produce a set of text chunks.
 
         try:
             for entity in entities:
-                neighbor_iter = self.strw.w2v_model.wv.most_similar(  # type: ignore
+                neighbor_iter = self.strw.domain_context.w2v_model.wv.most_similar(  # type: ignore
                     positive = [ entity ],
                     topn = num_chunks,
                 )

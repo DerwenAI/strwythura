@@ -43,5 +43,8 @@ if __name__ == "__main__":
         url_list,
     )
 
+    # serialize the assets to be reused later
+    domain.serialize_assets()
+
     # report the performance profiler stats
     profiler.report()
