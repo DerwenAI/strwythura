@@ -48,7 +48,7 @@ Builds assets for constructing a KG, then running GraphRAG downstream.
 Constructor.
         """
         # configuration
-        self.config: dict = {}      
+        self.config: dict = {}
 
         with open(config_path, mode = "rb") as fp:
             self.config = tomllib.load(fp)

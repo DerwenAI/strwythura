@@ -30,6 +30,7 @@ vocabulary, taxonomy, thesaurus, and ontology.
 Constructor.
         """
         self.config: dict = {}
+        self.rdf_graph: rdflib.Graph = rdflib.Graph()
         self.known_lemma: typing.List[ str ] = []
         self.sem_layer: nx.Graph = nx.Graph()
 
@@ -43,11 +44,10 @@ Accessor method to configure -- part of a design pattern to make the
 domain context handling more "pluggable", i.e., to be subclassed and
 customized for other use cases.
         """
-        self.config: dict = config
+        self.config = config
 
         # load the RDF-based context for the domain
         domain_path: pathlib.Path = pathlib.Path(self.config["kg"]["domain_path"])
-        self.rdf_graph: rdflib.Graph = rdflib.Graph()
 
         self.rdf_graph.parse(
             domain_path.as_posix(),
@@ -111,12 +111,14 @@ Lookup a `SKOS:Concept` entity by its IRI.
 
     def get_first_lemma (
         self,
-        concept_iri: rdflib.term.URIRef,
+        concept_iri: rdflib.term.Node,
         ) -> str:
         """
 Get the primary lemma for a `SKOS:Concept` entity.
         """
-        return next(self.rdf_graph.objects(concept_iri, self.LEMMA_PHRASE)).toPython()
+        return next(
+            self.rdf_graph.objects(concept_iri, self.LEMMA_PHRASE)
+        ).toPython()  # type: ignore
 
 
     def populate_taxonomy_node (
@@ -127,7 +129,7 @@ Get the primary lemma for a `SKOS:Concept` entity.
 Get the attributes for a `SKOS:Concept` entity.
         """
         lemmas: typing.List[ str ] = [
-            lemma.toPython()
+            lemma.toPython()  # type: ignore
             for lemma in self.rdf_graph.objects(concept_iri, self.LEMMA_PHRASE)
         ]
 
@@ -140,9 +142,20 @@ Get the attributes for a `SKOS:Concept` entity.
             node_id,
             kind = "Entity",
             key = lemma_key,
-            text = self.rdf_graph.value(concept_iri, SKOS.definition).toPython(),
-            label = next(self.rdf_graph.objects(concept_iri, SKOS.prefLabel, unique = True)).toPython(),
-            iri = self.rdf_graph.value(concept_iri, DCTERMS.identifier).toPython(),
+            text = self.rdf_graph.value(
+                concept_iri,
+                SKOS.definition,
+            ).toPython(),  # type: ignore
+            label = next(
+                self.rdf_graph.objects(
+                    concept_iri,
+                    SKOS.prefLabel,
+                    unique = True,)
+            ).toPython(),  # type: ignore
+            iri = self.rdf_graph.value(
+                concept_iri,
+                DCTERMS.identifier,
+            ).toPython(),  # type: ignore
             rank = 0.0,
             count = 0,
         )
@@ -173,12 +186,12 @@ Get the attributes for a `SKOS:Concept` entity.
         """
 Iterate through `SKOS:Concept` entities, loading into `NetworkX`
         """
-        node_map: typing.Dict[ rdflib.term.URIRef, int ] = {}
+        node_map: typing.Dict[ str, int ] = {}
         attr_map: typing.Dict[ int, dict ] = {}
 
         # first pass: populate nodes for the `SKOS:Concept` entities
         for concept_iri in self.rdf_graph.subjects(RDF.type, SKOS.Concept):
-            node_id, lemma_key, attr = self.populate_taxonomy_node(concept_iri)
+            node_id, lemma_key, attr = self.populate_taxonomy_node(concept_iri)  # type: ignore
             node_map[lemma_key] = node_id
             attr_map[node_id] = attr
 

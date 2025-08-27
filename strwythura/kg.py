@@ -167,7 +167,6 @@ Construct a knowledge graph from unstructured data sources.
             # abstract a semantic overlay from the lexical graph
             # and persist this in the resulting KG
             self.abstract_overlay(
-                domain_context,
                 url,
                 chunk_list,
                 lex_graph,
@@ -180,7 +179,6 @@ Construct a knowledge graph from unstructured data sources.
 
     def abstract_overlay (  # pylint: disable=R0914
         self,
-        domain_context: DomainContext,
         url: str,
         chunk_list: typing.List[ TextChunk ],
         lex_graph: nx.Graph,
