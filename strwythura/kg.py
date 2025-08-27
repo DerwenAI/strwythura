@@ -15,6 +15,7 @@ import networkx as nx
 import polars as pl
 import spacy
 
+from .context import DomainContext
 from .graph import Entity, TextChunk
 from .nlp import Parser
 from .scrape import Scraper
@@ -35,12 +36,12 @@ use later.
 Constructor.
         """
         self.config: dict = config
-        self.known_lemma: typing.List[ str ] = []
 
 
     def build_graph (  # pylint: disable=R0912,R0913,R0914,R0917,W0102
         self,
         url_list: typing.List[ str ],
+        domain_context: DomainContext,
         parser: Parser,
         simple_pipe: spacy.Language,
         entity_pipe: spacy.Language,
@@ -76,8 +77,8 @@ Construct a knowledge graph from unstructured data sources.
                 span_decoder: typing.Dict[ tuple, Entity ] = {}
 
                 doc: spacy.tokens.doc.Doc = parser.parse_text(  # pylint: disable=I1101
+                    domain_context,
                     entity_pipe,
-                    self.known_lemma,
                     lex_graph,
                     chunk,
                     debug = debug,
@@ -126,6 +127,7 @@ Construct a knowledge graph from unstructured data sources.
                 for ent in span_decoder.values():
                     if ent.key not in parser.STOP_WORDS:
                         self.extract_entity(
+                            domain_context,
                             lex_graph,
                             ent,
                             debug = debug,
@@ -165,6 +167,7 @@ Construct a knowledge graph from unstructured data sources.
             # abstract a semantic overlay from the lexical graph
             # and persist this in the resulting KG
             self.abstract_overlay(
+                domain_context,
                 url,
                 chunk_list,
                 lex_graph,
@@ -177,6 +180,7 @@ Construct a knowledge graph from unstructured data sources.
 
     def abstract_overlay (  # pylint: disable=R0914
         self,
+        domain_context: DomainContext,
         url: str,
         chunk_list: typing.List[ TextChunk ],
         lex_graph: nx.Graph,
@@ -294,6 +298,7 @@ Instantiate one `Entity` object, adding to our working "vocabulary".
 
     def extract_entity (
         self,
+        domain_context: DomainContext,
         lex_graph: nx.Graph,
         ent: Entity,
         *,
@@ -302,16 +307,8 @@ Instantiate one `Entity` object, adding to our working "vocabulary".
         """
 Link one `Entity` into this doc's lexical graph.
         """
-        prev_known: bool = False
-
-        if ent.key not in self.known_lemma:
-            # add a new Entity node to the graph and link to its component Lemma nodes
-            self.known_lemma.append(ent.key)
-        else:
-            # phrase for this entity has been previously seen in other documents
-            prev_known = True
-
-        node_id: int = self.known_lemma.index(ent.key)
+        prev_known: bool = domain_context.add_lemma(ent.key)
+        node_id: int = domain_context.get_lemma_index(ent.key)
         ent.node = node_id
 
         # hydrate a compound phrase in this doc's lexical graph
@@ -330,8 +327,8 @@ Link one `Entity` into this doc's lexical graph.
             for tok in ent.span:
                 tok_key: str = tok.pos_ + "." + tok.lemma_.strip().lower()
 
-                if tok_key in self.known_lemma:
-                    tok_idx: int = self.known_lemma.index(tok_key)
+                if tok_key in domain_context.known_lemma:
+                    tok_idx: int = domain_context.get_lemma_index(tok_key)
 
                     lex_graph.add_edge(
                         node_id,

@@ -15,6 +15,7 @@ import networkx as nx
 import spacy
 import w3lib.html
 
+from .context import DomainContext
 from .graph import TextChunk
 
 
@@ -84,8 +85,8 @@ installing the repo.
 
     def parse_text (  # pylint: disable=R0913,R0914
         self,
+        domain_context: DomainContext,
         entity_pipe: spacy.Language,
-        known_lemma: typing.List[ str ],
         lex_graph: nx.Graph,
         chunk: TextChunk,
         *,
@@ -109,16 +110,9 @@ Parse an input text chunk, returning a `spaCy` document.
 
                 if tok.pos_ in [ "NOUN", "PROPN" ]:
                     key: str = tok.pos_ + "." + tok.lemma_.strip().lower()
-                    prev_known: bool = False
 
-                    if key not in known_lemma:
-                        # create a new node
-                        known_lemma.append(key)
-                    else:
-                        # link to an existing node, adding weight
-                        prev_known = True
-
-                    node_id: int = known_lemma.index(key)
+                    prev_known: bool = domain_context.add_lemma(key)
+                    node_id: int = domain_context.get_lemma_index(key)
                     node_seq.append(node_id)
 
                     if not lex_graph.has_node(node_id):

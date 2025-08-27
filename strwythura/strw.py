@@ -118,6 +118,7 @@ Builds assets for constructing a KG.
 
                 kg.build_graph(
                     url_list,
+                    self.domain_context,
                     self.parser,
                     self.simple_pipe,
                     self.entity_pipe,
