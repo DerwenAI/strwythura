@@ -46,7 +46,6 @@ Constructor.
         simple_pipe: spacy.Language,
         entity_pipe: spacy.Language,
         chunk_table: lancedb.table.LanceTable,
-        sem_layer: nx.Graph,
         w2v_vectors: list = [],
         *,
         debug: bool = False,
@@ -167,22 +166,22 @@ Construct a knowledge graph from unstructured data sources.
             # abstract a semantic overlay from the lexical graph
             # and persist this in the resulting KG
             self.abstract_overlay(
+                domain_context,
                 url,
                 chunk_list,
                 lex_graph,
-                sem_layer,
             )
 
             if debug:
-                print("nodes", len(sem_layer.nodes), "edges", len(sem_layer.edges))
+                print("nodes", len(domain_context.sem_layer.nodes), "edges", len(domain_context.sem_layer.edges))
 
 
     def abstract_overlay (  # pylint: disable=R0914
         self,
+        domain_context: DomainContext,
         url: str,
         chunk_list: typing.List[ TextChunk ],
         lex_graph: nx.Graph,
-        sem_layer: nx.Graph,
         ) -> None:
         """
 Abstract a _semantic overlay_ from the lexical graph -- in other words
@@ -203,7 +202,7 @@ the latter first-class citizens within the KG.
         }
 
         for chunk_id, node_id in chunk_nodes.items():
-            sem_layer.add_node(
+            domain_context.sem_layer.add_node(
                 node_id,
                 kind = "Chunk",
                 chunk = chunk_id,
@@ -215,8 +214,8 @@ the latter first-class citizens within the KG.
                 kept_nodes.add(node_id)
                 count: int = node_attr["count"]
 
-                if not sem_layer.has_node(node_id):
-                    sem_layer.add_node(
+                if not domain_context.sem_layer.has_node(node_id):
+                    domain_context.sem_layer.add_node(
                         node_id,
                         kind = "Entity",
                         key = node_attr["key"],
@@ -226,9 +225,9 @@ the latter first-class citizens within the KG.
                         count = count,
                     )
                 else:
-                    sem_layer.nodes[node_id]["count"] += count
+                    domain_context.sem_layer.nodes[node_id]["count"] += count
 
-                sem_layer.add_edge(
+                domain_context.sem_layer.add_edge(
                     node_id,
                     chunk_nodes[node_attr["chunk"]],
                     rel = "WITHIN",
@@ -244,17 +243,17 @@ the latter first-class citizens within the KG.
                     prob = edge_attr["prob"]
 
                 if rel not in skipped_rel:
-                    if not sem_layer.has_edge(src_id, dst_id):
-                        sem_layer.add_edge(
+                    if not domain_context.sem_layer.has_edge(src_id, dst_id):
+                        domain_context.sem_layer.add_edge(
                             src_id,
                             dst_id,
                             rel = rel,
                             prob = prob,
                         )
                     else:
-                        sem_layer[src_id][dst_id]["prob"] = max(
+                        domain_context.sem_layer[src_id][dst_id]["prob"] = max(
                             prob,
-                            sem_layer.edges[(src_id, dst_id)]["prob"],
+                            domain_context.sem_layer.edges[(src_id, dst_id)]["prob"],
                         )
 
 

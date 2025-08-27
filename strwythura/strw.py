@@ -79,7 +79,6 @@ Constructor.
             self.simple_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])
             self.entity_pipe: typing.Optional[ spacy.Language ] = None
             self.chunk_table: typing.Optional[ lancedb.table.LanceTable ] = None
-            self.sem_layer: nx.Graph = nx.Graph()
             self.w2v_vectors: list = []
             self.w2v_model: typing.Optional[ gensim.models.Word2Vec ] = None
 
@@ -123,7 +122,6 @@ Builds assets for constructing a KG.
                     self.simple_pipe,
                     self.entity_pipe,
                     self.chunk_table,
-                    self.sem_layer,
                     self.w2v_vectors,
                     debug = debug,
                 )
@@ -177,7 +175,7 @@ Serialize the KG
             fp.write(
                 json.dumps(
                     nx.node_link_data(
-                        self.sem_layer,
+                        self.domain_context.sem_layer,
                         edges = "edges",
                     ),
                     indent = 2,
@@ -199,7 +197,7 @@ Generate HTML for an interactive visualization of the graph, based on `PyVis`
             html_path = pathlib.Path(self.config["kg"]["html_path"])
 
         gen_pyvis(
-            self.sem_layer,
+            self.domain_context.sem_layer,
             html_path.as_posix(),
             num_docs = len(url_list),
         )
@@ -226,7 +224,7 @@ Load the serialized assets for a constructed KG.
             kg_path = pathlib.Path(self.config["kg"]["kg_path"])
 
         with pathlib.Path(kg_path).open("r", encoding = "utf-8") as fp:
-            self.sem_layer = nx.node_link_graph(
+            self.domain_context.sem_layer = nx.node_link_graph(
                 json.load(fp),
                 edges = "edges",
             )
@@ -314,7 +312,7 @@ Run semantic search to produce a set of text chunks.
 
         anchor_nodes: set = {
             node
-            for node, dat in self.strw.sem_layer.nodes(data = True)
+            for node, dat in self.strw.domain_context.sem_layer.nodes(data = True)
             if "key" in dat and dat["key"] in expanded_entities
         }
 
@@ -384,13 +382,13 @@ In other words, this emulates a _semantic random walk_.
             if debug:
                 ic(pair)
 
-            for path in nx.all_shortest_paths(self.strw.sem_layer, pair[0], pair[1]):
+            for path in nx.all_shortest_paths(self.strw.domain_context.sem_layer, pair[0], pair[1]):
                 if debug:
                     ic(path)
 
                 for node in path:
                     if node not in pair:
-                        dat: dict = self.strw.sem_layer.nodes[node]
+                        dat: dict = self.strw.domain_context.sem_layer.nodes[node]
 
                         if debug:
                             ic(node, dat)
@@ -413,7 +411,7 @@ referenced entities in the subgraph.
             debug = debug,
         )
 
-        subgraph: nx.Graph = self.strw.sem_layer.subgraph(
+        subgraph: nx.Graph = self.strw.domain_context.sem_layer.subgraph(
             anchor_nodes.union(set(subgraph_iter))
         )
 
@@ -423,7 +421,7 @@ referenced entities in the subgraph.
         ).items()
 
         for node, rank in sorted(rank_iter, key = lambda x: x[1], reverse = True):
-            dat: dict = self.strw.sem_layer.nodes[node]
+            dat: dict = self.strw.domain_context.sem_layer.nodes[node]
 
             if debug:
                 ic(node, rank, dat)
@@ -444,8 +442,8 @@ Find the neighboring chunks for each _anchor node_ in the given list.
             if debug:
                 ic(node)
 
-            for neighbor in self.strw.sem_layer.neighbors(node):
-                dat: dict = self.strw.sem_layer.nodes[neighbor]
+            for neighbor in self.strw.domain_context.sem_layer.neighbors(node):
+                dat: dict = self.strw.domain_context.sem_layer.nodes[neighbor]
 
                 if dat["kind"] == "Chunk":
                     if debug:

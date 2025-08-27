@@ -36,13 +36,13 @@ def main ():
             "key": data["key"],
             "id": node,
         }
-        for node, data in strw.sem_layer.nodes(data = True)
+        for node, data in domain.sem_layer.nodes(data = True)
         if data["kind"] in [ "Entity", ]
     ]).sort(
         "label",
         "rank",
         "count",
-        descending = [ True, False, False ],
+        descending = [ True, True, True ],
     )
 
     ic(df.head())
