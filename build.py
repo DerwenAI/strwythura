@@ -11,10 +11,10 @@ GraphRAG downstream.
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
-import typing
 import tracemalloc
+import typing
 
-from strwythura import Strwythura, PerfProfiler
+from strwythura import DomainContext, PerfProfiler, Strwythura
 
 
 if __name__ == "__main__":
@@ -30,7 +30,8 @@ if __name__ == "__main__":
         "https://www.alz.org/alzheimers-dementia/what-is-dementia",
     ]
 
-    strw: Strwythura = Strwythura()
+    domain: DomainContext = DomainContext()
+    strw: Strwythura = Strwythura(domain)
 
     strw.build_assets(
         url_list,

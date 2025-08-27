@@ -40,6 +40,7 @@ Builds assets for constructing a KG, then running GraphRAG downstream.
 
     def __init__ (
         self,
+        domain_context: DomainContext,
         *,
         config_path: pathlib.Path = pathlib.Path("config.toml"),
         ) -> None:
@@ -47,7 +48,7 @@ Builds assets for constructing a KG, then running GraphRAG downstream.
 Constructor.
         """
         # configuration
-        self.config: dict = {}
+        self.config: dict = {}      
 
         with open(config_path, mode = "rb") as fp:
             self.config = tomllib.load(fp)
@@ -67,12 +68,14 @@ Constructor.
         #ic(loggers)
 
         # initialize the data structures used for assets
-        self.domain_context: DomainContext = DomainContext(self.config)
-        self.parser: Parser = Parser(self.config)
+        self.domain_context: DomainContext = domain_context
+        self.domain_context.set_config(self.config)
+        self.domain_context.load_taxonomy()
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
+            self.parser: Parser = Parser(self.config)
             self.simple_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])
             self.entity_pipe: typing.Optional[ spacy.Language ] = None
             self.chunk_table: typing.Optional[ lancedb.table.LanceTable ] = None

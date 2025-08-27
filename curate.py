@@ -14,14 +14,16 @@ import warnings
 from icecream import ic
 import polars as pl
 
-from strwythura import Strwythura
+from strwythura import DomainContext, Strwythura
 
 
 def main ():
+    domain: DomainContext = DomainContext()
+    strw: Strwythura = Strwythura(domain)
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
 
-        strw: Strwythura = Strwythura()
         strw.load_assets()
 
     # construct a DataFrame as a view of the entities

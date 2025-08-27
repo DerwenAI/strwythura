@@ -22,7 +22,10 @@ strw:concept_people_group rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:topConceptOf strw:DementiaScheme ;
  skos:prefLabel "People Group"@en ;
- strw:lemma_phrase "NOUN.people NOUN.group"@en 
+ skos:altLabel "Community"@en ;
+ strw:lemma_phrase "NOUN.people NOUN.group"@en ;
+ skos:definition "social unit of human organisms who share common values"@en ;
+ dct:identifier wd:Q177634
  .
 
 strw:concept_person rdf:type skos:Concept ;

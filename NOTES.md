@@ -9,6 +9,18 @@
 
   * Entity linking - combine structured and unstructured sources
 
+## Code TODOs
+  - replace nx.Graph with nx.MultiDiGraph ?
+
+  - replace RE with BAML or DSPy <https://arxiv.org/html/2502.09956v1>
+
+  * back-out `pandas` replaced by `polars`:
+    - `textrank.py`
+
+  * integrate `kglab.standards` for OWL/RDFS closure and SHACL capabilities
+
+  * integrate with Kuzu for graph persistence?
+
 
 ## Structured Data
 
@@ -88,19 +100,6 @@ DLBP:
 
 Wikimedia:
   - https://en.wikipedia.org/wiki/A._Heather_Eliassen
-
-
-
-## Code TODOs
-  - replace RE with BAML or DSPy <https://arxiv.org/html/2502.09956v1>
-
-  * back-out `pandas` replaced by `polars`:
-    - `textrank.py`
-
-  * integrate `kglab.standards` for OWL/RDFS closure and SHACL capabilities
-
-  * integrate with Kuzu for graph persistence?
-
 
 ----------------------------------------------------------------------
 
