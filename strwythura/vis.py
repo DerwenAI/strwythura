@@ -13,8 +13,6 @@ import typing
 
 import pyvis  # type: ignore
 
-from .context import DomainContext
-
 
 class VisHTML:  # pylint: disable=R0902
     """
@@ -84,4 +82,3 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
         pv_net.toggle_physics(True)
         pv_net.show_buttons(filter_ = [ "physics" ])
         pv_net.save_graph(html_file)
-        

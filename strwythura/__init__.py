@@ -9,7 +9,7 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 
 from .context import DomainContext
 
-from .elem import Entity, NodeKind, TextChunk
+from .elem import Entity, NodeKind, StrwVocab, TextChunk
 
 from .kg import KnowledgeGraph
 

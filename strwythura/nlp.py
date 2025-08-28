@@ -17,7 +17,7 @@ import spacy
 import w3lib.html
 
 from .context import DomainContext
-from .elem import TextChunk
+from .elem import StrwVocab, TextChunk
 
 
 class Parser:
@@ -144,7 +144,7 @@ Parse an input text chunk, returning a `spaCy` document.
                         lex_graph.add_edge(
                             node,
                             neighbor,
-                            key = "strw:follows_lexically",
+                            key = StrwVocab.FOLLOWS_LEXICALLY.value,
                         )
 
         return doc

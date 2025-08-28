@@ -19,7 +19,7 @@ import lancedb  # type: ignore
 import networkx as nx
 import rdflib
 
-from .elem import Entity, NodeKind, TextChunk
+from .elem import Entity, NodeKind, StrwVocab, TextChunk
 
 
 class DomainContext:  # pylint: disable=R0902
@@ -29,7 +29,6 @@ vocabulary, taxonomy, thesaurus, and ontology.
     """
     IRI_BASE: str = "https://github.com/DerwenAI/strwythura/#"
     IRI_PREFIX: str = "strw:"
-    LEMMA_PHRASE_IRI: rdflib.term.URIRef = rdflib.term.URIRef(f"{IRI_BASE}lemma_phrase")
 
 
     def __init__ (
@@ -123,8 +122,10 @@ Add a known entity, indexed by its parsed lemma key.
         """
 Get the primary lemma for a `SKOS:Concept` entity.
         """
+        lemma_phrase_iri: rdflib.term.URIRef = self.rel_iri(StrwVocab.LEMMA_PHRASE)
+
         return next(
-            self.rdf_graph.objects(concept_iri, self.LEMMA_PHRASE_IRI)
+            self.rdf_graph.objects(concept_iri, lemma_phrase_iri)
         ).toPython()  # type: ignore
 
 
@@ -151,6 +152,18 @@ Abbreviate a `SKOS:Concept` entity's IRI with the vocabulary prefix.
         return concept_iri.toPython().replace(self.IRI_BASE, self.IRI_PREFIX)  # type: ignore
 
 
+    def rel_iri (
+        self,
+        rel: StrwVocab,
+        ) -> rdflib.term.URIRef:
+        """
+Accessor to construct a `URIRef` for a relation within the `strw:` vocabulary.
+        """
+        return rdflib.term.URIRef(
+            self.IRI_BASE + rel.value.replace(self.IRI_PREFIX, "")
+        )
+
+
     def populate_taxonomy_node (
         self,
         concept_iri: rdflib.term.URIRef,
@@ -158,9 +171,11 @@ Abbreviate a `SKOS:Concept` entity's IRI with the vocabulary prefix.
         """
 Get the attributes for a `SKOS:Concept` entity.
         """
+        lemma_phrase_iri: rdflib.term.URIRef = self.rel_iri(StrwVocab.LEMMA_PHRASE)
+
         lemmas: typing.List[ str ] = [
             lemma.toPython()  # type: ignore
-            for lemma in self.rdf_graph.objects(concept_iri, self.LEMMA_PHRASE_IRI)
+            for lemma in self.rdf_graph.objects(concept_iri, lemma_phrase_iri)
         ]
 
         lemma_key: str = lemmas[0]

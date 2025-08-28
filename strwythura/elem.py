@@ -16,7 +16,27 @@ from lancedb.pydantic import LanceModel, Vector  # type: ignore
 import spacy
 
 
-# Note: this model is hard-coded, so far
+class NodeKind (StrEnum):
+    """
+Values for the `kind` property in graph nodes.
+    """
+    CHUNK = "Chunk"
+    ENTITY = "Entity"
+    TAXONOMY = "Taxonomy"
+
+
+class StrwVocab (StrEnum):
+    """
+Values for relations in the `strw:` RDF vocabulary.
+    """
+    LEMMA_PHRASE = "strw:lemma_phrase"
+    FOLLOWS_LEXICALLY = "strw:follows_lexically"
+    CO_OCCURS_WITH = "strw:co_occurs_with"
+    COMPOUND_ELEM_OF = "strw:compound_elem_of"
+    WITHIN_CHUNK = "strw:within_chunk"
+
+
+# Note: `LanceDB` requires that the embedding model be hard-coded, so far
 EMBED_MODEL: str = "BAAI/bge-small-en-v1.5"
 
 EMBED_FCN: transformers.TransformersEmbeddingFunction = \
@@ -47,12 +67,3 @@ Represents one entity in the graph.
     sent_id: int
     span: spacy.tokens.span.Span  # pylint: disable=I1101
     node: typing.Optional[ int ] = None
-
-
-class NodeKind (StrEnum):
-    """
-Values for the `kind` property in graph nodes.
-    """
-    CHUNK = "Chunk"
-    ENTITY = "Entity"
-    TAXONOMY = "Taxonomy"

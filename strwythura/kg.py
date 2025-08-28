@@ -15,7 +15,7 @@ import polars as pl
 import spacy
 
 from .context import DomainContext
-from .elem import Entity, NodeKind, TextChunk
+from .elem import Entity, NodeKind, StrwVocab, TextChunk
 from .nlp import Parser
 from .scrape import Scraper
 from .textrank import run_textrank, cooccur_entities
@@ -189,9 +189,9 @@ the latter first-class citizens within the KG.
         kept_nodes: typing.Set[ int ] = set()
 
         skipped_rel: typing.Set[ str ] = set([
-            "strw:co_occurs_with",
-            "strw:compound_element_of",
-            "strw:follows_lexically",
+            StrwVocab.CO_OCCURS_WITH.value,
+            StrwVocab.COMPOUND_ELEM_OF.value,
+            StrwVocab.FOLLOWS_LEXICALLY.value,
         ])
 
         chunk_nodes: typing.Dict[ int, str ] = {
@@ -228,7 +228,7 @@ the latter first-class citizens within the KG.
                 domain_context.sem_layer.add_edge(
                     node_id,
                     chunk_nodes[node_attr["chunk"]],
-                    key = "strw:within",
+                    key = StrwVocab.WITHIN_CHUNK.value,
                     weight = round(node_attr["rank"], 4),
                 )
 
@@ -341,7 +341,7 @@ Link one `Entity` into this doc's lexical graph.
                     lex_graph.add_edge(
                         node_id,
                         tok_idx,
-                        key = "strw:compound_element_of",
+                        key = StrwVocab.COMPOUND_ELEM_OF.value,
                     )
 
         if prev_known:

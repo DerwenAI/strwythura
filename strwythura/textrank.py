@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 import polars as pl
 
-from .elem import Entity, NodeKind
+from .elem import Entity, NodeKind, StrwVocab
 from .opt import calc_quantile_bins, stripe_column, root_mean_square
 
 
@@ -93,6 +93,6 @@ Connect entities which co-occur within the same sentence.
                 lex_graph.add_edge(
                     pair[0],
                     pair[1],
-                    key = "strw:co_occurs_with",
+                    key = StrwVocab.CO_OCCURS_WITH.value,
                     prob = 1.0,
                 )
