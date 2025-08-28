@@ -44,10 +44,10 @@ customized for other visualization libraries.
 
     def gen_vis_html (  # pylint: disable=R0914
         self,
-        domain_context: DomainContext,
         html_file: str,
+        node_iter: typing.Iterator[ typing.Tuple[ int, dict ]],
+        edge_iter: typing.Iterator[ typing.Tuple[ int, int, str ]],
         *,
-        num_docs: int = 1,
         notebook: bool = False,
         ) -> None:
         """
@@ -56,13 +56,13 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
         kept_nodes: typing.Set[ int ] = set()
 
         pv_net: pyvis.network.Network = pyvis.network.Network(
-            height = "900px",
-            width = "100%",
+            height = self.config["vis"]["html_height"],
+            width = self.config["vis"]["html_width"],
             notebook = notebook,
             cdn_resources = "remote",
         )
 
-        for node_id, attr in domain_context.vis_nodes(num_docs):
+        for node_id, attr in node_iter:
             kept_nodes.add(node_id)
 
             pv_net.add_node(
@@ -73,7 +73,7 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
                 size = attr["size"],
             )
 
-        for src_node, dst_node, key in domain_context.sem_layer.edges(keys = True):
+        for src_node, dst_node, key in edge_iter:
             if src_node in kept_nodes and dst_node in kept_nodes:
                 pv_net.add_edge(
                     src_node,
@@ -81,6 +81,7 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
                     title = key,
                 )
 
-            pv_net.toggle_physics(True)
-            pv_net.show_buttons(filter_ = [ "physics" ])
-            pv_net.save_graph(html_file)
+        pv_net.toggle_physics(True)
+        pv_net.show_buttons(filter_ = [ "physics" ])
+        pv_net.save_graph(html_file)
+        

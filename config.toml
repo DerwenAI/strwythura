@@ -30,6 +30,11 @@ domain_path = "domain.ttl"
 kg_path = "data/kg.json"
 html_path = "kg.html"
 
+[vis]
+
+html_height = "900px"
+html_width = "100%"
+
 [rag]
 
 num_chunks = 11

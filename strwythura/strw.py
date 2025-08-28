@@ -126,10 +126,12 @@ Generate HTML for an interactive visualization of the graph.
         if html_path is None:
             html_path = pathlib.Path(self.config["kg"]["html_path"])
 
+        vis_html.set_config(self.config)
+
         vis_html.gen_vis_html(
-            self.domain_context,
             html_path.as_posix(),
-            num_docs = len(url_list),
+            self.domain_context.vis_nodes(len(url_list)),
+            self.domain_context.vis_edges(),
         )
 
 

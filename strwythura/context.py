@@ -286,7 +286,7 @@ NER labels and abbreviated IRIs.
         num_docs: int,
         ) -> typing.Iterator[ typing.Tuple[ int, dict ]]:
         """
-Iterator for the node visualization attributes.
+Iterator for the visualization attributes of nodes.
         """
         for node_id, node_attr in self.sem_layer.nodes(data = True):
             attr: dict = {}
@@ -305,6 +305,16 @@ Iterator for the node visualization attributes.
                 continue
 
             yield node_id, attr
+
+
+    def vis_edges (
+        self,
+        ) -> typing.Iterator[ typing.Tuple[ int, int, str ]]:
+        """
+Iterator for the visualization attributes of edges.
+        """
+        for src_node, dst_node, key in self.sem_layer.edges(keys = True):
+            yield src_node, dst_node, key
 
 
     def add_entity_sequence (
