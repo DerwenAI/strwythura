@@ -2,14 +2,13 @@
 # -*- coding: utf-8 -*-
 
 """
-Construct the knowledge graph.
+Construct the lexical graph and condense it into a knowledge graph.
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
 import typing
 
 from icecream import ic  # type: ignore
-import lancedb  # type: ignore
 import networkx as nx
 import polars as pl
 import spacy
@@ -44,7 +43,6 @@ Constructor.
         parser: Parser,
         simple_pipe: spacy.Language,
         entity_pipe: spacy.Language,
-        chunk_table: lancedb.table.LanceTable,
         *,
         debug: bool = False,
         ) -> None:
@@ -55,7 +53,7 @@ Construct a knowledge graph from unstructured data sources.
 
         # iterate through the URL list, scraping text and building chunks
         scraper: Scraper = Scraper(self.config, parser)
-        chunk_id: int = 0
+        chunk_id: int = domain_context.start_chunk_id
 
         for url in url_list:
             # define data structures intialized for each parsed document
@@ -69,7 +67,7 @@ Construct a knowledge graph from unstructured data sources.
                 chunk_id,
             )
 
-            chunk_table.add(chunk_list)
+            domain_context.chunk_table.add(chunk_list)  # type: ignore
 
             # parse each chunk to build a lexical graph per source URL
             for chunk in chunk_list:

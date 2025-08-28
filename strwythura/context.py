@@ -13,20 +13,21 @@ import typing
 
 from rdflib.namespace import DCTERMS, RDF, SKOS
 import gensim  # type: ignore
+import lancedb  # type: ignore
 import networkx as nx
 import rdflib
 
-from .graph import Entity
+from .graph import Entity, TextChunk
 
 
-class DomainContext:
+class DomainContext:  # pylint: disable=R0902
     """
 Represent the domain context using an _ontology pipeline_ process:
 vocabulary, taxonomy, thesaurus, and ontology.
     """
     IRI_BASE: str = "https://github.com/DerwenAI/strwythura/#"
     IRI_PREFIX: str = "strw:"
-    LEMMA_PHRASE: rdflib.term.URIRef = rdflib.term.URIRef(f"{IRI_BASE}lemma_phrase")
+    LEMMA_PHRASE_IRI: rdflib.term.URIRef = rdflib.term.URIRef(f"{IRI_BASE}lemma_phrase")
 
 
     def __init__ (
@@ -37,8 +38,13 @@ Constructor.
         """
         self.config: dict = {}
         self.rdf_graph: rdflib.Graph = rdflib.Graph()
+
+        self.start_chunk_id: int = 0
+        self.chunk_table: typing.Optional[ lancedb.table.LanceTable ] = None
+
         self.w2v_vectors: list = []
         self.w2v_model: typing.Optional[ gensim.models.Word2Vec ] = None
+
         self.known_lemma: typing.List[ str ] = []
         self.taxo_node: typing.Dict[ str, int ] = {}
         self.sem_layer: nx.MultiDiGraph = nx.MultiDiGraph()
@@ -62,6 +68,23 @@ customized for other use cases.
             domain_path.as_posix(),
             format = "turtle",
         )
+
+
+    def init_chunk_table (
+        self,
+        ) -> None:
+        """
+Initialize the chunk table in the vector store.
+        """
+        vect_db: lancedb.db.LanceDBConnection = lancedb.connect(self.config["vect"]["lancedb_uri"])  # pylint: disable=C0301
+
+        self.chunk_table = vect_db.create_table(
+            self.config["vect"]["chunk_table"],
+            schema = TextChunk,
+            mode = "overwrite",
+        )
+
+        self.start_chunk_id = 0
 
 
     def get_lemma_index (
@@ -99,7 +122,7 @@ Add a known entity, indexed by its parsed lemma key.
 Get the primary lemma for a `SKOS:Concept` entity.
         """
         return next(
-            self.rdf_graph.objects(concept_iri, self.LEMMA_PHRASE)
+            self.rdf_graph.objects(concept_iri, self.LEMMA_PHRASE_IRI)
         ).toPython()  # type: ignore
 
 
@@ -135,7 +158,7 @@ Get the attributes for a `SKOS:Concept` entity.
         """
         lemmas: typing.List[ str ] = [
             lemma.toPython()  # type: ignore
-            for lemma in self.rdf_graph.objects(concept_iri, self.LEMMA_PHRASE)
+            for lemma in self.rdf_graph.objects(concept_iri, self.LEMMA_PHRASE_IRI)
         ]
 
         lemma_key: str = lemmas[0]
@@ -145,19 +168,34 @@ Get the attributes for a `SKOS:Concept` entity.
         label: str = self.abbrev_concept(concept_iri)
         self.taxo_node[label] = node_id
 
+        text: str = self.rdf_graph.value(
+            concept_iri,
+            SKOS.definition,
+        ).toPython()  # type: ignore
+
+        iri: str = self.rdf_graph.value(
+            concept_iri,
+            DCTERMS.identifier,
+        ).toPython()  # type: ignore
+
+        self.chunk_table.add([  # type: ignore
+            TextChunk(
+                uid = self.start_chunk_id,
+                url = iri,
+                sent_id = 0,
+                text = text,
+            )
+        ])
+
+        self.start_chunk_id += 1
+
         self.sem_layer.add_node(
             node_id,
             kind = "Taxonomy",
             key = lemma_key,
             label = label,
-            text = self.rdf_graph.value(
-                concept_iri,
-                SKOS.definition,
-            ).toPython(),  # type: ignore
-            iri = self.rdf_graph.value(
-                concept_iri,
-                DCTERMS.identifier,
-            ).toPython(),  # type: ignore
+            text = text,
+            iri = iri,
             rank = 0.0,
             count = 0,
         )
@@ -309,7 +347,7 @@ Serialize the KG
             )
 
 
-    def serialize_assets (
+    def save_assets (
         self,
         *,
         kg_path: typing.Optional[ pathlib.Path ] = None,
@@ -320,3 +358,30 @@ Serialize the assets for reusing a constructed KG.
         """
         self.embed_entities(w2v_path = w2v_path)
         self.save_sem_layer(kg_path = kg_path)
+
+
+    def load_assets (
+        self,
+        *,
+        kg_path: typing.Optional[ pathlib.Path ] = None,
+        w2v_path: typing.Optional[ pathlib.Path ] = None,
+        ) -> None:
+        """
+Load the serialized assets for a constructed KG.
+        """
+        vect_db: lancedb.db.LanceDBConnection = lancedb.connect(self.config["vect"]["lancedb_uri"])
+        self.chunk_table = vect_db.open_table(self.config["vect"]["chunk_table"])
+
+        if w2v_path is None:
+            w2v_path = pathlib.Path(self.config["ent"]["w2v_path"])
+
+        self.w2v_model = gensim.models.Word2Vec.load(w2v_path.as_posix())
+
+        if kg_path is None:
+            kg_path = pathlib.Path(self.config["kg"]["kg_path"])
+
+        with pathlib.Path(kg_path).open("r", encoding = "utf-8") as fp:
+            self.sem_layer = nx.node_link_graph(
+                json.load(fp),
+                edges = "edges",
+            )

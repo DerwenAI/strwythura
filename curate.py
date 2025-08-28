@@ -19,12 +19,15 @@ from strwythura import DomainContext, Strwythura
 
 def main ():
     domain: DomainContext = DomainContext()
-    strw: Strwythura = Strwythura(domain)
+
+    strw: Strwythura = Strwythura(
+        domain,
+    )
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
 
-        strw.load_assets()
+        domain.load_assets()
 
     # construct a DataFrame as a view of the entities
     df: pl.DataFrame = pl.DataFrame([

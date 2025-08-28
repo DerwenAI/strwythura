@@ -31,7 +31,11 @@ if __name__ == "__main__":
     ]
 
     domain: DomainContext = DomainContext()
-    strw: Strwythura = Strwythura(domain)
+
+    strw: Strwythura = Strwythura(
+        domain,
+        overwrite = True,
+    )
 
     strw.build_assets(
         url_list,
@@ -44,7 +48,7 @@ if __name__ == "__main__":
     )
 
     # serialize the assets to be reused later
-    domain.serialize_assets()
+    domain.save_assets()
 
     # report the performance profiler stats
     profiler.report()

@@ -26,13 +26,16 @@ if __name__ == "__main__":
 
     # load the domain context
     domain: DomainContext = DomainContext()
-    strw: Strwythura = Strwythura(domain)
+
+    strw: Strwythura = Strwythura(
+        domain,
+    )
 
     # build a GraphRAG instance
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
 
-        strw.load_assets()
+        domain.load_assets()
 
         rag: GraphRAG = GraphRAG(strw)
 
