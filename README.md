@@ -90,8 +90,9 @@ Then to integrate this library within an application:
 
   1. Run `Ollama` and have already downloaded the Gemma3 LLM as described below.
   2. Copy settings in `config.toml` into a custom configuration file.
-  3. Define semantics in `domain.ttl` for the domain context of the use case.
-  4. Instantiate new `Strwythura` and `GraphRAG` objects.
+  3. Subclass `DomainContext` to extend it for the use case.
+  4. Define semantics in `domain.ttl` for the domain context of the use case.
+  5. Instantiate new `DomainContext` (or replacement), `Strwythura`, and `GraphRAG` objects.
 
 Follow the example patterns in `build.py` and `errag.py` respectively.
 

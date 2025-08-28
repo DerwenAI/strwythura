@@ -8,6 +8,7 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 
 from collections import defaultdict
 import json
+import math
 import pathlib
 import typing
 
@@ -277,6 +278,32 @@ NER labels and abbreviated IRIs.
             for concept_iri in self.rdf_graph.subjects(RDF.type, SKOS.Concept)
             for label in self.rdf_graph.objects(concept_iri, SKOS.prefLabel, unique = True)
         }
+
+
+    def vis_node_attributes (
+        self,
+        num_docs: int,
+        ) -> typing.Iterator[ typing.Tuple[ int, dict ]]:
+        """
+Iterator for the node visualization attributes.
+        """
+        for node_id, node_attr in self.sem_layer.nodes(data = True):
+            attr: dict = {}
+
+            if node_attr.get("kind") == NodeKind.ENTITY.value and node_attr.get("label") not in [ "NP" ]:  # pylint: disable=C0301
+                attr["color"] = "hsla(65, 46%, 58%, 0.80)"
+                attr["size"] = round(20 * math.log(1.0 + math.sqrt(float(node_attr.get("count"))) / num_docs))  # type: ignore # pylint: disable=C0301
+                attr["label"] = node_attr.get("text")  # type: ignore
+                attr["title"] = node_attr.get("key")  # type: ignore
+            elif node_attr.get("kind") == NodeKind.TAXONOMY.value:
+                attr["color"] = "hsla(306, 45%, 57%, 0.95)"
+                attr["size"] = 5
+                attr["label"] = node_attr.get("label")  # type: ignore
+                attr["title"] = node_attr.get("iri")  # type: ignore
+            else:
+                continue
+
+            yield node_id, attr
 
 
     def add_w2v_vectors (

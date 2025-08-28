@@ -19,7 +19,7 @@ from icecream import ic  # type: ignore
 import networkx as nx
 import polars as pl
 import spacy
-import transformers
+import transformers  # type: ignore
 
 from .baml_client import b
 from .baml_client import types as baml_types
@@ -125,7 +125,7 @@ Generate HTML for an interactive visualization of the graph, based on `PyVis`
             html_path = pathlib.Path(self.config["kg"]["html_path"])
 
         gen_pyvis(
-            self.domain_context.sem_layer,
+            self.domain_context,
             html_path.as_posix(),
             num_docs = len(url_list),
         )
@@ -166,7 +166,7 @@ Extract entity spans from a text question.
             yield key
 
 
-    def get_chunks (  # pylint: disable=R0914
+    def get_chunks (  # pylint: disable=R0912,R0914
         self,
         question: str,
         *,
@@ -176,6 +176,8 @@ Extract entity spans from a text question.
         """
 Run semantic search to produce a set of text chunks.
         """
+        chunk_ids: typing.List[ int ] = []
+
         if num_chunks is None:
             num_chunks = self.strw.config["rag"]["num_chunks"]
 
@@ -215,23 +217,25 @@ Run semantic search to produce a set of text chunks.
         if debug:
             ic(anchor_nodes)
 
-        # extract a subgraph based on shortest paths between anchor nodes
-        node_iter: typing.Iterator[ int ] = self.extract_subgraph(
-            anchor_nodes,
-            debug = debug,
-        )
+        # trap edge cases where there is no connected subgraph
+        try:
+            # extract a subgraph based on shortest paths between anchor nodes
+            node_iter: typing.Iterator[ int ] = self.extract_subgraph(
+                anchor_nodes,
+                debug = debug,
+            )
 
-        # extract the chunk neighbors
-        chunk_iter: typing.Iterator[ int ] = self.extract_chunk_neighbors(
-            list(node_iter),
-            debug = debug,
-        )
+            # extract the chunk neighbors
+            chunk_iter: typing.Iterator[ int ] = self.extract_chunk_neighbors(
+                list(node_iter),
+                debug = debug,
+            )
 
-        chunk_ids: typing.List[ int ] = []
-
-        for chunk_id in chunk_iter:
-            if chunk_id not in chunk_ids:
-                chunk_ids.append(chunk_id)
+            for chunk_id in chunk_iter:
+                if chunk_id not in chunk_ids:
+                    chunk_ids.append(chunk_id)
+        except nx.exception.NetworkXNoPath:
+            pass
 
         # enumerate chunks from a vector search -- the basic RAG process
         df_ann_chunk: pl.DataFrame = self.strw.domain_context.chunk_table.search(  # type: ignore
