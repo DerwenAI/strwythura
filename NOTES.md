@@ -3,11 +3,20 @@
 
   * add a SKOS-based semantic layer, to leverage during graph algos in RAG
     - TODO: add SKOS:Concept definitions as "chunks" in `LanceDB`
-    - TODO: add concepts into the `NetworkX` graph, linking entities
 
   * Streamlit dashboard view of `rag.py`
 
   * Entity linking - combine structured and unstructured sources
+
+## Code TODOs
+  - replace RE with DSPy <https://arxiv.org/html/2502.09956v1>
+
+  * back-out `pandas` replaced by `polars`:
+    - `textrank.py`
+
+  * integrate `kglab.standards` for OWL/RDFS closure and SHACL capabilities
+
+  * integrate with Kuzu for graph persistence?
 
 
 ## Structured Data
@@ -88,19 +97,6 @@ DLBP:
 
 Wikimedia:
   - https://en.wikipedia.org/wiki/A._Heather_Eliassen
-
-
-
-## Code TODOs
-  - replace RE with BAML or DSPy <https://arxiv.org/html/2502.09956v1>
-
-  * back-out `pandas` replaced by `polars`:
-    - `textrank.py`
-
-  * integrate `kglab.standards` for OWL/RDFS closure and SHACL capabilities
-
-  * integrate with Kuzu for graph persistence?
-
 
 ----------------------------------------------------------------------
 

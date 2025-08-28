@@ -18,32 +18,35 @@ strw:DementiaScheme rdf:type skos:ConceptScheme , owl:Ontology ;
  .
 
 
-strw:concept_people_group rdf:type skos:Concept ;
+strw:PeopleGroup rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:topConceptOf strw:DementiaScheme ;
  skos:prefLabel "People Group"@en ;
- strw:lemma_phrase "NOUN.people NOUN.group"@en 
+ skos:altLabel "Community"@en ;
+ strw:lemma_phrase "NOUN.people NOUN.group"@en ;
+ skos:definition "social unit of human organisms who share common values"@en ;
+ dct:identifier wd:Q177634
  .
 
-strw:concept_person rdf:type skos:Concept ;
+strw:Person rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "Person"@en ;
  strw:lemma_phrase "NOUN.person"@en ;
  skos:definition "any single member of Homo sapiens, unique extant species of the genus Homo"@en ;
  dct:identifier wd:Q5 ;
- skos:broader strw:concept_people_group
+ skos:broader strw:PeopleGroup
 .
 
-strw:concept_organization rdf:type skos:Concept ;
+strw:Organization rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "Organization"@en ;
  strw:lemma_phrase "NOUN.organization"@en ;
  skos:definition "social entity established to meet needs or pursue goals"@en ;
  dct:identifier wd:Q43229 ;
- skos:broader strw:concept_people_group
+ skos:broader strw:PeopleGroup
 .
 
-strw:concept_company rdf:type skos:Concept ;
+strw:Company rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "Company"@en ;
  skos:altLabel "Enterprise"@en ;
@@ -51,11 +54,11 @@ strw:concept_company rdf:type skos:Concept ;
  strw:lemma_phrase "NOUN.enterprise"@en ;
  skos:definition "legal entity representing an association of people, whether natural, legal or a mixture of both, with a specific objective"@en ;
  dct:identifier wd:Q783794 ;
- skos:broader strw:concept_organization
+ skos:broader strw:Organization
  .
 
 
-strw:concept_location rdf:type skos:Concept ;
+strw:Location rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:topConceptOf strw:DementiaScheme ;
  skos:prefLabel "Location"@en ;
@@ -64,26 +67,26 @@ strw:concept_location rdf:type skos:Concept ;
  dct:identifier wd:Q17334923
 .
 
-strw:concept_city rdf:type skos:Concept ;
+strw:City rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "City"@en ;
  strw:lemma_phrase "NOUN.city"@en ;
  skos:definition "large human settlement"@en ;
  dct:identifier wd:Q515 ;
- skos:broader strw:concept_location
+ skos:broader strw:Location
  .
 
-strw:concept_country rdf:type skos:Concept ;
+strw:Country rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "Country"@en ;
  strw:lemma_phrase "NOUN.country"@en ;
  skos:definition "distinct territorial body or political entity"@en ;
  dct:identifier wd:Q6256 ;
- skos:broader strw:concept_location
+ skos:broader strw:Location
  .
 
 
-strw:concept_science rdf:type skos:Concept ;
+strw:Science rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:topConceptOf strw:DementiaScheme ;
  skos:prefLabel "Science"@en ;
@@ -92,18 +95,17 @@ strw:concept_science rdf:type skos:Concept ;
  dct:identifier wd:Q336
  .
 
-strw:concept_conference rdf:type skos:Concept ;
+strw:Conference rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "Conference"@en ;
  skos:altLabel "Convention"@en ;
  strw:lemma_phrase "NOUN.conference"@en ;
  skos:definition "meeting of a group of individuals and/or companies in a certain field"@en ;
  dct:identifier wd:Q625994 ;
- skos:broader strw:concept_company ;
- skos:broader strw:concept_organization
+ skos:broader strw:Company, strw:Location
  .
 
-strw:concept_publication rdf:type skos:Concept ;
+strw:Publication rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "Publication"@en ;
  skos:altLabel "Journal"@en ;
@@ -111,52 +113,52 @@ strw:concept_publication rdf:type skos:Concept ;
  strw:lemma_phrase "NOUN.journal"@en ;
  skos:definition "content made available to the general public"@en ;
  dct:identifier wd:Q732577 ;
- skos:broader strw:concept_company ;
- skos:related strw:concept_conference
+ skos:broader strw:Company ;
+ skos:related strw:Conference
  .
 
-strw:concept_research rdf:type skos:Concept ;
+strw:Research rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "Research"@en ;
  strw:lemma_phrase "NOUN.research"@en ;
  skos:definition "systematic study undertaken to increase knowledge"@en ;
  dct:identifier wd:Q42240 ;
- skos:broader strw:concept_science ;
- skos:related strw:concept_publication
+ skos:broader strw:Science ;
+ skos:related strw:Publication
  .
 
-strw:concept_medicine rdf:type skos:Concept ;
+strw:Medicine rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "Medicine"@en ;
  strw:lemma_phrase "NOUN.medicine"@en ;
  skos:definition "field of study for diagnosing, treating and preventing disease"@en ;
  dct:identifier wd:Q11190 ;
- skos:broader strw:concept_science
+ skos:broader strw:Science
  .
 
 
-strw:concept_hospital rdf:type skos:Concept ;
+strw:Hospital rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "Hospital"@en ;
  strw:lemma_phrase "NOUN.hospital"@en ;
  skos:definition "health care facility"@en ;
  dct:identifier wd:Q16917 ;
- skos:broader strw:concept_company, strw:concept_location ;
- skos:related strw:concept_medicine
+ skos:broader strw:Company, strw:Location ;
+ skos:related strw:Medicine
  .
 
-strw:concept_university rdf:type skos:Concept ;
+strw:University rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "University"@en ;
  strw:lemma_phrase "NOUN.univerity"@en ;
  skos:definition "academic institution for further education"@en ;
  dct:identifier wd:Q3918 ;
- skos:broader strw:concept_company, strw:concept_location ;
- skos:related strw:concept_research
+ skos:broader strw:Company, strw:Location ;
+ skos:related strw:Research
  .
 
 
-strw:concept_food rdf:type skos:Concept ;
+strw:Food rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:topConceptOf strw:DementiaScheme ;
  skos:prefLabel "Food"@en ;
@@ -167,7 +169,7 @@ strw:concept_food rdf:type skos:Concept ;
  dct:identifier wd:Q2095
  .
 
-strw:concept_food_additive rdf:type skos:Concept ;
+strw:Food_Additive rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "Food Additive"@en ;
  skos:altLabel "Additive"@en ;
@@ -175,11 +177,11 @@ strw:concept_food_additive rdf:type skos:Concept ;
  strw:lemma_phrase "NOUN.additive"@en ;
  skos:definition "substances added to food to preserve flavor or enhance its taste, appearance, or other qualities"@en ;
  dct:identifier wd:Q189567 ;
- skos:broader strw:concept_food
+ skos:broader strw:Food
  .
 
 
-strw:concept_behavior rdf:type skos:Concept ;
+strw:Behavior rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:topConceptOf strw:DementiaScheme ;
  skos:prefLabel "Behavior"@en ;
@@ -189,7 +191,7 @@ strw:concept_behavior rdf:type skos:Concept ;
  .
 
 
-strw:concept_organ rdf:type skos:Concept ;
+strw:Organ rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:topConceptOf strw:DementiaScheme ;
  skos:prefLabel "Organ"@en ;
@@ -199,7 +201,7 @@ strw:concept_organ rdf:type skos:Concept ;
  .
 
 
-strw:concept_condition rdf:type skos:Concept ;
+strw:Condition rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:topConceptOf strw:DementiaScheme ;
  skos:prefLabel "Condition"@en ;
@@ -208,18 +210,18 @@ strw:concept_condition rdf:type skos:Concept ;
  dct:identifier wd:Q813912
  .
 
-strw:concept_disease rdf:type skos:Concept ;
+strw:Disease rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "Disease"@en ;
  strw:lemma_phrase "NOUN.disease"@en ;
  skos:definition "abnormal condition negatively affecting organisms"@en ;
  dct:identifier wd:Q12136 ;
- skos:broader strw:concept_condition ;
- skos:related strw:concept_organ, strw:concept_behavior, strw:concept_medicine
+ skos:broader strw:Condition ;
+ skos:related strw:Organ, strw:Behavior, strw:Medicine
  .
 
 
-strw:concept_doctor rdf:type skos:Concept ;
+strw:Doctor rdf:type skos:Concept ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "Doctor"@en ;
  skos:altLabel "Physician"@en ;
@@ -227,6 +229,6 @@ strw:concept_doctor rdf:type skos:Concept ;
  strw:lemma_phrase "NOUN.physician"@en ;
  skos:definition "professional who practices medicine"@en ;
  dct:identifier wd:Q39631 ;
- skos:broader strw:concept_person ;
- skos:related strw:concept_medicine, strw:concept_hospital
+ skos:broader strw:Person ;
+ skos:related strw:Medicine, strw:Hospital
  .

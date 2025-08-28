@@ -14,14 +14,16 @@ import warnings
 from icecream import ic
 import polars as pl
 
-from strwythura import Strwythura
+from strwythura import DomainContext, Strwythura
 
 
 def main ():
+    domain: DomainContext = DomainContext()
+    strw: Strwythura = Strwythura(domain)
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
 
-        strw: Strwythura = Strwythura()
         strw.load_assets()
 
     # construct a DataFrame as a view of the entities
@@ -34,13 +36,13 @@ def main ():
             "key": data["key"],
             "id": node,
         }
-        for node, data in strw.sem_overlay.nodes(data = True)
+        for node, data in domain.sem_layer.nodes(data = True)
         if data["kind"] in [ "Entity", ]
     ]).sort(
         "label",
         "rank",
         "count",
-        descending = [ True, False, False ],
+        descending = [ True, True, True ],
     )
 
     ic(df.head())

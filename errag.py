@@ -15,7 +15,7 @@ import warnings
 from icecream import ic
 import baml_py
 
-from strwythura import Strwythura, GraphRAG, PerfProfiler
+from strwythura import DomainContext, GraphRAG, PerfProfiler, Strwythura
 from strwythura.baml_client import types as baml_types
 
 
@@ -24,11 +24,14 @@ if __name__ == "__main__":
     profiler: PerfProfiler = PerfProfiler()
     profiler.start()
 
+    # load the domain context
+    domain: DomainContext = DomainContext()
+    strw: Strwythura = Strwythura(domain)
+
     # build a GraphRAG instance
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
 
-        strw: Strwythura = Strwythura()
         strw.load_assets()
 
         rag: GraphRAG = GraphRAG(strw)

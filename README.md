@@ -166,10 +166,6 @@ produce the assets needed for GraphRAG downstream:
 Note: processing may take a few extra minutes the first time it runs
 since `PyTorch` must download a large (~2GB) file.
 
-If you look at the performance statistics, it takes almost twice as
-long to generate an interactive graph visualization as it does to
-perform everything else.
-
 The assets get serialized into these files:
 
   * `data/lancedb` -- vector database tables in `LanceDB`

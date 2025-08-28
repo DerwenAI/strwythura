@@ -15,6 +15,7 @@ import networkx as nx
 import spacy
 import w3lib.html
 
+from .context import DomainContext
 from .graph import TextChunk
 
 
@@ -50,35 +51,23 @@ and relations, based on using `GLiNER`, BAML, and textgraphs.
 Constructor.
         """
         self.config: dict = config
-        self.url_list: typing.List[ str ] = []
         self.ner_labels: typing.List[ str ] = []
-
-
-    def update_data (
-    	self,
-        url_list: typing.List[ str ],
-        ner_labels: typing.List[ str ],
-        ) -> None:
-        """
-Update the input data for the parsing run:
-
-  - `url_list`: URLs to crawl
-  - `ner_labels`: semantics to apply for zero-shot NER
-        """
-        self.url_list = url_list
-        self.ner_labels = ner_labels
 
 
     def build_entity_pipe (
         self,
+        ner_labels: typing.List[ str ],
         ) -> spacy.Language:
         """
 Initialize the `spaCy` pipeline used for NER + RE, by loading models
 for `spaCy`, `GLiNER`
 
+  - `ner_labels`: semantics to apply for zero-shot NER
+
 Note: this may take several minutes when run the first time after
 installing the repo.
         """
+        self.ner_labels = ner_labels
         entity_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])
 
         entity_pipe.add_pipe(
@@ -96,9 +85,9 @@ installing the repo.
 
     def parse_text (  # pylint: disable=R0913,R0914
         self,
+        domain_context: DomainContext,
         entity_pipe: spacy.Language,
-        known_lemma: typing.List[ str ],
-        lex_graph: nx.Graph,
+        lex_graph: nx.MultiDiGraph,
         chunk: TextChunk,
         *,
         debug: bool = False,  # pylint: disable=W0613
@@ -121,16 +110,9 @@ Parse an input text chunk, returning a `spaCy` document.
 
                 if tok.pos_ in [ "NOUN", "PROPN" ]:
                     key: str = tok.pos_ + "." + tok.lemma_.strip().lower()
-                    prev_known: bool = False
 
-                    if key not in known_lemma:
-                        # create a new node
-                        known_lemma.append(key)
-                    else:
-                        # link to an existing node, adding weight
-                        prev_known = True
-
-                    node_id: int = known_lemma.index(key)
+                    prev_known: bool = domain_context.add_lemma(key)
+                    node_id: int = domain_context.get_lemma_index(key)
                     node_seq.append(node_id)
 
                     if not lex_graph.has_node(node_id):
@@ -161,7 +143,7 @@ Parse an input text chunk, returning a `spaCy` document.
                         lex_graph.add_edge(
                             node,
                             neighbor,
-                            rel = "FOLLOWS_LEXICALLY",
+                            key = "strw:follows_lexically",
                         )
 
         return doc
