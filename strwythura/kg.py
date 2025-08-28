@@ -14,7 +14,7 @@ import polars as pl
 import spacy
 
 from .context import DomainContext
-from .graph import Entity, TextChunk
+from .graph import Entity, NodeKind, TextChunk
 from .nlp import Parser
 from .scrape import Scraper
 from .textrank import run_textrank, cooccur_entities
@@ -201,20 +201,20 @@ the latter first-class citizens within the KG.
         for chunk_id, node_id in chunk_nodes.items():
             domain_context.sem_layer.add_node(
                 node_id,
-                kind = "Chunk",
+                kind = NodeKind.CHUNK.value,
                 chunk = chunk_id,
                 url = url,
             )
 
         for node_id, node_attr in lex_graph.nodes(data = True):
-            if node_attr["kind"] == "Entity":
+            if node_attr["kind"] == NodeKind.ENTITY.value:
                 kept_nodes.add(node_id)
                 count: int = node_attr["count"]
 
                 if not domain_context.sem_layer.has_node(node_id):
                     domain_context.sem_layer.add_node(
                         node_id,
-                        kind = "Entity",
+                        kind = NodeKind.ENTITY.value,
                         key = node_attr["key"],
                         text = node_attr["text"],
                         label = node_attr["label"],
@@ -323,7 +323,7 @@ Link one `Entity` into this doc's lexical graph.
             lex_graph.add_node(
                 node_id,
                 key = ent.key,
-                kind = "Entity",
+                kind = NodeKind.ENTITY.value,
                 label = ent.label,
                 pos = "NP",
                 text = ent.text,
@@ -346,7 +346,7 @@ Link one `Entity` into this doc's lexical graph.
         if prev_known:
             # promote a previous Lemma node to an Entity
             node: dict = lex_graph.nodes[node_id]
-            node["kind"] = "Entity"
+            node["kind"] = NodeKind.ENTITY.value
             node["chunk"] = ent.chunk_id
             node["count"] += 1
 

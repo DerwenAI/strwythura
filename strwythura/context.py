@@ -17,7 +17,7 @@ import lancedb  # type: ignore
 import networkx as nx
 import rdflib
 
-from .graph import Entity, TextChunk
+from .graph import Entity, NodeKind, TextChunk
 
 
 class DomainContext:  # pylint: disable=R0902
@@ -191,7 +191,7 @@ Get the attributes for a `SKOS:Concept` entity.
 
         self.sem_layer.add_node(
             node_id,
-            kind = "Taxonomy",
+            kind = NodeKind.TAXONOMY.value,
             key = lemma_key,
             label = label,
             text = text,

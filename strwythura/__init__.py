@@ -8,7 +8,7 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 
 from .context import DomainContext
 
-from .graph import Entity, TextChunk
+from .graph import Entity, NodeKind, TextChunk
 
 from .kg import KnowledgeGraph
 

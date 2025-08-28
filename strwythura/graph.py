@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 """
-Data validation classes.
+Data validation classes for constructing knowledge graphs.
+
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
 from dataclasses import dataclass
+from enum import StrEnum
 import typing
 
 from lancedb.embeddings import get_registry, transformers  # type: ignore
@@ -45,3 +47,12 @@ Represents one entity in the graph.
     sent_id: int
     span: spacy.tokens.span.Span  # pylint: disable=I1101
     node: typing.Optional[ int ] = None
+
+
+class NodeKind (StrEnum):
+    """
+Values for the `kind` property in graph nodes.
+    """
+    CHUNK = "Chunk"
+    ENTITY = "Entity"
+    TAXONOMY = "Taxonomy"

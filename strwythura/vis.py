@@ -3,6 +3,7 @@
 
 """
 Interactive visualization of a `NetworkX` graph based on `PyVis`
+
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
@@ -11,6 +12,8 @@ import typing
 
 import networkx as nx
 import pyvis  # type: ignore
+
+from .graph import NodeKind
 
 
 def gen_pyvis (  # pylint: disable=R0914
@@ -33,12 +36,12 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
     )
 
     for node_id, node_attr in graph.nodes(data = True):
-        if node_attr.get("kind") == "Entity" and node_attr.get("label") not in [ "NP" ]:
+        if node_attr.get("kind") == NodeKind.ENTITY.value and node_attr.get("label") not in [ "NP" ]:  # pylint: disable=C0301
             color: str = "hsla(65, 46%, 58%, 0.80)"
             size: int = round(20 * math.log(1.0 + math.sqrt(float(node_attr.get("count"))) / num_docs))  # type: ignore # pylint: disable=C0301
             label: str = node_attr.get("text")  # type: ignore
             title: str = node_attr.get("key")  # type: ignore
-        elif node_attr.get("kind") == "Taxonomy":
+        elif node_attr.get("kind") == NodeKind.TAXONOMY.value:
             color = "hsla(306, 45%, 57%, 0.95)"
             size = 5
             label = node_attr.get("label")  # type: ignore

@@ -24,6 +24,7 @@ import transformers
 from .baml_client import b
 from .baml_client import types as baml_types
 from .context import DomainContext
+from .graph import NodeKind
 from .kg import KnowledgeGraph
 from .nlp import Parser
 from .vis import gen_pyvis
@@ -340,7 +341,7 @@ Find the neighboring chunks for each _anchor node_ in the given list.
             for neighbor in self.strw.domain_context.sem_layer.neighbors(node):
                 dat: dict = self.strw.domain_context.sem_layer.nodes[neighbor]
 
-                if dat["kind"] == "Chunk":
+                if dat["kind"] == NodeKind.CHUNK.value:
                     if debug:
                         ic(neighbor, dat)
 

@@ -16,7 +16,7 @@ import pandas as pd
 import polars as pl
 
 from .opt import calc_quantile_bins, stripe_column, root_mean_square
-from .graph import Entity
+from .graph import Entity, NodeKind
 
 
 def run_textrank (
@@ -64,7 +64,7 @@ Run eigenvalue centrality (i.e., _Personalized PageRank_) to rank the entities.
     df: pl.DataFrame = pl.DataFrame([
         node_attr
         for node, node_attr in lex_graph.nodes(data = True)
-        if node_attr["kind"] == "Entity"
+        if node_attr["kind"] == NodeKind.ENTITY.value
     ]).sort(
         [ "rank" ],
         descending = True,
