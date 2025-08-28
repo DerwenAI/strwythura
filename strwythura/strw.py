@@ -3,6 +3,7 @@
 
 """
 Builds assets for constructing a KG, then running GraphRAG downstream.
+
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
@@ -24,10 +25,10 @@ import transformers  # type: ignore
 from .baml_client import b
 from .baml_client import types as baml_types
 from .context import DomainContext
-from .graph import NodeKind
+from .elem import NodeKind
 from .kg import KnowledgeGraph
 from .nlp import Parser
-from .vis import gen_pyvis
+from .vis import VisHTML
 
 
 class Strwythura:  # pylint: disable=R0902
@@ -115,16 +116,17 @@ Builds assets for constructing a KG.
     def gen_visualization (
         self,
         url_list: typing.List[ str ],
+        vis_html: VisHTML,
         *,
         html_path: typing.Optional[ pathlib.Path ] = None,
         ) -> None:
         """
-Generate HTML for an interactive visualization of the graph, based on `PyVis`
+Generate HTML for an interactive visualization of the graph.
         """
         if html_path is None:
             html_path = pathlib.Path(self.config["kg"]["html_path"])
 
-        gen_pyvis(
+        vis_html.gen_vis_html(
             self.domain_context,
             html_path.as_posix(),
             num_docs = len(url_list),

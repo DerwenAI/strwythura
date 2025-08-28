@@ -3,6 +3,7 @@
 
 """
 Manage the domain context, using `RDFlib` and related libraries.
+
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
@@ -18,7 +19,7 @@ import lancedb  # type: ignore
 import networkx as nx
 import rdflib
 
-from .graph import Entity, NodeKind, TextChunk
+from .elem import Entity, NodeKind, TextChunk
 
 
 class DomainContext:  # pylint: disable=R0902
@@ -280,7 +281,7 @@ NER labels and abbreviated IRIs.
         }
 
 
-    def vis_node_attributes (
+    def vis_nodes (
         self,
         num_docs: int,
         ) -> typing.Iterator[ typing.Tuple[ int, dict ]]:
@@ -306,7 +307,7 @@ Iterator for the node visualization attributes.
             yield node_id, attr
 
 
-    def add_w2v_vectors (
+    def add_entity_sequence (
         self,
         span_decoder: typing.Dict[ tuple, Entity ],
         ) -> None:

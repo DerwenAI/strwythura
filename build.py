@@ -14,7 +14,7 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 import tracemalloc
 import typing
 
-from strwythura import DomainContext, PerfProfiler, Strwythura
+from strwythura import DomainContext, PerfProfiler, Strwythura, VisHTML
 
 
 if __name__ == "__main__":
@@ -45,6 +45,7 @@ if __name__ == "__main__":
     # generate an interactive visualization in HTML
     strw.gen_visualization(
         url_list,
+        VisHTML(),
     )
 
     # serialize the assets to be reused later

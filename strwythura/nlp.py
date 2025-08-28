@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-NLP utilities.
+NLP methods for constructing the _lexical graph_.
+
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
@@ -16,7 +17,7 @@ import spacy
 import w3lib.html
 
 from .context import DomainContext
-from .graph import TextChunk
+from .elem import TextChunk
 
 
 class Parser:

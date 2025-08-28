@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-An adapted TextRank algorithm implementation for NetworkX.
+An adapted `TextRank` algorithm implementation based on `NetworkX` and `Polars`.
+
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
@@ -15,8 +16,8 @@ import numpy as np
 import pandas as pd
 import polars as pl
 
+from .elem import Entity, NodeKind
 from .opt import calc_quantile_bins, stripe_column, root_mean_square
-from .graph import Entity, NodeKind
 
 
 def run_textrank (

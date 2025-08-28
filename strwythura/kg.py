@@ -3,6 +3,7 @@
 
 """
 Construct the lexical graph and condense it into a knowledge graph.
+
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
@@ -14,7 +15,7 @@ import polars as pl
 import spacy
 
 from .context import DomainContext
-from .graph import Entity, NodeKind, TextChunk
+from .elem import Entity, NodeKind, TextChunk
 from .nlp import Parser
 from .scrape import Scraper
 from .textrank import run_textrank, cooccur_entities
@@ -141,7 +142,7 @@ Construct a knowledge graph from unstructured data sources.
                     span_decoder,
                 )
 
-                domain_context.add_w2v_vectors(span_decoder)
+                domain_context.add_entity_sequence(span_decoder)
 
             # apply _textrank_ to the graph (in the url/doc iteration)
             # then report the top-ranked extracted entities

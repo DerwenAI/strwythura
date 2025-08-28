@@ -3,6 +3,7 @@
 
 """
 Collect unstructured data from specific web page sources.
+
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
@@ -14,7 +15,7 @@ import requests
 import requests_cache
 import spacy
 
-from .graph import TextChunk
+from .elem import TextChunk
 from .nlp import Parser
 
 
