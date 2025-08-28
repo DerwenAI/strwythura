@@ -87,7 +87,7 @@ installing the repo.
         self,
         domain_context: DomainContext,
         entity_pipe: spacy.Language,
-        lex_graph: nx.Graph,
+        lex_graph: nx.MultiDiGraph,
         chunk: TextChunk,
         *,
         debug: bool = False,  # pylint: disable=W0613
@@ -143,7 +143,7 @@ Parse an input text chunk, returning a `spaCy` document.
                         lex_graph.add_edge(
                             node,
                             neighbor,
-                            rel = "FOLLOWS_LEXICALLY",
+                            key = "strw:follows_lexically",
                         )
 
         return doc

@@ -16,15 +16,16 @@ import gensim  # type: ignore
 import networkx as nx
 import rdflib
 
-from .graph import Entity, TextChunk
+from .graph import Entity
 
 
-class DomainContext:  # pylint: disable=R0902,R0903
+class DomainContext:
     """
 Represent the domain context using an _ontology pipeline_ process:
 vocabulary, taxonomy, thesaurus, and ontology.
     """
     IRI_BASE: str = "https://github.com/DerwenAI/strwythura/#"
+    IRI_PREFIX: str = "strw:"
     LEMMA_PHRASE: rdflib.term.URIRef = rdflib.term.URIRef(f"{IRI_BASE}lemma_phrase")
 
 
@@ -39,7 +40,8 @@ Constructor.
         self.w2v_vectors: list = []
         self.w2v_model: typing.Optional[ gensim.models.Word2Vec ] = None
         self.known_lemma: typing.List[ str ] = []
-        self.sem_layer: nx.Graph = nx.Graph()
+        self.taxo_node: typing.Dict[ str, int ] = {}
+        self.sem_layer: nx.MultiDiGraph = nx.MultiDiGraph()
 
 
     def set_config (
@@ -60,20 +62,6 @@ customized for other use cases.
             domain_path.as_posix(),
             format = "turtle",
         )
-
-
-    def get_ner_labels (
-        self,
-        ) -> typing.List[ str ]:
-        """
-Iterate through `SKOS:Concept` entities to extract the labels used for
-zero-shot NER.
-        """
-        return [
-            str(label)
-            for concept_iri in self.rdf_graph.subjects(RDF.type, SKOS.Concept)
-            for label in self.rdf_graph.objects(concept_iri, SKOS.prefLabel, unique = True)
-        ]
 
 
     def get_lemma_index (
@@ -103,6 +91,18 @@ Add a known entity, indexed by its parsed lemma key.
         return prev_known
 
 
+    def get_first_lemma (
+        self,
+        concept_iri: rdflib.term.Node,
+        ) -> str:
+        """
+Get the primary lemma for a `SKOS:Concept` entity.
+        """
+        return next(
+            self.rdf_graph.objects(concept_iri, self.LEMMA_PHRASE)
+        ).toPython()  # type: ignore
+
+
     def lookup_concept (
         self,
         fragment: str,
@@ -116,16 +116,14 @@ Lookup a `SKOS:Concept` entity by its IRI.
         return concept_iri
 
 
-    def get_first_lemma (
+    def abbrev_concept (
         self,
         concept_iri: rdflib.term.Node,
         ) -> str:
         """
-Get the primary lemma for a `SKOS:Concept` entity.
+Abbreviate a `SKOS:Concept` entity's IRI with the vocabulary prefix.
         """
-        return next(
-            self.rdf_graph.objects(concept_iri, self.LEMMA_PHRASE)
-        ).toPython()  # type: ignore
+        return concept_iri.toPython().replace(self.IRI_BASE, self.IRI_PREFIX)  # type: ignore
 
 
     def populate_taxonomy_node (
@@ -144,20 +142,17 @@ Get the attributes for a `SKOS:Concept` entity.
         self.add_lemma(lemma_key)
 
         node_id: int = self.get_lemma_index(lemma_key)
+        label: str = self.abbrev_concept(concept_iri)
+        self.taxo_node[label] = node_id
 
         self.sem_layer.add_node(
             node_id,
             kind = "Taxonomy",
             key = lemma_key,
+            label = label,
             text = self.rdf_graph.value(
                 concept_iri,
                 SKOS.definition,
-            ).toPython(),  # type: ignore
-            label = next(
-                self.rdf_graph.objects(
-                    concept_iri,
-                    SKOS.prefLabel,
-                    unique = True,)
             ).toPython(),  # type: ignore
             iri = self.rdf_graph.value(
                 concept_iri,
@@ -213,9 +208,37 @@ Iterate through `SKOS:Concept` entities, loading into `NetworkX`
                     self.sem_layer.add_edge(
                         src_id,
                         dst_id,
-                        rel = rel_iri,
+                        key = rel_iri,
                         prob = 1.0,
                     )
+
+
+    def get_ner_labels (
+        self,
+        ) -> typing.List[ str ]:
+        """
+Iterate through `SKOS:Concept` entities to extract the labels used for
+zero-shot NER.
+        """
+        return [
+            label.toPython()  # type: ignore
+            for concept_iri in self.rdf_graph.subjects(RDF.type, SKOS.Concept)
+            for label in self.rdf_graph.objects(concept_iri, SKOS.prefLabel, unique = True)
+        ]
+
+
+    def get_label_map (
+        self,
+        ) -> typing.Dict[ str, str ]:
+        """
+Iterate through `SKOS:Concept` entities to extract a mapping between
+NER labels and abbreviated IRIs.
+        """
+        return {
+            label.toPython(): self.abbrev_concept(concept_iri)  # type: ignore
+            for concept_iri in self.rdf_graph.subjects(RDF.type, SKOS.Concept)
+            for label in self.rdf_graph.objects(concept_iri, SKOS.prefLabel, unique = True)
+        }
 
 
     def add_w2v_vectors (

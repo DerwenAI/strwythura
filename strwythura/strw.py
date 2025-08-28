@@ -353,7 +353,7 @@ referenced entities in the subgraph.
             debug = debug,
         )
 
-        subgraph: nx.Graph = self.strw.domain_context.sem_layer.subgraph(
+        subgraph: nx.MultiDiGraph = self.strw.domain_context.sem_layer.subgraph(  # type: ignore
             anchor_nodes.union(set(subgraph_iter))
         )
 

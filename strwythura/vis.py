@@ -13,8 +13,8 @@ import networkx as nx
 import pyvis  # type: ignore
 
 
-def gen_pyvis (
-    graph: nx.Graph,
+def gen_pyvis (  # pylint: disable=R0914
+    graph: nx.MultiDiGraph,
     html_file: str,
     *,
     num_docs: int = 1,
@@ -23,7 +23,7 @@ def gen_pyvis (
     """
 Use `pyvis` to provide an interactive visualization of the graph layers.
     """
-    known_nodes: typing.Set[ int ] = set()
+    kept_nodes: typing.Set[ int ] = set()
 
     pv_net: pyvis.network.Network = pyvis.network.Network(
         height = "900px",
@@ -46,7 +46,7 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
         else:
             continue
 
-        known_nodes.add(node_id)
+        kept_nodes.add(node_id)
 
         pv_net.add_node(
             node_id,
@@ -56,12 +56,12 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
             size = size,
         )
 
-    for src_node, dst_node, edge_attr in graph.edges(data = True):
-        if src_node in known_nodes and dst_node in known_nodes:
+    for src_node, dst_node, key in graph.edges(keys = True):
+        if src_node in kept_nodes and dst_node in kept_nodes:
             pv_net.add_edge(
                 src_node,
                 dst_node,
-                title = edge_attr.get("rel"),
+                title = key,
             )
 
         pv_net.toggle_physics(True)

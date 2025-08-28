@@ -3,16 +3,13 @@
 
   * add a SKOS-based semantic layer, to leverage during graph algos in RAG
     - TODO: add SKOS:Concept definitions as "chunks" in `LanceDB`
-    - TODO: add concepts into the `NetworkX` graph, linking entities
 
   * Streamlit dashboard view of `rag.py`
 
   * Entity linking - combine structured and unstructured sources
 
 ## Code TODOs
-  - replace nx.Graph with nx.MultiDiGraph ?
-
-  - replace RE with BAML or DSPy <https://arxiv.org/html/2502.09956v1>
+  - replace RE with DSPy <https://arxiv.org/html/2502.09956v1>
 
   * back-out `pandas` replaced by `polars`:
     - `textrank.py`

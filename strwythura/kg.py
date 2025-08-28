@@ -51,13 +51,15 @@ Constructor.
         """
 Construct a knowledge graph from unstructured data sources.
         """
+        label_map: typing.Dict[ str, str ] = domain_context.get_label_map()
+
         # iterate through the URL list, scraping text and building chunks
         scraper: Scraper = Scraper(self.config, parser)
         chunk_id: int = 0
 
         for url in url_list:
             # define data structures intialized for each parsed document
-            lex_graph: nx.Graph = nx.Graph()
+            lex_graph: nx.MultiDiGraph = nx.MultiDiGraph()
             chunk_list: typing.List[ TextChunk ] = []
 
             chunk_id = scraper.scrape_html(
@@ -106,6 +108,7 @@ Construct a knowledge graph from unstructured data sources.
                         span_decoder,
                         sent_map,
                         span,
+                        label_map[span.label_], # decoded as abbrev IRI
                         chunk,
                         debug = debug,
                     )
@@ -115,6 +118,7 @@ Construct a knowledge graph from unstructured data sources.
                         span_decoder,
                         sent_map,
                         span,
+                        "NP",
                         chunk,
                         debug = False, # debug
                     )
@@ -161,15 +165,20 @@ Construct a knowledge graph from unstructured data sources.
             )
 
             if debug:
-                print("nodes", len(domain_context.sem_layer.nodes), "edges", len(domain_context.sem_layer.edges))
+                print(
+                    "nodes",
+                    len(domain_context.sem_layer.nodes),
+                    "edges",
+                    len(domain_context.sem_layer.edges),
+                )
 
 
-    def abstract_overlay (  # pylint: disable=R0914
+    def abstract_overlay (  # pylint: disable=R0912,R0914
         self,
         domain_context: DomainContext,
         url: str,
         chunk_list: typing.List[ TextChunk ],
-        lex_graph: nx.Graph,
+        lex_graph: nx.MultiDiGraph,
         ) -> None:
         """
 Abstract a _semantic overlay_ from the lexical graph -- in other words
@@ -179,9 +188,11 @@ Also connect the extracted entities with their source chunks, where
 the latter first-class citizens within the KG.
         """
         kept_nodes: typing.Set[ int ] = set()
+
         skipped_rel: typing.Set[ str ] = set([
-            "FOLLOWS_LEXICALLY",
-            "COMPOUND_ELEMENT_OF",
+            "strw:co_occurs_with",
+            "strw:compound_element_of",
+            "strw:follows_lexically",
         ])
 
         chunk_nodes: typing.Dict[ int, str ] = {
@@ -209,7 +220,7 @@ the latter first-class citizens within the KG.
                         key = node_attr["key"],
                         text = node_attr["text"],
                         label = node_attr["label"],
-                        rank = node_attr["rank"],
+                        rank = round(node_attr["rank"], 4),
                         count = count,
                     )
                 else:
@@ -218,38 +229,51 @@ the latter first-class citizens within the KG.
                 domain_context.sem_layer.add_edge(
                     node_id,
                     chunk_nodes[node_attr["chunk"]],
-                    rel = "WITHIN",
-                    weight = node_attr["rank"],
+                    key = "strw:within",
+                    weight = round(node_attr["rank"], 4),
                 )
 
-        for src_id, dst_id, edge_attr in lex_graph.edges(data = True):
+                # link each entity to its taxonomy concept,
+                # though be careful not to introduce cycles
+                if node_attr["label"] not in [ "NP" ]:
+                    taxo_node_id: int = domain_context.taxo_node[node_attr["label"]]
+
+                    if node_id != taxo_node_id:
+                        domain_context.sem_layer.add_edge(
+                            node_id,
+                            taxo_node_id,
+                            key = "RDF:Type",
+                            weight = 0.0
+                        )
+
+        for src_id, dst_id, key, edge_attr in lex_graph.edges(data = True, keys = True):
             if src_id in kept_nodes and dst_id in kept_nodes:
-                rel: str = edge_attr["rel"]
                 prob: float = 1.0
 
                 if "prob" in edge_attr:
                     prob = edge_attr["prob"]
 
-                if rel not in skipped_rel:
+                if key not in skipped_rel:
                     if not domain_context.sem_layer.has_edge(src_id, dst_id):
                         domain_context.sem_layer.add_edge(
                             src_id,
                             dst_id,
-                            rel = rel,
+                            key = key,
                             prob = prob,
                         )
                     else:
-                        domain_context.sem_layer[src_id][dst_id]["prob"] = max(
+                        domain_context.sem_layer.edges[src_id, dst_id, key]["prob"] = max(
                             prob,
-                            domain_context.sem_layer.edges[(src_id, dst_id)]["prob"],
+                            domain_context.sem_layer.edges[src_id, dst_id, key]["prob"],
                         )
 
 
-    def make_entity (  # pylint: disable=R0913
+    def make_entity (  # pylint: disable=R0913,R0917
         self,
         span_decoder: typing.Dict[ tuple, Entity ],
         sent_map: typing.Dict[ spacy.tokens.span.Span, int ],  # pylint: disable=I1101
         span: spacy.tokens.span.Span,  # pylint: disable=I1101
+        label: str,
         chunk: TextChunk,
         *,
         debug: bool = False,  # pylint: disable=W0613
@@ -266,7 +290,7 @@ Instantiate one `Entity` object, adding to our working "vocabulary".
             ( span.start, span.end, ),
             key,
             span.text,
-            span.label_,
+            label,
             chunk.uid,
             sent_map[span.sent],
             span,
@@ -284,7 +308,7 @@ Instantiate one `Entity` object, adding to our working "vocabulary".
     def extract_entity (
         self,
         domain_context: DomainContext,
-        lex_graph: nx.Graph,
+        lex_graph: nx.MultiDiGraph,
         ent: Entity,
         *,
         debug: bool = False,  # pylint: disable=W0613
@@ -318,7 +342,7 @@ Link one `Entity` into this doc's lexical graph.
                     lex_graph.add_edge(
                         node_id,
                         tok_idx,
-                        rel = "COMPOUND_ELEMENT_OF",
+                        key = "strw:compound_element_of",
                     )
 
         if prev_known:

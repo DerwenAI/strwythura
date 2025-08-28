@@ -21,7 +21,7 @@ from .graph import Entity
 
 def run_textrank (
     config: dict,
-    lex_graph: nx.Graph,
+    lex_graph: nx.MultiDiGraph,
     ) -> pl.DataFrame:
     """
 Run eigenvalue centrality (i.e., _Personalized PageRank_) to rank the entities.
@@ -74,7 +74,7 @@ Run eigenvalue centrality (i.e., _Personalized PageRank_) to rank the entities.
 
 
 def cooccur_entities (
-    lex_graph: nx.Graph,
+    lex_graph: nx.MultiDiGraph,
     span_decoder: typing.Dict[ tuple, Entity ],
     ) -> None:
     """
@@ -92,6 +92,6 @@ Connect entities which co-occur within the same sentence.
                 lex_graph.add_edge(
                     pair[0],
                     pair[1],
-                    rel = "CO_OCCURS_WITH",
+                    key = "strw:co_occurs_with",
                     prob = 1.0,
                 )
