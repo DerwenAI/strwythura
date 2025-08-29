@@ -111,7 +111,7 @@ pylint = "^3.3.7"
 mypy = "^1.17.1"
 types-requests = "^2.32.4.20250611"
 pandas-stubs = "^2.3.0.250703"
-types-networkx = "^3.5.0.20250728"
+types-networkx = "^3.5.0.20250829"
 
 [[tool.mypy.overrides]]
 
