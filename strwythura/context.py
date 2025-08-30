@@ -268,6 +268,22 @@ Iterate through `skos:Concept` entities, loading into `NetworkX`
                     )
 
 
+    def load_er (
+        self,
+        ) -> None:
+        """
+Iterate through the _entity resolution_ results, adding a
+domain-specific thesaurus of entities and relations into the
+semantic layer.
+        """
+        export_path: pathlib.Path = pathlib.Path(self.config["er"]["export_path"])
+
+        self.rdf_graph.parse(
+            export_path.as_posix(),
+            format = "turtle",
+        )
+
+
     def get_ner_labels (
         self,
         ) -> typing.List[ str ]:
@@ -382,7 +398,10 @@ Train a `gensim.Word2Vec` model for entity embeddings.
         kg_path: typing.Optional[ pathlib.Path ] = None,
         ) -> None:
         """
-Serialize the KG
+Serialize the constructed KG as a JSON file represented in the
+_node-link_ data format.
+
+Aternatively this could be stored in a graph database.
         """
         if kg_path is None:
             kg_path = pathlib.Path(self.config["kg"]["kg_path"])
@@ -420,7 +439,7 @@ Serialize the assets for reusing a constructed KG.
         w2v_path: typing.Optional[ pathlib.Path ] = None,
         ) -> None:
         """
-Load the serialized assets for a constructed KG.
+Load the serialized assets for a previoulys constructed KG.
         """
         vect_db: lancedb.db.LanceDBConnection = lancedb.connect(self.config["vect"]["lancedb_uri"])
         self.chunk_table = vect_db.open_table(self.config["vect"]["chunk_table"])

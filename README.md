@@ -88,16 +88,19 @@ python3 -m spacy download en_core_web_md
 
 Then to integrate this library within an application:
 
-  1. Run `Ollama` and have already downloaded the Gemma3 LLM as described below.
-  2. Copy settings in `config.toml` into a custom configuration file.
-  3. Subclass `DomainContext` to extend it for the use case.
-  4. Define semantics in `domain.ttl` for the domain context.
-  5. Instantiate new `DomainContext`, `Strwythura`, `VisHTML`, and `GraphRAG` objects or their subclassed extensions.
+  1. Copy settings in `config.toml` into a custom configuration file.
+  2. Subclass `DomainContext` to extend it for the use case.
+  3. Define semantics in `domain.ttl` for the domain context.
+  4. Run entity resolutin on your structured data.
+  5. Run `Ollama` and have already downloaded the Gemma3 LLM as described below.
+  6. Instantiate new `DomainContext`, `Strwythura`, `VisHTML`, and `GraphRAG` objects or their subclassed extensions.
+  7. ...
+  8. Profit
 
-Follow the example patterns in `build.py` and `errag.py` respectively.
+Follow the patterns in the `build.py` and `errag.py` example scripts.
 
 If you're working with documents in a language other than English,
-well first that's absolutely fantastic. Next, you need to:
+well first that's absolutely fantastic, though next you need to:
 
   * Update model settings in the `config.toml` file.
   * Change the `spaCy` model downloaded here.
@@ -122,41 +125,46 @@ We run _entity resolution_ (ER) to produce entities and relations from
 _structured data sources_, which tend to be more reliable than those
 extracted from unstructured content.
 
-In this tutorial, we have two hypothetical datasets which provide
+In this tutorial, say we have two hypothetical datasets which provide
 business directory listings:
 
   * `sz_er/acme_biz.json` -- "ACME Business Directory"
-  * `sz_er/corp_home.json` -- "Corporates Home"
+  * `sz_er/corp_home.json` -- "Corporates Home UK"
 
-Also we have slices from datasets which provide listings about
+Then also we have slices from datasets which provide listings about
 researchers and scientific authors:
 
   * `sz_er/orcid.json` -- [ORCID](https://orcid.org/)
-  * `sz_er/scopus.json` -- [Scopus](https://www.scopus.com/freelookup/form/author.uri?zone=TopNavBar&origin=NO%20ORIGIN%20DEFINED)
+  * `sz_er/scopus.json` -- [Scopus](https://www.elsevier.com/products/scopus/data)
+
+These four datasets can be merged using ER, with the results being a
+domain-specific _thesaurus_ that generates graph elements: entities,
+relations, properties. We'll blend this into our _semantic layer_ used
+for organizing the KG later.
 
 
-Use of Docker containers in the following steps is optional, since the
-ER results are already provided in the `sz_er/export.json` file.
-However, if you'd like to run [Senzing](https://senzing.com/docs/quickstart/)
-to reproduce these ER results, use the following steps ...
+The following steps are optional, since these ER results have already
+been pre-computed and provided in the `sz_er/export.json` file.
+If you'd like to run [Senzing](https://senzing.com/docs/quickstart/)
+to reproduce these ER results, use the following steps -- otherwise
+continue to the "Part 2" of this tutorial.
 
-First, be sure to download the Senzing container from DockerHub, which
-is large-ish and may take several minutes:
+Senzing SDK runs in Python or Java, though ER can also be run in batch
+with a container from DockerHub:
 
 ```bash
 docker pull senzing/demo-senzing
 ```
 
-Once this is availabe, run:
+Once this container is available, run:
 
 ```bash
 docker run -it --rm --volume ./sz_er:/tmp/data senzing/demo-senzing
 ```
 
-This should produce a Linux command line prompt `I have no name!`,
-into which you type the following commands, and the local subdirectory
-`sz_er` will be mapped to the `/tmp/data' directory within the
-container.
+This brings up a Linux command line prompt `I have no name!` and the
+local subdirectory `sz_er` will be mapped to the `/tmp/data' directory
+Type the following commands for batch ER into the command line prompt.
 
 First, set up the Senzing configuration for merging these datasets:
 
@@ -164,8 +172,8 @@ First, set up the Senzing configuration for merging these datasets:
 G2ConfigTool.py
 ```
 
-Within the configuration tool's prompt, register the names of the data
-sources being used:
+Within the configuration tool, register the names of the data sources
+being used:
 
 ```
 addDataSource ACME_BIZ
@@ -176,7 +184,7 @@ save
 exit
 ```
 
-Now load each file and run ER on its data records:
+Load each file and run ER on its data records:
 
 ```bash
 G2Loader.py -f /tmp/data/acme_biz.json
@@ -185,27 +193,13 @@ G2Loader.py -f /tmp/data/orcid.json
 G2Loader.py -f /tmp/data/scopus.json
 ```
 
-Then export the results to the `sz_er/export.json` file and close the
-connection to the container:
+Export the ER results to the `sz_er/export.json` file, then exit the
+container:
 
 ```bash
 G2Export.py -F JSON -o /tmp/data/export.json
 exit
 ```
-
-WIP:
-
-Next run the `sz_er/parse.py` script to parse the Senzing ER
-results into an RDF file which we will blend into the _semantic
-layer_ definitions:
-
-```bash
-pushd sz_er
-poetry run python3 parse.py
-pop
-```
-
-(TBD)
 
 </details>
 
@@ -215,8 +209,9 @@ pop
 
 Given as input:
 
-  * a list of URLs from which to scrape content
   * `domain.ttl` -- semantics for the domain context
+  * `sz_er/er.ttl` -- a domain-specific thesaurus based on entity resolution
+  * a list of URLs from which to scrape content
 
 The `domain.ttl` file provides a basis for iterating with an _ontology
 pipeline_ process, to represent the semantics for the given domain.

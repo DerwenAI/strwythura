@@ -13,15 +13,51 @@ import sys
 import typing
 
 from icecream import ic
+import rdflib
+import spacy
 
-SZ_PREFIX: str = "sz_entity_"
+
+SZ_PREFIX: str = "sz:"
 LANG_EN: str = "en"
 
 
+def get_lemma_key (
+    simple_pipe: spacy.Language,
+    name: str,
+    *,
+    debug: bool = False,
+    ) -> str:
+    """
+Construct a parsed, lemmatized key for the given noun phrase.
+    """
+    lemma_key: str = " ".join([
+        tok.pos_ + "." + tok.lemma_.strip().lower()
+        for tok in simple_pipe(name)
+    ])
+
+    if debug:
+        ic(lemma_key, name)
+
+    return lemma_key
+
+
 if __name__ == "__main__":
+    rdf_list: typing.List[ str ] = [
+        """
+@prefix strw:  <https://github.com/DerwenAI/strwythura/#> .
+@prefix sz:    <https://senzing.com/#> .
+
+@prefix dct:   <http://purl.org/dc/terms/> .
+@prefix org:   <http://www.w3.org/ns/org#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+        """
+    ]
+
     org_map: typing.Dict[ str, str ] = {}
     parent: typing.Dict[ str, str ] = {}
-    rdf_list: typing.List[ str ] = []
+
+    simple_pipe: spacy.Language = spacy.load("en_core_web_md")
 
     # load the data records
     data_records: typing.Dict[ str, dict ] = {}
@@ -39,7 +75,7 @@ if __name__ == "__main__":
         with open(data_path, encoding = "utf-8") as fp:
             for line in fp:
                 rec: dict = json.loads(line)
-                record_id: str = rec["DATA_SOURCE"].replace(" ", "_").lower() + "_" + rec["RECORD_ID"]
+                record_id: str = SZ_PREFIX + rec["DATA_SOURCE"].replace(" ", "_").lower() + "_" + rec["RECORD_ID"]
                 data_records[record_id] = rec
 
     # parse the JSON export
@@ -61,8 +97,7 @@ if __name__ == "__main__":
 
                 record_id: str = rec["RECORD_ID"]
                 data_source: str = rec["DATA_SOURCE"].replace(" ", "_").lower()
-                rec_iri: str = f"{data_source}_{record_id}"
-
+                rec_iri: str = f"{SZ_PREFIX}{data_source}_{record_id}"
                 parent[rec_iri] = entity_id
 
                 pred_iri: str = "skos:exactMatch"
@@ -97,7 +132,7 @@ if __name__ == "__main__":
 
             ic(ent_node)
 
-            rdf_frag: str = f"{entity_id} skos:prefLabel \"{ent_descrip}\"@\"{LANG_EN}\" "
+            rdf_frag: str = f"{entity_id} skos:prefLabel \"{ent_descrip}\"@{LANG_EN} "
 
             for rec_node in rec_list:
                 dat_rec: dict = data_records[rec_node["obj"]]
@@ -159,10 +194,15 @@ if __name__ == "__main__":
                     employer = org_map[org_name]
 
         rdf_frag = f"{record_id} rdf:Type {rec_type} "
-        rdf_frag += f";\n  skos:prefLabel \"{name}\"@\"{LANG_EN}\" "
+        rdf_frag += f";\n  skos:prefLabel \"{name}\"@{LANG_EN} "
+
+        lemma_key: str = get_lemma_key(simple_pipe, name)
+        rdf_frag += f";\n  strw:lemma_phrase \"{lemma_key}\"@{LANG_EN} "
 
         for url in urls:
             rdf_frag += f";\n  dct:identifier <{url}> "
+
+        rdf_frag += "\n."
 
         #print(rdf_frag, employer)
         rdf_list.append(rdf_frag)
@@ -171,4 +211,16 @@ if __name__ == "__main__":
             rdf_frag = f"{parent[record_id]} org:memberOf {employer} ."
             rdf_list.append(rdf_frag)
 
-    print("\n".join(rdf_list))
+    # serialize the generated RDF file
+    rdf_path: pathlib.Path = pathlib.Path("er.ttl")
+
+    with open(rdf_path, "w", encoding = "utf-8") as fp:
+        fp.write("\n".join(rdf_list))
+
+
+    # load the RDF graph
+    rdf_graph: rdflib.Graph = rdflib.Graph()
+    rdf_graph.parse(
+        rdf_path.as_posix(),
+        format = "turtle",
+    )

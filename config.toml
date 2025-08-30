@@ -1,3 +1,7 @@
+[er]
+
+export_path = "sz_er/er.ttl"
+
 [nlp]
 
 spacy_model = "en_core_web_md"

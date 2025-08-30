@@ -76,6 +76,7 @@ Constructor.
             if overwrite:
                 self.domain_context.init_chunk_table()
                 self.domain_context.load_taxonomy()
+                self.domain_context.load_er()
 
             self.parser: Parser = Parser(self.config)
             self.simple_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])
@@ -157,17 +158,17 @@ Constructor.
         question: str,
         ) -> typing.Iterator[ str ]:
         """
-Extract entity spans from a text question.
+Extract entity spans from a text question, generating their lemma keys.
         """
         doc: spacy.tokens.doc.Doc = self.strw.entity_pipe(question)  # type: ignore  # pylint: disable=I1101
 
         for span in doc.ents:
-            key: str = " ".join([
+            lemma_key: str = " ".join([
                 tok.pos_ + "." + tok.lemma_.strip().lower()
                 for tok in span
             ])
 
-            yield key
+            yield lemma_key
 
 
     def get_chunks (  # pylint: disable=R0912,R0914
