@@ -161,7 +161,7 @@ if __name__ == "__main__":
                 rdf_frag += f';\n  {rel_node["pred"]} {rel_node["obj"]} '
                 #print("related", rel_node)
 
-            rdf_frag += f";\n  rdf:Type strw:{ent_type.capitalize()} "
+            rdf_frag += f";\n  rdf:Type strw:SzEntity, strw:{ent_type.capitalize()} "
             rdf_frag += "\n."
 
             #print(rdf_frag)
@@ -207,7 +207,7 @@ if __name__ == "__main__":
                 if org_name in org_map:
                     employer = org_map[org_name]
 
-        rdf_frag = f"{record_id} rdf:Type {rec_type} "
+        rdf_frag = f"{record_id} rdf:Type strw:DataRecord, {rec_type} "
         rdf_frag += f";\n  skos:prefLabel \"{name}\"@{LANG_EN} "
 
         lemma_key: str = parse_lemma(simple_pipe(name))

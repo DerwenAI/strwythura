@@ -76,7 +76,7 @@ Constructor.
             if overwrite:
                 self.domain_context.init_chunk_table()
                 self.domain_context.load_taxonomy()
-                self.domain_context.load_er()
+                self.domain_context.load_er_thesaurus()
 
             self.parser: Parser = Parser(self.config)
             self.simple_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])

@@ -125,13 +125,30 @@ We run _entity resolution_ (ER) to produce entities and relations from
 _structured data sources_, which tend to be more reliable than those
 extracted from unstructured content.
 
-In this tutorial, say we have two hypothetical datasets which provide
-business directory listings:
+What does this ER step buy us?  ER allows us to merge multiple
+structured data sets, even without consistent _foreign keys_ being
+available, producing an overlay of entities and relations among them
+-- which is useful as a "backbone" for constructing a KG. Morever
+when there are judgements being made from the KG about people or
+organizations, ER provides accountability for the merge decisions.
+
+This is especially important in public sector, healthcare, banking,
+insurance -- i.e., in use cases where you might need to "send flowers"
+when automated judgements go wrong.  For example, someone gets denied
+a loan, has a medical insurance claim blocked, gets a tax audit, has
+their voter registration voided, becomes the subject of an arrest
+warrant, and so on.  In other words, people and organizations tend to
+take legal actions when someone else causes them harm. You'll want an
+audit trail of decisions based on evidence, when your software systems
+are making these kinds of judgements.
+
+For the domain context in this tutorial, say we have two hypothetical
+datasets which provide business directory listings:
 
   * `sz_er/acme_biz.json` -- "ACME Business Directory"
   * `sz_er/corp_home.json` -- "Corporates Home UK"
 
-Then also we have slices from datasets which provide listings about
+Plus we have slices from datasets which provide listings about
 researchers and scientific authors:
 
   * `sz_er/orcid.json` -- [ORCID](https://orcid.org/)

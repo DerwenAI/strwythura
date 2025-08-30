@@ -301,7 +301,7 @@ Iterate through `skos:Concept` entities, loading into `NetworkX`
                     )
 
 
-    def load_er (
+    def load_er_thesaurus (
         self,
         ) -> None:
         """
@@ -309,10 +309,33 @@ Iterate through the _entity resolution_ results, adding a
 domain-specific thesaurus of entities and relations into the
 semantic layer.
         """
-        export_path: pathlib.Path = pathlib.Path(self.config["er"]["export_path"])
+        # load the ER triples into their own graph, to extrant and
+        # link the known lemmas (i.e., the synonyms in the thesaurus)
+        er_path: pathlib.Path = pathlib.Path(self.config["er"]["export_path"])
+        er_graph: rdflib.Graph = rdflib.Graph()
 
+        er_graph.parse(
+            er_path.as_posix(),
+            format = "turtle",
+        )
+
+        # first iterate through the data records, loading lemma keys
+        lemma_phrase_iri: rdflib.term.URIRef = self.rel_iri(StrwVocab.LEMMA_PHRASE)
+        concept_iri: rdflib.term.URIRef = self.lookup_concept("DataRecord")
+
+        for lemma in self.rdf_graph.objects(concept_iri, lemma_phrase_iri):
+            self.add_lemma(lemma.toPython())
+
+        # now iterate through the entities, overriding any prior lemma
+        # keys from data records
+        concept_iri = self.lookup_concept("SzEntity")
+
+        for lemma in self.rdf_graph.objects(concept_iri, lemma_phrase_iri):
+            self.add_lemma(lemma.toPython())
+
+        # finally, load ER triples into the semantic layer
         self.rdf_graph.parse(
-            export_path.as_posix(),
+            er_path.as_posix(),
             format = "turtle",
         )
 
