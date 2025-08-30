@@ -156,6 +156,8 @@ Constructor.
     def find_entities (
         self,
         question: str,
+        *,
+        debug: bool = False,
         ) -> typing.Iterator[ str ]:
         """
 Extract entity spans from a text question, generating their lemma keys.
@@ -163,10 +165,10 @@ Extract entity spans from a text question, generating their lemma keys.
         doc: spacy.tokens.doc.Doc = self.strw.entity_pipe(question)  # type: ignore  # pylint: disable=I1101
 
         for span in doc.ents:
-            lemma_key: str = " ".join([
-                tok.pos_ + "." + tok.lemma_.strip().lower()
-                for tok in span
-            ])
+            lemma_key: str = self.strw.domain_context.parse_lemma(span)
+
+            if debug:
+                ic(span, lemma_key)
 
             yield lemma_key
 

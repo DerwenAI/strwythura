@@ -108,20 +108,23 @@ Parse an input text chunk, returning a `spaCy` document.
 
             for tok in sent:
                 text: str = tok.text.strip()
+                pos: str = tok.pos_
 
-                if tok.pos_ in [ "NOUN", "PROPN" ]:
-                    key: str = tok.pos_ + "." + tok.lemma_.strip().lower()
+                if pos in DomainContext.POS_TRANSFORM:
+                    pos = DomainContext.POS_TRANSFORM[pos]
 
-                    prev_known: bool = domain_context.add_lemma(key)
-                    node_id: int = domain_context.get_lemma_index(key)
+                if pos == "NOUN":
+                    lemma_key: str = domain_context.parse_lemma([ tok ])
+                    prev_known: bool = domain_context.add_lemma(lemma_key)
+                    node_id: int = domain_context.get_lemma_index(lemma_key)
                     node_seq.append(node_id)
 
                     if not lex_graph.has_node(node_id):
                         lex_graph.add_node(
                             node_id,
-                            key = key,
+                            key = lemma_key,
                             kind = "Lemma",
-                            pos = tok.pos_,
+                            pos = pos,
                             text = text,
                             chunk = chunk,
                             count = 1,

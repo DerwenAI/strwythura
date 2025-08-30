@@ -104,6 +104,7 @@ Construct a knowledge graph from unstructured data sources.
 
                 for span in doc.ents:
                     self.make_entity(
+                        domain_context,
                         span_decoder,
                         sent_map,
                         span,
@@ -114,6 +115,7 @@ Construct a knowledge graph from unstructured data sources.
 
                 for span in doc.noun_chunks:
                     self.make_entity(
+                        domain_context,
                         span_decoder,
                         sent_map,
                         span,
@@ -269,6 +271,7 @@ the latter first-class citizens within the KG.
 
     def make_entity (  # pylint: disable=R0913,R0917
         self,
+        domain_context: DomainContext,
         span_decoder: typing.Dict[ tuple, Entity ],
         sent_map: typing.Dict[ spacy.tokens.span.Span, int ],  # pylint: disable=I1101
         span: spacy.tokens.span.Span,  # pylint: disable=I1101
@@ -280,14 +283,11 @@ the latter first-class citizens within the KG.
         """
 Instantiate one `Entity` object, adding to our working "vocabulary".
         """
-        key: str = " ".join([
-            tok.pos_ + "." + tok.lemma_.strip().lower()
-            for tok in span
-        ])
+        lemma_key: str = domain_context.parse_lemma(span)
 
         ent: Entity = Entity(
             ( span.start, span.end, ),
-            key,
+            lemma_key,
             span.text,
             label,
             chunk.uid,
@@ -333,10 +333,10 @@ Link one `Entity` into this doc's lexical graph.
             )
 
             for tok in ent.span:
-                tok_key: str = tok.pos_ + "." + tok.lemma_.strip().lower()
+                tok_lemma_key: str = domain_context.parse_lemma([ tok ])
 
-                if tok_key in domain_context.known_lemma:
-                    tok_idx: int = domain_context.get_lemma_index(tok_key)
+                if tok_lemma_key in domain_context.known_lemma:
+                    tok_idx: int = domain_context.get_lemma_index(tok_lemma_key)
 
                     lex_graph.add_edge(
                         node_id,

@@ -20,20 +20,31 @@ import spacy
 SZ_PREFIX: str = "sz:"
 LANG_EN: str = "en"
 
+POS_TRANSFORM: typing.Dict[ str, str ] = {
+    "PROPN": "NOUN",
+}
 
-def get_lemma_key (
-    simple_pipe: spacy.Language,
-    name: str,
+
+def parse_lemma (
+    span: spacy.tokens.doc.Doc,
     *,
     debug: bool = False,
     ) -> str:
     """
 Construct a parsed, lemmatized key for the given noun phrase.
     """
-    lemma_key: str = " ".join([
-        tok.pos_ + "." + tok.lemma_.strip().lower()
-        for tok in simple_pipe(name)
-    ])
+    lemmas: typing.List[ str ] = []
+
+    for tok in span:
+        pos: str = tok.pos_
+        lemma: str = tok.lemma_.strip().lower()
+
+        if pos in POS_TRANSFORM:
+            pos = POS_TRANSFORM[pos]
+
+        lemmas.append(pos + "." + lemma)
+
+    lemma_key: str = " ".join(lemmas)
 
     if debug:
         ic(lemma_key, name)
@@ -134,6 +145,9 @@ if __name__ == "__main__":
 
             rdf_frag: str = f"{entity_id} skos:prefLabel \"{ent_descrip}\"@{LANG_EN} "
 
+            lemma_key: str = parse_lemma(simple_pipe(ent_descrip))
+            rdf_frag += f";\n  strw:lemma_phrase \"{lemma_key}\"@{LANG_EN} "
+
             for rec_node in rec_list:
                 dat_rec: dict = data_records[rec_node["obj"]]
                 ent_type = dat_rec["RECORD_TYPE"]
@@ -196,7 +210,7 @@ if __name__ == "__main__":
         rdf_frag = f"{record_id} rdf:Type {rec_type} "
         rdf_frag += f";\n  skos:prefLabel \"{name}\"@{LANG_EN} "
 
-        lemma_key: str = get_lemma_key(simple_pipe, name)
+        lemma_key: str = parse_lemma(simple_pipe(name))
         rdf_frag += f";\n  strw:lemma_phrase \"{lemma_key}\"@{LANG_EN} "
 
         for url in urls:

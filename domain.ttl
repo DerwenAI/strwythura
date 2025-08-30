@@ -1,4 +1,5 @@
 @prefix strw:  <https://github.com/DerwenAI/strwythura/#> .
+@prefix sz:    <https://senzing.com/#> .
 
 @prefix dct:   <http://purl.org/dc/terms/> .
 @prefix org:   <http://www.w3.org/ns/org#> .

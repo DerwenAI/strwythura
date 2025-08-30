@@ -18,6 +18,7 @@ import gensim  # type: ignore
 import lancedb  # type: ignore
 import networkx as nx
 import rdflib
+import spacy
 
 from .elem import Entity, NodeKind, StrwVocab, TextChunk
 
@@ -29,6 +30,10 @@ vocabulary, taxonomy, thesaurus, and ontology.
     """
     IRI_BASE: str = "https://github.com/DerwenAI/strwythura/#"
     IRI_PREFIX: str = "strw:"
+
+    POS_TRANSFORM: typing.Dict[ str, str ] = {
+        "PROPN": "NOUN",
+    }
 
 
     def __init__ (
@@ -86,6 +91,34 @@ Initialize the chunk table in the vector store.
         )
 
         self.start_chunk_id = 0
+
+
+    def parse_lemma (
+        self,
+        span: spacy.tokens.doc.Doc,
+        *,
+        debug: bool = False,
+        ) -> str:
+        """
+Construct a parsed, lemmatized key for the given noun phrase.
+        """
+        lemmas: typing.List[ str ] = []
+
+        for tok in span:
+            pos: str = tok.pos_
+            lemma: str = tok.lemma_.strip().lower()
+
+            if pos in self.POS_TRANSFORM:
+                pos = self.POS_TRANSFORM[pos]
+
+            lemmas.append(f"{pos}.{lemma}")
+
+        lemma_key: str = " ".join(lemmas)
+
+        if debug:
+            ic(lemma_key, name)
+
+        return lemma_key
 
 
     def get_lemma_index (
