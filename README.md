@@ -65,6 +65,7 @@ practices from:
 
   * _natural language processing_
   * _graph data science_
+  * _entity resolution_
   * _ontology pipeline_
   * _context engineering_
   * _human-in-the-loop_
@@ -121,7 +122,7 @@ poetry run python3 -m spacy download en_core_web_md
 <details>
   <summary><h2>Demo Part 1: Entity Resolution</h2></summary>
 
-We run _entity resolution_ (ER) to produce entities and relations from
+Run _entity resolution_ (ER) to produce entities and relations from
 _structured data sources_, which tend to be more reliable than those
 extracted from unstructured content.
 
@@ -217,6 +218,20 @@ container:
 G2Export.py -F JSON -o /tmp/data/export.json
 exit
 ```
+
+WIP:
+
+Finally, run the `parser.py` script to represent the Senzing ER
+results as a SKOS-based thesaurus:
+
+```bash
+pushd sz_er
+poetry run python3 parser.py
+popd
+```
+
+This produces the `sz_er/er.ttl` file (RDF in "Turtle" format) which
+get used in the next part of the demo to augment the _semantic layer_.
 
 </details>
 

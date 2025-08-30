@@ -15,7 +15,7 @@ import sys
 import typing
 
 from icecream import ic
-from rdflib.namespace import NamespaceManager, DCTERMS, RDF, SKOS
+from rdflib.namespace import NamespaceManager, DCTERMS, RDF, ORG, SKOS
 import gensim  # type: ignore
 import lancedb  # type: ignore
 import networkx as nx
@@ -334,11 +334,15 @@ Populate a semantic layer node from an ER entity.
 
     def load_er_thesaurus (
         self,
+        datasets: typing.List[ str ],
         ) -> None:
         """
 Iterate through the _entity resolution_ results, adding a
 domain-specific thesaurus of entities and relations into the
 semantic layer.
+
+Note: for now, the structured datasets are not parsed at this level,
+though it could become quite important to do in some use cases.
         """
         node_map: typing.Dict[ str, int ] = {}
 
@@ -369,7 +373,7 @@ semantic layer.
         # then add SKOS relations (thesaurus synonyms and taxonymy)
         # as edges in the semantic layer
         for entity_iri in er_graph.subjects(RDF.type, self.lookup_concept("SzEntity")):
-            for sem_rel in [ SKOS.related, SKOS.exactMatch, SKOS.closeMatch ]:
+            for sem_rel in [ SKOS.related, SKOS.closeMatch, SKOS.exactMatch, ORG.memberOf ]:
                 for obj in er_graph.objects(entity_iri, sem_rel):
                     src_id: int = node_map[entity_iri.n3(er_graph.namespace_manager)]
                     dst_id: int = node_map[obj.n3(er_graph.namespace_manager)]
@@ -378,7 +382,7 @@ semantic layer.
                         rel_iri: str = sem_rel.n3(er_graph.namespace_manager)
                         prob: float = 0.5
 
-                        if rel_iri in [ "skos:exactMatch" ]:
+                        if rel_iri in [ "skos:exactMatch", "org:memberOf" ]:
                             prob = 1.0
 
                         self.sem_layer.add_edge(

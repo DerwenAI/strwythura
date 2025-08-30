@@ -19,7 +19,7 @@ from strwythura import DomainContext, PerfProfiler, Strwythura, VisHTML
 
 if __name__ == "__main__":
     # disable this during certain forms of debugging
-    analyze: bool = False
+    analyze: bool = True
 
     if analyze:
         # start the performance profiling
@@ -27,6 +27,13 @@ if __name__ == "__main__":
         profiler.start()
 
     # construct the KG and build the assets for running GraphRAG later
+    datasets: typing.List[ str ] = [
+        "sz_er/acme_biz.json",
+        "sz_er/corp_home.json",
+        "sz_er/orcid.json",
+        "sz_er/scopus.json",
+    ]
+
     url_list: typing.List[ str ] = [
         "https://aaic.alz.org/releases-2024/processed-red-meat-raises-risk-of-dementia.asp",
         "https://www.theguardian.com/society/article/2024/jul/31/eating-processed-red-meat-could-increase-risk-of-dementia-study-finds",
@@ -39,6 +46,10 @@ if __name__ == "__main__":
     strw: Strwythura = Strwythura(
         domain,
         overwrite = True,
+    )
+
+    strw.domain_context.load_er_thesaurus(
+        datasets,
     )
 
     strw.build_assets(
