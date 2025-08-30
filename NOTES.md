@@ -1,5 +1,6 @@
-
 ## Where do we go next?
+
+  * run spaCY NER on ER labels
 
   * replace RE with DSPy <https://arxiv.org/html/2502.09956v1>
   * Streamlit dashboard view of `rag.py`

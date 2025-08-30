@@ -3,6 +3,7 @@
 chunk.html
 kg.html
 data/
+sz_er/*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

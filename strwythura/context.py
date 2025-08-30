@@ -120,7 +120,7 @@ Add a known entity, indexed by its parsed lemma key.
         concept_iri: rdflib.term.Node,
         ) -> str:
         """
-Get the primary lemma for a `SKOS:Concept` entity.
+Get the primary lemma for a `skos:Concept` entity.
         """
         lemma_phrase_iri: rdflib.term.URIRef = self.rel_iri(StrwVocab.LEMMA_PHRASE)
 
@@ -134,7 +134,7 @@ Get the primary lemma for a `SKOS:Concept` entity.
         fragment: str,
         ) -> rdflib.term.URIRef:
         """
-Lookup a `SKOS:Concept` entity by its IRI.
+Lookup a `skos:Concept` entity by its IRI.
         """
         iri: str = f"{self.IRI_BASE}{fragment}"
         concept_iri: rdflib.term.URIRef = rdflib.term.URIRef(iri)
@@ -147,7 +147,7 @@ Lookup a `SKOS:Concept` entity by its IRI.
         concept_iri: rdflib.term.Node,
         ) -> str:
         """
-Abbreviate a `SKOS:Concept` entity's IRI with the vocabulary prefix.
+Abbreviate a `skos:Concept` entity's IRI with the vocabulary prefix.
         """
         return concept_iri.toPython().replace(self.IRI_BASE, self.IRI_PREFIX)  # type: ignore
 
@@ -169,7 +169,7 @@ Accessor to construct a `URIRef` for a relation within the `strw:` vocabulary.
         concept_iri: rdflib.term.URIRef,
         ) -> typing.Tuple[ int, str, dict ]:
         """
-Get the attributes for a `SKOS:Concept` entity.
+Get the attributes for a `skos:Concept` entity.
         """
         lemma_phrase_iri: rdflib.term.URIRef = self.rel_iri(StrwVocab.LEMMA_PHRASE)
 
@@ -241,12 +241,12 @@ Get the attributes for a `SKOS:Concept` entity.
         self,
         ) -> None:
         """
-Iterate through `SKOS:Concept` entities, loading into `NetworkX`
+Iterate through `skos:Concept` entities, loading into `NetworkX`
         """
         node_map: typing.Dict[ str, int ] = {}
         attr_map: typing.Dict[ int, dict ] = {}
 
-        # first pass: populate nodes for the `SKOS:Concept` entities
+        # first pass: populate nodes for the `skos:Concept` entities
         for concept_iri in self.rdf_graph.subjects(RDF.type, SKOS.Concept):
             node_id, lemma_key, attr = self.populate_taxonomy_node(concept_iri)  # type: ignore
             node_map[lemma_key] = node_id
@@ -255,7 +255,7 @@ Iterate through `SKOS:Concept` entities, loading into `NetworkX`
         # second pass: add relations
         for src_id, attr in attr_map.items():
             for rel in [ "broader", "narrower", "related" ]:
-                rel_iri: str = f"SKOS:{rel}"
+                rel_iri: str = f"skos:{rel}"
 
                 for dst_key in attr[rel]:
                     dst_id: int = node_map[dst_key]
@@ -272,7 +272,7 @@ Iterate through `SKOS:Concept` entities, loading into `NetworkX`
         self,
         ) -> typing.List[ str ]:
         """
-Iterate through `SKOS:Concept` entities to extract the labels used for
+Iterate through `skos:Concept` entities to extract the labels used for
 zero-shot NER.
         """
         return [
@@ -286,7 +286,7 @@ zero-shot NER.
         self,
         ) -> typing.Dict[ str, str ]:
         """
-Iterate through `SKOS:Concept` entities to extract a mapping between
+Iterate through `skos:Concept` entities to extract a mapping between
 NER labels and abbreviated IRIs.
         """
         return {

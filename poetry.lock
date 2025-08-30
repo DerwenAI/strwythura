@@ -1718,14 +1718,14 @@ test = ["flaky", "ipyparallel", "pre-commit", "pytest (>=7.0,<9)", "pytest-async
 
 [[package]]
 name = "ipython"
-version = "9.4.0"
+version = "9.5.0"
 description = "IPython: Productive Interactive Computing"
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "ipython-9.4.0-py3-none-any.whl", hash = "sha256:25850f025a446d9b359e8d296ba175a36aedd32e83ca9b5060430fe16801f066"},
-    {file = "ipython-9.4.0.tar.gz", hash = "sha256:c033c6d4e7914c3d9768aabe76bbe87ba1dc66a92a05db6bfa1125d81f2ee270"},
+    {file = "ipython-9.5.0-py3-none-any.whl", hash = "sha256:88369ffa1d5817d609120daa523a6da06d02518e582347c29f8451732a9c5e72"},
+    {file = "ipython-9.5.0.tar.gz", hash = "sha256:129c44b941fe6d9b82d36fc7a7c18127ddb1d6f02f78f867f402e2e3adde3113"},
 ]
 
 [package.dependencies]
@@ -1746,7 +1746,7 @@ all = ["ipython[doc,matplotlib,test,test-extra]"]
 black = ["black"]
 doc = ["docrepr", "exceptiongroup", "intersphinx_registry", "ipykernel", "ipython[test]", "matplotlib", "setuptools (>=18.5)", "sphinx (>=1.3)", "sphinx-rtd-theme", "sphinx_toml (==0.0.4)", "typing_extensions"]
 matplotlib = ["matplotlib"]
-test = ["packaging", "pytest", "pytest-asyncio (<0.22)", "testpath"]
+test = ["packaging", "pytest", "pytest-asyncio", "testpath"]
 test-extra = ["curio", "ipykernel", "ipython[test]", "jupyter_ai", "matplotlib (!=3.2.0)", "nbclient", "nbformat", "numpy (>=1.23)", "pandas", "trio"]
 
 [[package]]
@@ -2848,14 +2848,14 @@ files = [
 
 [[package]]
 name = "mistune"
-version = "3.1.3"
+version = "3.1.4"
 description = "A sane and fast Markdown parser with useful plugins and renderers"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "mistune-3.1.3-py3-none-any.whl", hash = "sha256:1a32314113cff28aa6432e99e522677c8587fd83e3d51c29b82a52409c842bd9"},
-    {file = "mistune-3.1.3.tar.gz", hash = "sha256:a7035c21782b2becb6be62f8f25d3df81ccb4d6fa477a6525b15af06539f02a0"},
+    {file = "mistune-3.1.4-py3-none-any.whl", hash = "sha256:93691da911e5d9d2e23bc54472892aff676df27a75274962ff9edc210364266d"},
+    {file = "mistune-3.1.4.tar.gz", hash = "sha256:b5a7f801d389f724ec702840c11d8fc48f2b33519102fc7ee739e8177b672164"},
 ]
 
 [[package]]
@@ -6174,14 +6174,14 @@ typing-extensions = ">=3.7.4.3"
 
 [[package]]
 name = "types-networkx"
-version = "3.5.0.20250827"
+version = "3.5.0.20250829"
 description = "Typing stubs for networkx"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "types_networkx-3.5.0.20250827-py3-none-any.whl", hash = "sha256:d01b89d5354ac32ce37b625b17a8b509b95f720364099b7a213a50b2b3620134"},
-    {file = "types_networkx-3.5.0.20250827.tar.gz", hash = "sha256:ea59aef7ec7f8df8cbffc84d9dd2fefa8e78ccf3c8f80e0df6aa6d25b4510e64"},
+    {file = "types_networkx-3.5.0.20250829-py3-none-any.whl", hash = "sha256:3b32d7ddf6b3a966c561cadaff1b20ddb670f172a8c1a53fa89bbb8362d4e256"},
+    {file = "types_networkx-3.5.0.20250829.tar.gz", hash = "sha256:443c2616f50afe529c8d26505f54bf3f27e986e8c993fcb3f612b1add251b9ef"},
 ]
 
 [package.dependencies]

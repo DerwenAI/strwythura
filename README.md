@@ -116,7 +116,102 @@ poetry run python3 -m spacy download en_core_web_md
 
 
 <details>
-  <summary><h2>Demo Part 1: Build Assets</h2></summary>
+  <summary><h2>Demo Part 1: Entity Resolution</h2></summary>
+
+We run _entity resolution_ (ER) to produce entities and relations from
+_structured data sources_, which tend to be more reliable than those
+extracted from unstructured content.
+
+In this tutorial, we have two hypothetical datasets which provide
+business directory listings:
+
+  * `sz_er/acme_biz.json` -- "ACME Business Directory"
+  * `sz_er/corp_home.json` -- "Corporates Home"
+
+Also we have slices from datasets which provide listings about
+researchers and scientific authors:
+
+  * `sz_er/orcid.json` -- [ORCID](https://orcid.org/)
+  * `sz_er/scopus.json` -- [Scopus](https://www.scopus.com/freelookup/form/author.uri?zone=TopNavBar&origin=NO%20ORIGIN%20DEFINED)
+
+
+Use of Docker containers in the following steps is optional, since the
+ER results are already provided in the `sz_er/export.json` file.
+However, if you'd like to run [Senzing](https://senzing.com/docs/quickstart/)
+to reproduce these ER results, use the following steps ...
+
+First, be sure to download the Senzing container from DockerHub, which
+is large-ish and may take several minutes:
+
+```bash
+docker pull senzing/demo-senzing
+```
+
+Once this is availabe, run:
+
+```bash
+docker run -it --rm --volume ./sz_er:/tmp/data senzing/demo-senzing
+```
+
+This should produce a Linux command line prompt `I have no name!`,
+into which you type the following commands, and the local subdirectory
+`sz_er` will be mapped to the `/tmp/data' directory within the
+container.
+
+First, set up the Senzing configuration for merging these datasets:
+
+```bash
+G2ConfigTool.py
+```
+
+Within the configuration tool's prompt, register the names of the data
+sources being used:
+
+```
+addDataSource ACME_BIZ
+addDataSource CORP_HOME
+addDataSource ORCID
+addDataSource SCOPUS
+save
+exit
+```
+
+Now load each file and run ER on its data records:
+
+```bash
+G2Loader.py -f /tmp/data/acme_biz.json
+G2Loader.py -f /tmp/data/corp_home.json
+G2Loader.py -f /tmp/data/orcid.json
+G2Loader.py -f /tmp/data/scopus.json
+```
+
+Then export the results to the `sz_er/export.json` file and close the
+connection to the container:
+
+```bash
+G2Export.py -F JSON -o /tmp/data/export.json
+exit
+```
+
+WIP:
+
+Next run the `sz_er/parse.py` script to parse the Senzing ER
+results into an RDF file which we will blend into the _semantic
+layer_ definitions:
+
+```bash
+pushd sz_er
+poetry run python3 parse.py
+pop
+```
+
+(TBD)
+
+</details>
+
+
+<details>
+  <summary><h2>Demo Part 2: Build Assets</h2></summary>
 
 Given as input:
 
@@ -178,7 +273,7 @@ The assets get serialized into these files:
 </details>
 
 <details>
-  <summary><h2>Demo Part 2: Enhanced GraphRAG chat bot</h2></summary>
+  <summary><h2>Demo Part 3: Enhanced GraphRAG chat bot</h2></summary>
 
 A good downstream use case for exploring a newly constructed KG is
 GraphRAG, used for grounding the responses by an LLM in a
@@ -202,15 +297,11 @@ poetry run python3 errag.py
 </details>
 
 <details>
-  <summary><h2>Demo Part 3: Curating an Ontology Pipeline</h2></summary>
+  <summary><h2>Demo Part 4: Curating an Ontology Pipeline</h2></summary>
 
 This code uses a _semantic layer_ -- in other words, a "backbone" for
 the KG -- to organize the entities and relations which get abstracted
 from the lexical graph.
-
-If you had previously run _entity resolution_ from _structured data
-sources_, which tend to be more reliable than unstructured content,
-this approach could integrate those results as well.
 
 For now, run the `curate.py` script to generate a view of the ranked
 NER results, serialized as the `data/sem.csv` file.  This can be
@@ -244,7 +335,7 @@ at the _lexical graph_, without the _entity linking_ (EL) part yet:
 
   1. Load the structured data sources or updates into a data graph.
   2. Perform _entity resolution_ (ER) on PII extracted from the data graph.
-  3. Use ER results to generate a semantic layer as a "backbone" for the KG.
+  3. Blend the ER results into the semantic layer as a "backbone" for structuring the KG.
 
 **Lexical graph:**
 
@@ -376,10 +467,10 @@ help illustrate important intermediate steps within these workflows:
 ```
 
 <ul>
-<li>Part 1: `archive/construct.ipynb` -- detailed KG construction using a lexical graph</li>
-<li>Part 2: `archive/chunk.ipynb` -- simple example of how to scrape and chunk text</li>
-<li>Part 3: `archive/vector.ipynb` -- query LanceDB table for text chunk embeddings (after running `build.py`)</li>
-<li>Part 4: `archive/embed.ipynb` -- query the entity embedding model (after running `build.py`)</li>
+<li>`archive/construct.ipynb` -- detailed KG construction using a lexical graph</li>
+<li>`archive/chunk.ipynb` -- simple example of how to scrape and chunk text</li>
+<li>`archive/vector.ipynb` -- query LanceDB table for text chunk embeddings (after running `build.py`)</li>
+<li>`archive/embed.ipynb` -- query the entity embedding model (after running `build.py`)</li>
 </ul>
 
 <p>
