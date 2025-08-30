@@ -243,7 +243,7 @@ the latter first-class citizens within the KG.
                         domain_context.sem_layer.add_edge(
                             node_id,
                             taxo_node_id,
-                            key = "RDF:Type",
+                            key = "RDF:type",
                             weight = 0.0
                         )
 

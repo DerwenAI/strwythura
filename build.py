@@ -18,9 +18,13 @@ from strwythura import DomainContext, PerfProfiler, Strwythura, VisHTML
 
 
 if __name__ == "__main__":
-    # start the performance profiling
-    profiler: PerfProfiler = PerfProfiler()
-    profiler.start()
+    # disable this during certain forms of debugging
+    analyze: bool = False
+
+    if analyze:
+        # start the performance profiling
+        profiler: PerfProfiler = PerfProfiler()
+        profiler.start()
 
     # construct the KG and build the assets for running GraphRAG later
     url_list: typing.List[ str ] = [
@@ -51,5 +55,6 @@ if __name__ == "__main__":
     # serialize the assets to be reused later
     domain.save_assets()
 
-    # report the performance profiler stats
-    profiler.report()
+    if analyze:
+        # report the performance profiler stats
+        profiler.report()

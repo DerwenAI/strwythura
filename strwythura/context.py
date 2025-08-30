@@ -11,9 +11,11 @@ from collections import defaultdict
 import json
 import math
 import pathlib
+import sys
 import typing
 
-from rdflib.namespace import DCTERMS, RDF, SKOS
+from icecream import ic
+from rdflib.namespace import NamespaceManager, DCTERMS, RDF, SKOS
 import gensim  # type: ignore
 import lancedb  # type: ignore
 import networkx as nx
@@ -175,16 +177,6 @@ Lookup a `skos:Concept` entity by its IRI.
         return concept_iri
 
 
-    def abbrev_concept (
-        self,
-        concept_iri: rdflib.term.Node,
-        ) -> str:
-        """
-Abbreviate a `skos:Concept` entity's IRI with the vocabulary prefix.
-        """
-        return concept_iri.toPython().replace(self.IRI_BASE, self.IRI_PREFIX)  # type: ignore
-
-
     def rel_iri (
         self,
         rel: StrwVocab,
@@ -197,12 +189,12 @@ Accessor to construct a `URIRef` for a relation within the `strw:` vocabulary.
         )
 
 
-    def populate_taxonomy_node (
+    def populate_taxo_node (
         self,
         concept_iri: rdflib.term.URIRef,
         ) -> typing.Tuple[ int, str, dict ]:
         """
-Get the attributes for a `skos:Concept` entity.
+Populate a semantic layer node from a `skos:Concept` entity in the taxonomy.
         """
         lemma_phrase_iri: rdflib.term.URIRef = self.rel_iri(StrwVocab.LEMMA_PHRASE)
 
@@ -215,7 +207,7 @@ Get the attributes for a `skos:Concept` entity.
         self.add_lemma(lemma_key)
 
         node_id: int = self.get_lemma_index(lemma_key)
-        label: str = self.abbrev_concept(concept_iri)
+        label: str = concept_iri.n3(self.rdf_graph.namespace_manager)
         self.taxo_node[label] = node_id
 
         text: str = self.rdf_graph.value(
@@ -281,7 +273,7 @@ Iterate through `skos:Concept` entities, loading into `NetworkX`
 
         # first pass: populate nodes for the `skos:Concept` entities
         for concept_iri in self.rdf_graph.subjects(RDF.type, SKOS.Concept):
-            node_id, lemma_key, attr = self.populate_taxonomy_node(concept_iri)  # type: ignore
+            node_id, lemma_key, attr = self.populate_taxo_node(concept_iri)  # type: ignore
             node_map[lemma_key] = node_id
             attr_map[node_id] = attr
 
@@ -301,6 +293,45 @@ Iterate through `skos:Concept` entities, loading into `NetworkX`
                     )
 
 
+    def populate_er_node (
+        self,
+        er_graph: rdflib.Graph,
+        entity_iri: rdflib.term.URIRef,
+        ) -> int:
+        """
+Populate a semantic layer node from an ER entity.
+        """
+        lemma_phrase_iri: rdflib.term.URIRef = self.rel_iri(StrwVocab.LEMMA_PHRASE)
+
+        lemmas: typing.List[ str ] = [
+            lemma.toPython()
+            for lemma in er_graph.objects(entity_iri, lemma_phrase_iri)
+        ]
+
+        lemma_key: str = lemmas[0]
+        self.add_lemma(lemma_key)
+        node_id: int = self.get_lemma_index(lemma_key)
+        label: str = entity_iri.n3(er_graph.namespace_manager)
+
+        text: str = er_graph.value(
+            entity_iri,
+            SKOS.prefLabel,
+        ).toPython()  # type: ignore
+
+        self.sem_layer.add_node(
+            node_id,
+            kind = NodeKind.ENTITY.value,
+            key = lemma_key,
+            label = label,
+            text = text,
+            iri = entity_iri,
+            rank = 0.0,
+            count = 1,
+        )
+
+        return node_id
+
+
     def load_er_thesaurus (
         self,
         ) -> None:
@@ -309,6 +340,8 @@ Iterate through the _entity resolution_ results, adding a
 domain-specific thesaurus of entities and relations into the
 semantic layer.
         """
+        node_map: typing.Dict[ str, int ] = {}
+
         # load the ER triples into their own graph, to extrant and
         # link the known lemmas (i.e., the synonyms in the thesaurus)
         er_path: pathlib.Path = pathlib.Path(self.config["er"]["export_path"])
@@ -320,18 +353,53 @@ semantic layer.
         )
 
         # first iterate through the data records, loading lemma keys
+        # and populating nodes in the semantic layer
         lemma_phrase_iri: rdflib.term.URIRef = self.rel_iri(StrwVocab.LEMMA_PHRASE)
-        concept_iri: rdflib.term.URIRef = self.lookup_concept("DataRecord")
 
-        for lemma in self.rdf_graph.objects(concept_iri, lemma_phrase_iri):
-            self.add_lemma(lemma.toPython())
+        for entity_iri in er_graph.subjects(RDF.type, self.lookup_concept("DataRecord")):
+            node_id = self.populate_er_node(er_graph, entity_iri)
+            node_map[entity_iri.n3(er_graph.namespace_manager)] = node_id
 
         # now iterate through the entities, overriding any prior lemma
         # keys from data records
-        concept_iri = self.lookup_concept("SzEntity")
+        for entity_iri in er_graph.subjects(RDF.type, self.lookup_concept("SzEntity")):
+            node_id = self.populate_er_node(er_graph, entity_iri)
+            node_map[entity_iri.n3(er_graph.namespace_manager)] = node_id
 
-        for lemma in self.rdf_graph.objects(concept_iri, lemma_phrase_iri):
-            self.add_lemma(lemma.toPython())
+        # then add SKOS relations (thesaurus synonyms and taxonymy)
+        # as edges in the semantic layer
+        for entity_iri in er_graph.subjects(RDF.type, self.lookup_concept("SzEntity")):
+            for sem_rel in [ SKOS.related, SKOS.exactMatch, SKOS.closeMatch ]:
+                for obj in er_graph.objects(entity_iri, sem_rel):
+                    src_id: int = node_map[entity_iri.n3(er_graph.namespace_manager)]
+                    dst_id: int = node_map[obj.n3(er_graph.namespace_manager)]
+
+                    if src_id != dst_id:
+                        rel_iri: str = sem_rel.n3(er_graph.namespace_manager)
+                        prob: float = 0.5
+
+                        if rel_iri in [ "skos:exactMatch" ]:
+                            prob = 1.0
+
+                        self.sem_layer.add_edge(
+                            src_id,
+                            dst_id,
+                            key = rel_iri,
+                            prob = prob,
+                        )
+
+        # also link entities to their taxonomy nodes
+        for taxo_iri in [ self.lookup_concept("Organization"), self.lookup_concept("Person") ]:
+            for entity_iri in er_graph.subjects(RDF.type, taxo_iri):
+                node_id: int = node_map[entity_iri.n3(er_graph.namespace_manager)]
+                taxo_node_id: int = self.taxo_node[taxo_iri.n3(self.rdf_graph.namespace_manager)]
+
+                self.sem_layer.add_edge(
+                    node_id,
+                    taxo_node_id,
+                    key = "RDF:type",
+                    weight = 0.0
+                )
 
         # finally, load ER triples into the semantic layer
         self.rdf_graph.parse(
@@ -362,7 +430,7 @@ Iterate through `skos:Concept` entities to extract a mapping between
 NER labels and abbreviated IRIs.
         """
         return {
-            label.toPython(): self.abbrev_concept(concept_iri)  # type: ignore
+            label.toPython(): concept_iri.n3(self.rdf_graph.namespace_manager)  # type: ignore
             for concept_iri in self.rdf_graph.subjects(RDF.type, SKOS.Concept)
             for label in self.rdf_graph.objects(concept_iri, SKOS.prefLabel, unique = True)
         }
