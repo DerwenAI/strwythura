@@ -92,7 +92,7 @@ Then to integrate this library within an application:
   1. Copy settings in `config.toml` into a custom configuration file.
   2. Subclass `DomainContext` to extend it for the use case.
   3. Define semantics in `domain.ttl` for the domain context.
-  4. Run entity resolutin on your structured data.
+  4. Run entity resolution to merge the structured datasets.
   5. Run `Ollama` and have already downloaded the Gemma3 LLM as described below.
   6. Instantiate new `DomainContext`, `Strwythura`, `VisHTML`, and `GraphRAG` objects or their subclassed extensions.
   7. ...
@@ -219,19 +219,9 @@ G2Export.py -F JSON -o /tmp/data/export.json
 exit
 ```
 
-WIP:
-
-Finally, run the `parser.py` script to represent the Senzing ER
-results as a SKOS-based thesaurus:
-
-```bash
-pushd sz_er
-poetry run python3 parser.py
-popd
-```
-
-This produces the `sz_er/er.ttl` file (RDF in "Turtle" format) which
-get used in the next part of the demo to augment the _semantic layer_.
+This will later get parsed to produce the `sz_er/er.ttl` file (RDF in
+"Turtle" format) during the next part of the demo to augment the
+_semantic layer_.
 
 </details>
 
@@ -242,7 +232,8 @@ get used in the next part of the demo to augment the _semantic layer_.
 Given as input:
 
   * `domain.ttl` -- semantics for the domain context
-  * `sz_er/er.ttl` -- a domain-specific thesaurus based on entity resolution
+  * `sz_er/export.json` -- a domain-specific thesaurus based on ER
+  * a list of structured datasets used in ER
   * a list of URLs from which to scrape content
 
 The `domain.ttl` file provides a basis for iterating with an _ontology
