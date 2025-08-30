@@ -74,6 +74,11 @@ Overall, this illustrates a reference implementation for
 _entity-resolved retrieval-augmented generation_ (ER-RAG).
 </details>
 
+---
+
+![](./docs/assets/graph_vis.png)
+
+---
 
 ## Usage in applications
 
@@ -117,8 +122,6 @@ package management, and first you need to install it. Then run:
 poetry update
 poetry run python3 -m spacy download en_core_web_md
 ```
-
-![](./docs/assets/graph_vis.png)
 
 <details>
   <summary><h2>Demo Part 1: Entity Resolution</h2></summary>
@@ -333,8 +336,11 @@ poetry run python3 curate.py
 ```
 </details>
 
+---
+
 ![](./docs/assets/q_a.1.png)
 
+---
 
 <details>
   <summary><h2>Unbundling GraphRAG</h2></summary>
