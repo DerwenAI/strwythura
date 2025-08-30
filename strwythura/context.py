@@ -30,8 +30,10 @@ class DomainContext:  # pylint: disable=R0902
 Represent the domain context using an _ontology pipeline_ process:
 vocabulary, taxonomy, thesaurus, and ontology.
     """
-    IRI_BASE: str = "https://github.com/DerwenAI/strwythura/#"
-    IRI_PREFIX: str = "strw:"
+    STRW_PREFIX: str = "strw:"
+    STRW_BASE: str = "https://github.com/DerwenAI/strwythura/#"
+
+    SZ_PREFIX: str = "sz:"
 
     POS_TRANSFORM: typing.Dict[ str, str ] = {
         "PROPN": "NOUN",
@@ -171,7 +173,7 @@ Get the primary lemma for a `skos:Concept` entity.
         """
 Lookup a `skos:Concept` entity by its IRI.
         """
-        iri: str = f"{self.IRI_BASE}{fragment}"
+        iri: str = f"{self.STRW_BASE}{fragment}"
         concept_iri: rdflib.term.URIRef = rdflib.term.URIRef(iri)
 
         return concept_iri
@@ -185,7 +187,7 @@ Lookup a `skos:Concept` entity by its IRI.
 Accessor to construct a `URIRef` for a relation within the `strw:` vocabulary.
         """
         return rdflib.term.URIRef(
-            self.IRI_BASE + rel.value.replace(self.IRI_PREFIX, "")
+            self.STRW_BASE + rel.value.replace(self.STRW_PREFIX, "")
         )
 
 
@@ -293,6 +295,193 @@ Iterate through `skos:Concept` entities, loading into `NetworkX`
                     )
 
 
+    def parse_er_export (
+        self,
+        datasets: typing.List[ str ],
+        *,
+        export_path: typing.Optional[ pathlib.Path ] = None,
+        rdf_path: typing.Optional[ pathlib.Path ] = None,
+        language: str = "en",
+        debug: bool = True,
+        ) -> None:
+        """
+Parse the Senzing entity resolution results exported as JSON.
+        """
+        if export_path is None:
+            export_path = pathlib.Path(self.config["er"]["export_path"])
+
+        if rdf_path is None:
+            rdf_path = pathlib.Path(self.config["er"]["thesaurus_path"])
+
+        rdf_list: typing.List[ str ] = [
+            """
+@prefix strw:  <https://github.com/DerwenAI/strwythura/#> .
+@prefix sz:    <https://senzing.com/#> .
+
+@prefix dct:   <http://purl.org/dc/terms/> .
+@prefix org:   <http://www.w3.org/ns/org#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+            """
+        ]
+
+        org_map: typing.Dict[ str, str ] = {}
+        parent: typing.Dict[ str, str ] = {}
+
+        simple_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])
+
+        # load the data records
+        data_records: typing.Dict[ str, dict ] = {}
+
+        for filename in datasets:
+            data_path: pathlib.Path = pathlib.Path(filename)
+
+            with open(data_path, encoding = "utf-8") as fp:
+                for line in fp:
+                    rec: dict = json.loads(line)
+                    record_id: str = self.SZ_PREFIX + rec["DATA_SOURCE"].replace(" ", "_").lower() + "_" + rec["RECORD_ID"]
+                    data_records[record_id] = rec
+
+        # parse the JSON export
+        with open(export_path, encoding = "utf-8") as fp:
+            for line in fp:
+                data: str = json.loads(line)
+
+                entity_id: str = self.SZ_PREFIX + str(data["RESOLVED_ENTITY"]["ENTITY_ID"])
+                ent_descrip: str = ""
+                ent_type: str = ""
+
+                rec_list: typing.List[ dict ] = []
+                rel_list: typing.List[ dict ] = []
+
+                for rec in data["RESOLVED_ENTITY"]["RECORDS"]:
+                    ent_descrip = rec["ENTITY_DESC"]
+
+                    record_id: str = rec["RECORD_ID"]
+                    data_source: str = rec["DATA_SOURCE"].replace(" ", "_").lower()
+                    rec_iri: str = f"{self.SZ_PREFIX}{data_source}_{record_id}"
+                    parent[rec_iri] = entity_id
+
+                    pred_iri: str = "skos:exactMatch"
+
+                    rec_list.append({
+                        "pred": pred_iri,
+                        "obj": rec_iri,
+                        "skos:prefLabel": rec["ENTITY_DESC"],
+                    })
+
+                for rel in data["RELATED_ENTITIES"]:
+                    match_key: str = rel["MATCH_KEY"]
+                    match_level: int = rel["MATCH_LEVEL"]
+                    match_code: str = rel["MATCH_LEVEL_CODE"]
+
+                    why: str = f"{match_key} {match_level}"
+                    pred_iri: str = "skos:related"
+
+                    if match_code == "POSSIBLY_SAME":
+                        pred_iri: str = "skos:closeMatch"
+
+                    rel_list.append({
+                        "pred": pred_iri,
+                        "obj": self.SZ_PREFIX + str(rel["ENTITY_ID"]),
+                        "skos:definition": why,
+                    })
+
+                ent_node: dict = {
+                    "iri": entity_id,
+                    "skos:prefLabel": ent_descrip,
+                }
+
+                if debug:
+                    ic(ent_node)
+
+                rdf_frag: str = f"{entity_id} skos:prefLabel \"{ent_descrip}\"@{language} "
+
+                lemma_key: str = self.parse_lemma(simple_pipe(ent_descrip))
+                rdf_frag += f";\n  strw:lemma_phrase \"{lemma_key}\"@{language} "
+
+                for rec_node in rec_list:
+                    dat_rec: dict = data_records[rec_node["obj"]]
+                    ent_type = dat_rec["RECORD_TYPE"]
+                    rdf_frag += f';\n  {rec_node["pred"]} {rec_node["obj"]} '
+
+                    if ent_type == "ORGANIZATION":
+                        org_map[rec_node["skos:prefLabel"]] = entity_id
+
+                for rel_node in rel_list:
+                    rdf_frag += f';\n  {rel_node["pred"]} {rel_node["obj"]} '
+
+                rdf_frag += f";\n  rdf:type strw:SzEntity, strw:{ent_type.capitalize()} "
+                rdf_frag += "\n."
+                rdf_list.append(rdf_frag)
+
+        # construct the RDF graph
+        for record_id, rec in data_records.items():
+            rec_type: str = f'strw:{rec["RECORD_TYPE"].capitalize()}'
+            name: str = ""
+            employer: str = ""
+            urls: typing.List[ str ] = []
+
+            if rec_type == "strw:Organization":
+                name = rec["NAMES"][0]["PRIMARY_NAME_ORG"]
+
+                if "LINKS" in rec:
+                    for url_dict in rec["LINKS"]:
+                        for url in url_dict.values():
+                            urls.append(url)
+
+                if "WEBSITE_ADDRESS" in rec:
+                    urls.append(rec["WEBSITE_ADDRESS"])
+
+            else:
+                if "NAME_FIRST" in rec:
+                    name = rec["NAME_FIRST"]
+
+                if "NAME_MIDDLE" in rec:
+                    name += " " + rec["NAME_MIDDLE"]
+
+                if "NAME_LAST" in rec:
+                    name += " " + rec["NAME_LAST"]
+
+                if "SOURCE_LINKS" in rec:
+                    for url_dict in rec["SOURCE_LINKS"]:
+                        for url in url_dict.values():
+                            urls.append(url)
+
+                if "EMPLOYER_NAME" in rec:
+                    org_name: str = rec["EMPLOYER_NAME"]
+
+                    if org_name in org_map:
+                        employer = org_map[org_name]
+
+            rdf_frag = f"{record_id} rdf:type strw:DataRecord, {rec_type} "
+            rdf_frag += f";\n  skos:prefLabel \"{name}\"@{language} "
+
+            lemma_key: str = self.parse_lemma(simple_pipe(name))
+            rdf_frag += f";\n  strw:lemma_phrase \"{lemma_key}\"@{language} "
+
+            for url in urls:
+                rdf_frag += f";\n  dct:identifier <{url}> "
+
+            rdf_frag += "\n."
+            rdf_list.append(rdf_frag)
+
+            if len(employer) > 0:
+                rdf_frag = f"{parent[record_id]} org:memberOf {employer} ."
+                rdf_list.append(rdf_frag)
+
+        # serialize the generated RDF file
+        with open(rdf_path, "w", encoding = "utf-8") as fp:
+            fp.write("\n".join(rdf_list))
+
+        # load the RDF graph
+        rdf_graph: rdflib.Graph = rdflib.Graph()
+        rdf_graph.parse(
+            rdf_path.as_posix(),
+            format = "turtle",
+        )
+
+
     def populate_er_node (
         self,
         er_graph: rdflib.Graph,
@@ -340,15 +529,14 @@ Populate a semantic layer node from an ER entity.
 Iterate through the _entity resolution_ results, adding a
 domain-specific thesaurus of entities and relations into the
 semantic layer.
-
-Note: for now, the structured datasets are not parsed at this level,
-though it could become quite important to do in some use cases.
         """
+        self.parse_er_export(datasets)
+
         node_map: typing.Dict[ str, int ] = {}
 
         # load the ER triples into their own graph, to extrant and
         # link the known lemmas (i.e., the synonyms in the thesaurus)
-        er_path: pathlib.Path = pathlib.Path(self.config["er"]["export_path"])
+        er_path: pathlib.Path = pathlib.Path(self.config["er"]["thesaurus_path"])
         er_graph: rdflib.Graph = rdflib.Graph()
 
         er_graph.parse(
