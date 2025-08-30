@@ -118,6 +118,7 @@ poetry update
 poetry run python3 -m spacy download en_core_web_md
 ```
 
+![](./docs/assets/graph_vis.png)
 
 <details>
   <summary><h2>Demo Part 1: Entity Resolution</h2></summary>
@@ -331,6 +332,8 @@ scraped documents.
 poetry run python3 curate.py
 ```
 </details>
+
+![](./docs/assets/q_a.1.png)
 
 
 <details>
