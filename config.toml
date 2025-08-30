@@ -1,3 +1,7 @@
+[er]
+
+export_path = "sz_er/er.ttl"
+
 [nlp]
 
 spacy_model = "en_core_web_md"
@@ -29,6 +33,11 @@ tr_lookback = 3
 domain_path = "domain.ttl"
 kg_path = "data/kg.json"
 html_path = "kg.html"
+
+[vis]
+
+html_height = "900px"
+html_width = "100%"
 
 [rag]
 

@@ -14,15 +14,26 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 import tracemalloc
 import typing
 
-from strwythura import DomainContext, PerfProfiler, Strwythura
+from strwythura import DomainContext, PerfProfiler, Strwythura, VisHTML
 
 
 if __name__ == "__main__":
-    # start the performance profiling
-    profiler: PerfProfiler = PerfProfiler()
-    profiler.start()
+    # disable this during certain forms of debugging
+    analyze: bool = True
+
+    if analyze:
+        # start the performance profiling
+        profiler: PerfProfiler = PerfProfiler()
+        profiler.start()
 
     # construct the KG and build the assets for running GraphRAG later
+    datasets: typing.List[ str ] = [
+        "sz_er/acme_biz.json",
+        "sz_er/corp_home.json",
+        "sz_er/orcid.json",
+        "sz_er/scopus.json",
+    ]
+
     url_list: typing.List[ str ] = [
         "https://aaic.alz.org/releases-2024/processed-red-meat-raises-risk-of-dementia.asp",
         "https://www.theguardian.com/society/article/2024/jul/31/eating-processed-red-meat-could-increase-risk-of-dementia-study-finds",
@@ -31,7 +42,15 @@ if __name__ == "__main__":
     ]
 
     domain: DomainContext = DomainContext()
-    strw: Strwythura = Strwythura(domain)
+
+    strw: Strwythura = Strwythura(
+        domain,
+        overwrite = True,
+    )
+
+    strw.domain_context.load_er_thesaurus(
+        datasets,
+    )
 
     strw.build_assets(
         url_list,
@@ -41,10 +60,12 @@ if __name__ == "__main__":
     # generate an interactive visualization in HTML
     strw.gen_visualization(
         url_list,
+        VisHTML(),
     )
 
     # serialize the assets to be reused later
-    domain.serialize_assets()
+    domain.save_assets()
 
-    # report the performance profiler stats
-    profiler.report()
+    if analyze:
+        # report the performance profiler stats
+        profiler.report()

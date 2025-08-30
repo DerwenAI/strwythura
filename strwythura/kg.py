@@ -2,20 +2,20 @@
 # -*- coding: utf-8 -*-
 
 """
-Construct the knowledge graph.
+Construct the lexical graph and condense it into a knowledge graph.
+
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
 import typing
 
 from icecream import ic  # type: ignore
-import lancedb  # type: ignore
 import networkx as nx
 import polars as pl
 import spacy
 
 from .context import DomainContext
-from .graph import Entity, TextChunk
+from .elem import Entity, NodeKind, StrwVocab, TextChunk
 from .nlp import Parser
 from .scrape import Scraper
 from .textrank import run_textrank, cooccur_entities
@@ -44,7 +44,6 @@ Constructor.
         parser: Parser,
         simple_pipe: spacy.Language,
         entity_pipe: spacy.Language,
-        chunk_table: lancedb.table.LanceTable,
         *,
         debug: bool = False,
         ) -> None:
@@ -55,7 +54,7 @@ Construct a knowledge graph from unstructured data sources.
 
         # iterate through the URL list, scraping text and building chunks
         scraper: Scraper = Scraper(self.config, parser)
-        chunk_id: int = 0
+        chunk_id: int = domain_context.start_chunk_id
 
         for url in url_list:
             # define data structures intialized for each parsed document
@@ -69,7 +68,7 @@ Construct a knowledge graph from unstructured data sources.
                 chunk_id,
             )
 
-            chunk_table.add(chunk_list)
+            domain_context.chunk_table.add(chunk_list)  # type: ignore
 
             # parse each chunk to build a lexical graph per source URL
             for chunk in chunk_list:
@@ -105,6 +104,7 @@ Construct a knowledge graph from unstructured data sources.
 
                 for span in doc.ents:
                     self.make_entity(
+                        domain_context,
                         span_decoder,
                         sent_map,
                         span,
@@ -115,6 +115,7 @@ Construct a knowledge graph from unstructured data sources.
 
                 for span in doc.noun_chunks:
                     self.make_entity(
+                        domain_context,
                         span_decoder,
                         sent_map,
                         span,
@@ -143,7 +144,7 @@ Construct a knowledge graph from unstructured data sources.
                     span_decoder,
                 )
 
-                domain_context.add_w2v_vectors(span_decoder)
+                domain_context.add_entity_sequence(span_decoder)
 
             # apply _textrank_ to the graph (in the url/doc iteration)
             # then report the top-ranked extracted entities
@@ -190,9 +191,9 @@ the latter first-class citizens within the KG.
         kept_nodes: typing.Set[ int ] = set()
 
         skipped_rel: typing.Set[ str ] = set([
-            "strw:co_occurs_with",
-            "strw:compound_element_of",
-            "strw:follows_lexically",
+            StrwVocab.CO_OCCURS_WITH.value,
+            StrwVocab.COMPOUND_ELEM_OF.value,
+            StrwVocab.FOLLOWS_LEXICALLY.value,
         ])
 
         chunk_nodes: typing.Dict[ int, str ] = {
@@ -203,20 +204,20 @@ the latter first-class citizens within the KG.
         for chunk_id, node_id in chunk_nodes.items():
             domain_context.sem_layer.add_node(
                 node_id,
-                kind = "Chunk",
+                kind = NodeKind.CHUNK.value,
                 chunk = chunk_id,
                 url = url,
             )
 
         for node_id, node_attr in lex_graph.nodes(data = True):
-            if node_attr["kind"] == "Entity":
+            if node_attr["kind"] == NodeKind.ENTITY.value:
                 kept_nodes.add(node_id)
                 count: int = node_attr["count"]
 
                 if not domain_context.sem_layer.has_node(node_id):
                     domain_context.sem_layer.add_node(
                         node_id,
-                        kind = "Entity",
+                        kind = NodeKind.ENTITY.value,
                         key = node_attr["key"],
                         text = node_attr["text"],
                         label = node_attr["label"],
@@ -229,7 +230,7 @@ the latter first-class citizens within the KG.
                 domain_context.sem_layer.add_edge(
                     node_id,
                     chunk_nodes[node_attr["chunk"]],
-                    key = "strw:within",
+                    key = StrwVocab.WITHIN_CHUNK.value,
                     weight = round(node_attr["rank"], 4),
                 )
 
@@ -242,7 +243,7 @@ the latter first-class citizens within the KG.
                         domain_context.sem_layer.add_edge(
                             node_id,
                             taxo_node_id,
-                            key = "RDF:Type",
+                            key = "RDF:type",
                             weight = 0.0
                         )
 
@@ -270,6 +271,7 @@ the latter first-class citizens within the KG.
 
     def make_entity (  # pylint: disable=R0913,R0917
         self,
+        domain_context: DomainContext,
         span_decoder: typing.Dict[ tuple, Entity ],
         sent_map: typing.Dict[ spacy.tokens.span.Span, int ],  # pylint: disable=I1101
         span: spacy.tokens.span.Span,  # pylint: disable=I1101
@@ -281,14 +283,11 @@ the latter first-class citizens within the KG.
         """
 Instantiate one `Entity` object, adding to our working "vocabulary".
         """
-        key: str = " ".join([
-            tok.pos_ + "." + tok.lemma_.strip().lower()
-            for tok in span
-        ])
+        lemma_key: str = domain_context.parse_lemma(span)
 
         ent: Entity = Entity(
             ( span.start, span.end, ),
-            key,
+            lemma_key,
             span.text,
             label,
             chunk.uid,
@@ -325,7 +324,7 @@ Link one `Entity` into this doc's lexical graph.
             lex_graph.add_node(
                 node_id,
                 key = ent.key,
-                kind = "Entity",
+                kind = NodeKind.ENTITY.value,
                 label = ent.label,
                 pos = "NP",
                 text = ent.text,
@@ -334,21 +333,21 @@ Link one `Entity` into this doc's lexical graph.
             )
 
             for tok in ent.span:
-                tok_key: str = tok.pos_ + "." + tok.lemma_.strip().lower()
+                tok_lemma_key: str = domain_context.parse_lemma([ tok ])
 
-                if tok_key in domain_context.known_lemma:
-                    tok_idx: int = domain_context.get_lemma_index(tok_key)
+                if tok_lemma_key in domain_context.known_lemma:
+                    tok_idx: int = domain_context.get_lemma_index(tok_lemma_key)
 
                     lex_graph.add_edge(
                         node_id,
                         tok_idx,
-                        key = "strw:compound_element_of",
+                        key = StrwVocab.COMPOUND_ELEM_OF.value,
                     )
 
         if prev_known:
             # promote a previous Lemma node to an Entity
             node: dict = lex_graph.nodes[node_id]
-            node["kind"] = "Entity"
+            node["kind"] = NodeKind.ENTITY.value
             node["chunk"] = ent.chunk_id
             node["count"] += 1
 

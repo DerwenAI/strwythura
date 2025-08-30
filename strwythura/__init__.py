@@ -3,12 +3,13 @@
 
 """
 Package definitions for Strwythura.
+
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
 from .context import DomainContext
 
-from .graph import Entity, TextChunk
+from .elem import Entity, NodeKind, StrwVocab, TextChunk
 
 from .kg import KnowledgeGraph
 
@@ -24,4 +25,4 @@ from .strw import Strwythura, GraphRAG
 
 from .textrank import run_textrank, cooccur_entities
 
-from .vis import gen_pyvis
+from .vis import VisHTML

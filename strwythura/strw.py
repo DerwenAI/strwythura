@@ -3,11 +3,11 @@
 
 """
 Builds assets for constructing a KG, then running GraphRAG downstream.
+
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
 import itertools
-import json
 import logging
 import os
 import pathlib
@@ -17,20 +17,18 @@ import typing
 import warnings
 
 from icecream import ic  # type: ignore
-import gensim  # type: ignore
-import lancedb  # type: ignore
 import networkx as nx
 import polars as pl
 import spacy
-import transformers
+import transformers  # type: ignore
 
 from .baml_client import b
 from .baml_client import types as baml_types
 from .context import DomainContext
-from .graph import TextChunk
+from .elem import NodeKind
 from .kg import KnowledgeGraph
 from .nlp import Parser
-from .vis import gen_pyvis
+from .vis import VisHTML
 
 
 class Strwythura:  # pylint: disable=R0902
@@ -43,6 +41,7 @@ Builds assets for constructing a KG, then running GraphRAG downstream.
         domain_context: DomainContext,
         *,
         config_path: pathlib.Path = pathlib.Path("config.toml"),
+        overwrite: bool = False,
         ) -> None:
         """
 Constructor.
@@ -68,17 +67,21 @@ Constructor.
         #ic(loggers)
 
         # initialize the data structures used for assets
-        self.domain_context: DomainContext = domain_context
-        self.domain_context.set_config(self.config)
-        self.domain_context.load_taxonomy()
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
+            self.domain_context: DomainContext = domain_context
+            self.domain_context.set_config(self.config)
+
+            if overwrite:
+                self.domain_context.init_chunk_table()
+                self.domain_context.load_taxonomy()
+
             self.parser: Parser = Parser(self.config)
             self.simple_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])
-            self.entity_pipe: typing.Optional[ spacy.Language ] = None
-            self.chunk_table: typing.Optional[ lancedb.table.LanceTable ] = None
+            self.entity_pipe: spacy.Language = self.parser.build_entity_pipe(
+                self.domain_context.get_ner_labels()
+            )
 
 
     def build_assets (
@@ -90,26 +93,11 @@ Constructor.
         """
 Builds assets for constructing a KG.
         """
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
+        try:
+            kg: KnowledgeGraph = KnowledgeGraph(self.config)
 
-            try:
-                # given the NER labels, build the `spaCy` pipe
-                self.entity_pipe = self.parser.build_entity_pipe(
-                    self.domain_context.get_ner_labels()
-                )
-
-                # initialize the chunk table
-                vect_db: lancedb.db.LanceDBConnection = lancedb.connect(self.config["vect"]["lancedb_uri"])  # pylint: disable=C0301
-
-                self.chunk_table = vect_db.create_table(
-                    self.config["vect"]["chunk_table"],
-                    schema = TextChunk,
-                    mode = "overwrite",
-                )
-
-                # construct the graph
-                kg: KnowledgeGraph = KnowledgeGraph(self.config)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
 
                 kg.build_graph(
                     url_list,
@@ -117,63 +105,33 @@ Builds assets for constructing a KG.
                     self.parser,
                     self.simple_pipe,
                     self.entity_pipe,
-                    self.chunk_table,
                     debug = debug,
                 )
 
-            except Exception as ex:  # pylint: disable=W0718
-                ic(ex)
-                traceback.print_exc()
+        except Exception as ex:  # pylint: disable=W0718
+            ic(ex)
+            traceback.print_exc()
 
 
     def gen_visualization (
         self,
         url_list: typing.List[ str ],
+        vis_html: VisHTML,
         *,
         html_path: typing.Optional[ pathlib.Path ] = None,
         ) -> None:
         """
-Generate HTML for an interactive visualization of the graph, based on `PyVis`
+Generate HTML for an interactive visualization of the graph.
         """
         if html_path is None:
             html_path = pathlib.Path(self.config["kg"]["html_path"])
 
-        gen_pyvis(
-            self.domain_context.sem_layer,
+        vis_html.set_config(self.config)
+
+        vis_html.gen_vis_html(
             html_path.as_posix(),
-            num_docs = len(url_list),
-        )
-
-
-    def load_assets (
-        self,
-        *,
-        kg_path: typing.Optional[ pathlib.Path ] = None,
-        w2v_path: typing.Optional[ pathlib.Path ] = None,
-        ) -> None:
-        """
-Load the serialized assets for a constructed KG.
-        """
-        vect_db: lancedb.db.LanceDBConnection = lancedb.connect(self.config["vect"]["lancedb_uri"])
-        self.chunk_table = vect_db.open_table(self.config["vect"]["chunk_table"])
-
-        if w2v_path is None:
-            w2v_path = pathlib.Path(self.config["ent"]["w2v_path"])
-
-        self.domain_context.w2v_model = gensim.models.Word2Vec.load(w2v_path.as_posix())
-
-        if kg_path is None:
-            kg_path = pathlib.Path(self.config["kg"]["kg_path"])
-
-        with pathlib.Path(kg_path).open("r", encoding = "utf-8") as fp:
-            self.domain_context.sem_layer = nx.node_link_graph(
-                json.load(fp),
-                edges = "edges",
-            )
-
-        # build the `spaCy` pipe, no need for input URL list
-        self.entity_pipe = self.parser.build_entity_pipe(
-            self.domain_context.get_ner_labels()
+            self.domain_context.vis_nodes(len(url_list)),
+            self.domain_context.vis_edges(),
         )
 
 
@@ -197,22 +155,24 @@ Constructor.
     def find_entities (
         self,
         question: str,
+        *,
+        debug: bool = False,
         ) -> typing.Iterator[ str ]:
         """
-Extract entity spans from a text question.
+Extract entity spans from a text question, generating their lemma keys.
         """
         doc: spacy.tokens.doc.Doc = self.strw.entity_pipe(question)  # type: ignore  # pylint: disable=I1101
 
         for span in doc.ents:
-            key: str = " ".join([
-                tok.pos_ + "." + tok.lemma_.strip().lower()
-                for tok in span
-            ])
+            lemma_key: str = self.strw.domain_context.parse_lemma(span)
 
-            yield key
+            if debug:
+                ic(span, lemma_key)
+
+            yield lemma_key
 
 
-    def get_chunks (  # pylint: disable=R0914
+    def get_chunks (  # pylint: disable=R0912,R0914
         self,
         question: str,
         *,
@@ -222,6 +182,8 @@ Extract entity spans from a text question.
         """
 Run semantic search to produce a set of text chunks.
         """
+        chunk_ids: typing.List[ int ] = []
+
         if num_chunks is None:
             num_chunks = self.strw.config["rag"]["num_chunks"]
 
@@ -261,26 +223,28 @@ Run semantic search to produce a set of text chunks.
         if debug:
             ic(anchor_nodes)
 
-        # extract a subgraph based on shortest paths between anchor nodes
-        node_iter: typing.Iterator[ int ] = self.extract_subgraph(
-            anchor_nodes,
-            debug = debug,
-        )
+        # trap edge cases where there is no connected subgraph
+        try:
+            # extract a subgraph based on shortest paths between anchor nodes
+            node_iter: typing.Iterator[ int ] = self.extract_subgraph(
+                anchor_nodes,
+                debug = debug,
+            )
 
-        # extract the chunk neighbors
-        chunk_iter: typing.Iterator[ int ] = self.extract_chunk_neighbors(
-            list(node_iter),
-            debug = debug,
-        )
+            # extract the chunk neighbors
+            chunk_iter: typing.Iterator[ int ] = self.extract_chunk_neighbors(
+                list(node_iter),
+                debug = debug,
+            )
 
-        chunk_ids: typing.List[ int ] = []
-
-        for chunk_id in chunk_iter:
-            if chunk_id not in chunk_ids:
-                chunk_ids.append(chunk_id)
+            for chunk_id in chunk_iter:
+                if chunk_id not in chunk_ids:
+                    chunk_ids.append(chunk_id)
+        except nx.exception.NetworkXNoPath:
+            pass
 
         # enumerate chunks from a vector search -- the basic RAG process
-        df_ann_chunk: pl.DataFrame = self.strw.chunk_table.search(  # type: ignore
+        df_ann_chunk: pl.DataFrame = self.strw.domain_context.chunk_table.search(  # type: ignore
             question
         ).limit(
             num_chunks
@@ -299,7 +263,7 @@ Run semantic search to produce a set of text chunks.
         id_list: str = ", ".join([ str(c_id) for c_id in chunk_ids ])
         filter_term: str = f"uid IN ({id_list})"
 
-        chunks: typing.List[ str ] = self.strw.chunk_table.search().where(  # type: ignore
+        chunks: typing.List[ str ] = self.strw.domain_context.chunk_table.search().where(  # type: ignore  # pylint: disable=C0301
             filter_term
         ).select(
             [ "text" ]
@@ -387,7 +351,7 @@ Find the neighboring chunks for each _anchor node_ in the given list.
             for neighbor in self.strw.domain_context.sem_layer.neighbors(node):
                 dat: dict = self.strw.domain_context.sem_layer.nodes[neighbor]
 
-                if dat["kind"] == "Chunk":
+                if dat["kind"] == NodeKind.CHUNK.value:
                     if debug:
                         ic(neighbor, dat)
 

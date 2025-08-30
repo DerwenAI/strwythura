@@ -1,0 +1,379 @@
+
+@prefix strw:  <https://github.com/DerwenAI/strwythura/#> .
+@prefix sz:    <https://senzing.com/#> .
+
+@prefix dct:   <http://purl.org/dc/terms/> .
+@prefix org:   <http://www.w3.org/ns/org#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+        
+sz:1 skos:prefLabel "American Academy Of Neurology"@en ;
+  strw:lemma_phrase "NOUN.american NOUN.academy ADP.of NOUN.neurology"@en ;
+  skos:exactMatch sz:acme_biz_098850c51f22a03dd03170449bdd21aa04eadc81 ;
+  skos:closeMatch sz:100002 ;
+  rdf:type strw:SzEntity, strw:Organization 
+.
+sz:2 skos:prefLabel "ALZHEIMER ASSOCIATION"@en ;
+  strw:lemma_phrase "NOUN.alzheimer NOUN.association"@en ;
+  skos:exactMatch sz:acme_biz_b4974268e2005df811b43bd3c8f44b15501184ce ;
+  skos:exactMatch sz:acme_biz_0b99625078a8b62b75ab65205e2c90e115e189dd ;
+  rdf:type strw:SzEntity, strw:Organization 
+.
+sz:4 skos:prefLabel "Alzheimer's Society"@en ;
+  strw:lemma_phrase "NOUN.alzheimer PART.'s NOUN.society"@en ;
+  skos:exactMatch sz:acme_biz_6dddfdf2d8c32aee1c5400d09453038f5b39dcd6 ;
+  skos:closeMatch sz:100003 ;
+  rdf:type strw:SzEntity, strw:Organization 
+.
+sz:5 skos:prefLabel "HARVARD MEDICAL SCHOOL"@en ;
+  strw:lemma_phrase "NOUN.harvard NOUN.medical NOUN.school"@en ;
+  skos:exactMatch sz:acme_biz_1efa59cbd184c4f667ee3413bce341375beb4c77 ;
+  skos:related sz:6 ;
+  rdf:type strw:SzEntity, strw:Organization 
+.
+sz:6 skos:prefLabel "Harvard T.H. Chan School of Public Health"@en ;
+  strw:lemma_phrase "NOUN.harvard NOUN.t.h. NOUN.chan NOUN.school ADP.of NOUN.public NOUN.health"@en ;
+  skos:exactMatch sz:acme_biz_44e2faaa75f90e35941602237666459fe8e92998 ;
+  skos:related sz:5 ;
+  rdf:type strw:SzEntity, strw:Organization 
+.
+sz:7 skos:prefLabel "THE BRIGHAM AND WOMEN'S HOSPITAL, INC"@en ;
+  strw:lemma_phrase "DET.the NOUN.brigham CCONJ.and NOUN.women NOUN.'s NOUN.hospital PUNCT., NOUN.inc"@en ;
+  skos:exactMatch sz:acme_biz_cea6f9d5e3b41da38a6b67821bfd2ee1585e7c73 ;
+  skos:exactMatch sz:corp_home_c93e46f78a666a907da1b28d70b390ab3f18857b ;
+  rdf:type strw:SzEntity, strw:Organization 
+.
+sz:8 skos:prefLabel "Mass General Brigham Incorporated"@en ;
+  strw:lemma_phrase "NOUN.mass NOUN.general NOUN.brigham NOUN.incorporated"@en ;
+  skos:exactMatch sz:acme_biz_88df8fb7d1b2f64b8d76a71a5c24659198f96913 ;
+  rdf:type strw:SzEntity, strw:Organization 
+.
+sz:9 skos:prefLabel "National Institutes Of Health"@en ;
+  strw:lemma_phrase "NOUN.national NOUN.institutes ADP.of NOUN.health"@en ;
+  skos:exactMatch sz:acme_biz_9ca58a29f1de47099ea6d9abcabe7f3faa0aad62 ;
+  rdf:type strw:SzEntity, strw:Organization 
+.
+sz:100001 skos:prefLabel "Massachusetts General Hospital affiliated with Harvard Medical School (USA)"@en ;
+  strw:lemma_phrase "NOUN.massachusetts NOUN.general NOUN.hospital VERB.affiliate ADP.with NOUN.harvard NOUN.medical NOUN.school PUNCT.( NOUN.usa PUNCT.)"@en ;
+  skos:exactMatch sz:corp_home_d22ab57d3ffe369f3ac518d2340859e45d78a952 ;
+  rdf:type strw:SzEntity, strw:Organization 
+.
+sz:100002 skos:prefLabel "American Academy of Neurology"@en ;
+  strw:lemma_phrase "NOUN.american NOUN.academy ADP.of NOUN.neurology"@en ;
+  skos:exactMatch sz:corp_home_6808e74b5a93e716883989204e8aa33d8549bb19 ;
+  skos:closeMatch sz:1 ;
+  rdf:type strw:SzEntity, strw:Organization 
+.
+sz:100003 skos:prefLabel "ALZHEIMER'S SOCIETY, INC"@en ;
+  strw:lemma_phrase "NOUN.alzheimer NOUN.'s NOUN.society PUNCT., NOUN.inc"@en ;
+  skos:exactMatch sz:corp_home_9ab2b039f5040145d24dba9337d6da98356b77ca ;
+  skos:closeMatch sz:4 ;
+  rdf:type strw:SzEntity, strw:Organization 
+.
+sz:200001 skos:prefLabel "Heather A Eliassen"@en ;
+  strw:lemma_phrase "NOUN.heather NOUN.a NOUN.eliassen"@en ;
+  skos:exactMatch sz:orcid_ab5b81a14b6d485138583c310509b3b2ee828c8a ;
+  skos:closeMatch sz:300005 ;
+  skos:related sz:200004 ;
+  skos:related sz:200008 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:200002 skos:prefLabel "Yuxi Liu"@en ;
+  strw:lemma_phrase "NOUN.yuxi NOUN.liu"@en ;
+  skos:exactMatch sz:orcid_bf9b9277617f86e26f824699723d14efee656de9 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:200003 skos:prefLabel "Molin Wang"@en ;
+  strw:lemma_phrase "NOUN.molin NOUN.wang"@en ;
+  skos:exactMatch sz:orcid_36dffba39f02756d2f1b7915b38bfc4ac8f3f24b ;
+  skos:closeMatch sz:300010 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:200004 skos:prefLabel "Meir Stampfer"@en ;
+  strw:lemma_phrase "NOUN.meir NOUN.stampfer"@en ;
+  skos:exactMatch sz:orcid_6e1268c73ef24dd746dc605c3329953d0b0c2deb ;
+  skos:closeMatch sz:300008 ;
+  skos:related sz:200001 ;
+  skos:related sz:200008 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:200005 skos:prefLabel "Yanping Li"@en ;
+  strw:lemma_phrase "NOUN.yanping NOUN.li"@en ;
+  skos:exactMatch sz:orcid_c72e477f81e0baea09083a6a4bde9f9619c51fc3 ;
+  skos:closeMatch sz:300011 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:200006 skos:prefLabel "Danyue Dong"@en ;
+  strw:lemma_phrase "NOUN.danyue NOUN.dong"@en ;
+  skos:exactMatch sz:orcid_538044ce68b4e7f21a0e7a2352df8ab5c89c4e69 ;
+  skos:related sz:200007 ;
+  skos:related sz:300008 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:200007 skos:prefLabel "Jae-hee Kang"@en ;
+  strw:lemma_phrase "NOUN.jae PUNCT.- NOUN.hee NOUN.kang"@en ;
+  skos:exactMatch sz:orcid_a7af98342e7aead9f07e1581cc7785cb2015f38a ;
+  skos:exactMatch sz:scopus_c408d9d03aca5127a22efe55546d999ac8f1006a ;
+  skos:related sz:200006 ;
+  skos:related sz:300008 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:200008 skos:prefLabel "Walter Willett"@en ;
+  strw:lemma_phrase "NOUN.walter NOUN.willett"@en ;
+  skos:exactMatch sz:orcid_571f5fdd019d0491b230d5c362f77a8d2fcf0858 ;
+  skos:closeMatch sz:300006 ;
+  skos:related sz:200001 ;
+  skos:related sz:200004 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:200009 skos:prefLabel "Dong Wang"@en ;
+  strw:lemma_phrase "NOUN.dong NOUN.wang"@en ;
+  skos:exactMatch sz:orcid_8207753bd1d19b5d408f0e90ca9c119efa666c58 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:300001 skos:prefLabel "Yuhan Li"@en ;
+  strw:lemma_phrase "NOUN.yuhan NOUN.li"@en ;
+  skos:exactMatch sz:scopus_6113267021879514491345e3bedd54df7e8cd84a ;
+  skos:related sz:300010 ;
+  skos:related sz:300011 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:300002 skos:prefLabel "Heather M Snyder"@en ;
+  strw:lemma_phrase "NOUN.heather NOUN.m NOUN.snyder"@en ;
+  skos:exactMatch sz:scopus_76e7bbb0d99eb061e0dc0ce1f390423c009202f3 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:300003 skos:prefLabel "Daniel D Wang"@en ;
+  strw:lemma_phrase "NOUN.daniel NOUN.d NOUN.wang"@en ;
+  skos:exactMatch sz:scopus_edd2e7ea0142fad604d05b2f4b5c0dad1ca8c150 ;
+  skos:related sz:300005 ;
+  skos:related sz:300006 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:300004 skos:prefLabel "Richard J Oakley"@en ;
+  strw:lemma_phrase "NOUN.richard NOUN.j NOUN.oakley"@en ;
+  skos:exactMatch sz:scopus_47fd6397346666713a0fefeacf290ef9af25b14d ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:300005 skos:prefLabel "Heather A Eliassen"@en ;
+  strw:lemma_phrase "NOUN.heather NOUN.a NOUN.eliassen"@en ;
+  skos:exactMatch sz:scopus_8006f5c41f56b23b220108231f75e7dd3562541d ;
+  skos:closeMatch sz:200001 ;
+  skos:related sz:300003 ;
+  skos:related sz:300006 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:300006 skos:prefLabel "Walter Churchill Willett"@en ;
+  strw:lemma_phrase "NOUN.walter NOUN.churchill NOUN.willett"@en ;
+  skos:exactMatch sz:scopus_fe19e928b304fc4ef9c15e24143e74928f36fa3b ;
+  skos:closeMatch sz:200008 ;
+  skos:related sz:300003 ;
+  skos:related sz:300005 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:300008 skos:prefLabel "Meir J Stampfer"@en ;
+  strw:lemma_phrase "NOUN.meir NOUN.j NOUN.stampfer"@en ;
+  skos:exactMatch sz:scopus_887370331f6827afdf318eb5cdb8e9c446bb2578 ;
+  skos:closeMatch sz:200004 ;
+  skos:related sz:200006 ;
+  skos:related sz:200007 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:300009 skos:prefLabel "Xiaohong Gu"@en ;
+  strw:lemma_phrase "NOUN.xiaohong NOUN.gu"@en ;
+  skos:exactMatch sz:scopus_cf3bb2b3becaa186123fb65ab297b2a98d8b2a25 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:300010 skos:prefLabel "Molin Wang"@en ;
+  strw:lemma_phrase "NOUN.molin NOUN.wang"@en ;
+  skos:exactMatch sz:scopus_f88251247a4db62683dda14a9bb9a34ab6ec5346 ;
+  skos:closeMatch sz:200003 ;
+  skos:related sz:300001 ;
+  skos:related sz:300011 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:300011 skos:prefLabel "Yanping Li"@en ;
+  strw:lemma_phrase "NOUN.yanping NOUN.li"@en ;
+  skos:exactMatch sz:scopus_d75a301c558f4aac23163d8314f3ed5ba4ad7a1f ;
+  skos:closeMatch sz:200005 ;
+  skos:related sz:300001 ;
+  skos:related sz:300010 ;
+  rdf:type strw:SzEntity, strw:Person 
+.
+sz:acme_biz_098850c51f22a03dd03170449bdd21aa04eadc81 rdf:type strw:DataRecord, strw:Organization ;
+  skos:prefLabel "American Academy Of Neurology"@en ;
+  strw:lemma_phrase "NOUN.american NOUN.academy ADP.of NOUN.neurology"@en ;
+  dct:identifier <https://www.dnb.com/business-directory/company-profiles.american_academy_of_neurology.6bcbda77a7ce131dc0a3cf8cd1dcc509.html> ;
+  dct:identifier <https://www.aan.com/> 
+.
+sz:acme_biz_b4974268e2005df811b43bd3c8f44b15501184ce rdf:type strw:DataRecord, strw:Organization ;
+  skos:prefLabel "ALZHEIMER ASSOCIATION"@en ;
+  strw:lemma_phrase "NOUN.alzheimer NOUN.association"@en ;
+  dct:identifier <https://www.dnb.com/business-directory/company-profiles.alzheimer_association.a356de6bbc6e48a378af50fa9ad3cf47.html> ;
+  dct:identifier <https://www.alz.org/> 
+.
+sz:acme_biz_0b99625078a8b62b75ab65205e2c90e115e189dd rdf:type strw:DataRecord, strw:Organization ;
+  skos:prefLabel "ALZHEIMER ASSOCIATION"@en ;
+  strw:lemma_phrase "NOUN.alzheimer NOUN.association"@en ;
+  dct:identifier <https://www.dnb.com/business-directory/company-profiles.alzheimers_association.871c8b05f9111fc253322e7b95d5af34.html> ;
+  dct:identifier <https://www.alz.org/> 
+.
+sz:acme_biz_6dddfdf2d8c32aee1c5400d09453038f5b39dcd6 rdf:type strw:DataRecord, strw:Organization ;
+  skos:prefLabel "Alzheimer's Society"@en ;
+  strw:lemma_phrase "NOUN.alzheimer PART.'s NOUN.society"@en ;
+  dct:identifier <https://www.dnb.com/business-directory/company-profiles.alzheimers_society.7c2be519bc8cdda1a8bbdf91d1fb4b43.html> ;
+  dct:identifier <https://www.alzheimers.org.uk/> 
+.
+sz:acme_biz_1efa59cbd184c4f667ee3413bce341375beb4c77 rdf:type strw:DataRecord, strw:Organization ;
+  skos:prefLabel "HARVARD MEDICAL SCHOOL"@en ;
+  strw:lemma_phrase "NOUN.harvard NOUN.medical NOUN.school"@en ;
+  dct:identifier <https://www.dnb.com/business-directory/company-profiles.harvard_medical_school.49c6b7f0cc27e39c780f6e27c8493c5c.html> ;
+  dct:identifier <https://www.harvard.edu/> 
+.
+sz:acme_biz_44e2faaa75f90e35941602237666459fe8e92998 rdf:type strw:DataRecord, strw:Organization ;
+  skos:prefLabel "Harvard T.H. Chan School of Public Health"@en ;
+  strw:lemma_phrase "NOUN.harvard NOUN.t.h. NOUN.chan NOUN.school ADP.of NOUN.public NOUN.health"@en ;
+  dct:identifier <https://www.dnb.com/business-directory/company-profiles.harvard_th_chan_school_of_public_health.160836775c9f888ec4ecd4b0f1378eb6.html> ;
+  dct:identifier <https://www.harvard.edu/> 
+.
+sz:acme_biz_cea6f9d5e3b41da38a6b67821bfd2ee1585e7c73 rdf:type strw:DataRecord, strw:Organization ;
+  skos:prefLabel "The Brigham and Women's Hospital, Inc."@en ;
+  strw:lemma_phrase "DET.the NOUN.brigham CCONJ.and NOUN.women PART.'s NOUN.hospital PUNCT., NOUN.inc."@en ;
+  dct:identifier <https://www.dnb.com/business-directory/company-profiles.the_brigham_and_womens_hospital_inc.e5e165d066fc8afaa92237df7df482d8.html> ;
+  dct:identifier <https://www.brighamandwomens.org/> 
+.
+sz:acme_biz_88df8fb7d1b2f64b8d76a71a5c24659198f96913 rdf:type strw:DataRecord, strw:Organization ;
+  skos:prefLabel "Mass General Brigham Incorporated"@en ;
+  strw:lemma_phrase "NOUN.mass NOUN.general NOUN.brigham NOUN.incorporated"@en ;
+  dct:identifier <https://www.dnb.com/business-directory/company-profiles.mass_general_brigham_incorporated.6719d03a782876119a07c31349ce6f1e.html> ;
+  dct:identifier <https://www.massgeneralbrigham.org/> 
+.
+sz:acme_biz_9ca58a29f1de47099ea6d9abcabe7f3faa0aad62 rdf:type strw:DataRecord, strw:Organization ;
+  skos:prefLabel "National Institutes Of Health"@en ;
+  strw:lemma_phrase "NOUN.national NOUN.institutes ADP.of NOUN.health"@en ;
+  dct:identifier <https://www.dnb.com/business-directory/company-profiles.national_institutes_of_health.076434b132845df47f0d380c2705f472.html> ;
+  dct:identifier <https://www.nih.gov/> 
+.
+sz:corp_home_d22ab57d3ffe369f3ac518d2340859e45d78a952 rdf:type strw:DataRecord, strw:Organization ;
+  skos:prefLabel "Massachusetts General Hospital affiliated with Harvard Medical School (USA)"@en ;
+  strw:lemma_phrase "NOUN.massachusetts NOUN.general NOUN.hospital VERB.affiliate ADP.with NOUN.harvard NOUN.medical NOUN.school PUNCT.( NOUN.usa PUNCT.)"@en ;
+  dct:identifier <https://opencorporates.com/companies/us_co/20251053702> 
+.
+sz:corp_home_6808e74b5a93e716883989204e8aa33d8549bb19 rdf:type strw:DataRecord, strw:Organization ;
+  skos:prefLabel "American Academy of Neurology"@en ;
+  strw:lemma_phrase "NOUN.american NOUN.academy ADP.of NOUN.neurology"@en ;
+  dct:identifier <https://opencorporates.com/companies/us_mn/e8ee97d5-8fd4-e011-a886-001ec94ffe7f> 
+.
+sz:corp_home_9ab2b039f5040145d24dba9337d6da98356b77ca rdf:type strw:DataRecord, strw:Organization ;
+  skos:prefLabel "ALZHEIMER'S SOCIETY, INC"@en ;
+  strw:lemma_phrase "NOUN.alzheimer NOUN.'s NOUN.society PUNCT., NOUN.inc"@en ;
+  dct:identifier <https://opencorporates.com/companies/us_md/D06554489> 
+.
+sz:corp_home_c93e46f78a666a907da1b28d70b390ab3f18857b rdf:type strw:DataRecord, strw:Organization ;
+  skos:prefLabel "THE BRIGHAM AND WOMEN'S HOSPITAL, INC"@en ;
+  strw:lemma_phrase "DET.the NOUN.brigham CCONJ.and NOUN.women NOUN.'s NOUN.hospital PUNCT., NOUN.inc"@en ;
+  dct:identifier <https://opencorporates.com/companies/us_md/F16412603> 
+.
+sz:orcid_ab5b81a14b6d485138583c310509b3b2ee828c8a rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Heather A Eliassen"@en ;
+  strw:lemma_phrase "NOUN.heather NOUN.a NOUN.eliassen"@en ;
+  dct:identifier <https://orcid.org/0000-0002-3961-6609> 
+.
+sz:orcid_bf9b9277617f86e26f824699723d14efee656de9 rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Yuxi Liu"@en ;
+  strw:lemma_phrase "NOUN.yuxi NOUN.liu"@en ;
+  dct:identifier <https://orcid.org/0000-0003-2484-151X> 
+.
+sz:orcid_36dffba39f02756d2f1b7915b38bfc4ac8f3f24b rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Molin Wang"@en ;
+  strw:lemma_phrase "NOUN.molin NOUN.wang"@en ;
+  dct:identifier <https://orcid.org/0000-0003-1951-8961> 
+.
+sz:orcid_6e1268c73ef24dd746dc605c3329953d0b0c2deb rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Meir Stampfer"@en ;
+  strw:lemma_phrase "NOUN.meir NOUN.stampfer"@en ;
+  dct:identifier <https://orcid.org/0000-0001-8865-935X> 
+.
+sz:orcid_c72e477f81e0baea09083a6a4bde9f9619c51fc3 rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Yanping Li"@en ;
+  strw:lemma_phrase "NOUN.yanping NOUN.li"@en ;
+  dct:identifier <https://orcid.org/0000-0002-0412-2748> 
+.
+sz:orcid_538044ce68b4e7f21a0e7a2352df8ab5c89c4e69 rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Danyue Dong"@en ;
+  strw:lemma_phrase "NOUN.danyue NOUN.dong"@en ;
+  dct:identifier <https://orcid.org/0009-0003-3256-2876> 
+.
+sz:orcid_a7af98342e7aead9f07e1581cc7785cb2015f38a rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Jae H Kang"@en ;
+  strw:lemma_phrase "NOUN.jae NOUN.h NOUN.kang"@en ;
+  dct:identifier <https://orcid.org/0000-0003-4812-0557> 
+.
+sz:orcid_571f5fdd019d0491b230d5c362f77a8d2fcf0858 rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Walter Willett"@en ;
+  strw:lemma_phrase "NOUN.walter NOUN.willett"@en ;
+  dct:identifier <https://orcid.org/0000-0003-1458-7597> 
+.
+sz:orcid_8207753bd1d19b5d408f0e90ca9c119efa666c58 rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Dong Wang"@en ;
+  strw:lemma_phrase "NOUN.dong NOUN.wang"@en ;
+  dct:identifier <https://orcid.org/0000-0002-0897-3048> 
+.
+sz:scopus_6113267021879514491345e3bedd54df7e8cd84a rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Yuhan Li"@en ;
+  strw:lemma_phrase "NOUN.yuhan NOUN.li"@en ;
+  dct:identifier <https://www.scopus.com/authid/detail.uri?authorId=59526840200> 
+.
+sz:300001 org:memberOf sz:6 .
+sz:scopus_76e7bbb0d99eb061e0dc0ce1f390423c009202f3 rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Heather M Snyder"@en ;
+  strw:lemma_phrase "NOUN.heather NOUN.m NOUN.snyder"@en ;
+  dct:identifier <https://www.scopus.com/authid/detail.uri?authorId=7102670847> 
+.
+sz:scopus_edd2e7ea0142fad604d05b2f4b5c0dad1ca8c150 rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Daniel D Wang"@en ;
+  strw:lemma_phrase "NOUN.daniel NOUN.d NOUN.wang"@en ;
+  dct:identifier <https://www.scopus.com/authid/detail.uri?authorId=56351539800> 
+.
+sz:scopus_47fd6397346666713a0fefeacf290ef9af25b14d rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Richard J Oakley"@en ;
+  strw:lemma_phrase "NOUN.richard NOUN.j NOUN.oakley"@en ;
+  dct:identifier <https://www.scopus.com/authid/detail.uri?authorId=9940916600> 
+.
+sz:scopus_8006f5c41f56b23b220108231f75e7dd3562541d rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Heather A Eliassen"@en ;
+  strw:lemma_phrase "NOUN.heather NOUN.a NOUN.eliassen"@en ;
+  dct:identifier <https://www.scopus.com/authid/detail.uri?authorId=8067876900> 
+.
+sz:scopus_fe19e928b304fc4ef9c15e24143e74928f36fa3b rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Walter Churchill Willett"@en ;
+  strw:lemma_phrase "NOUN.walter NOUN.churchill NOUN.willett"@en ;
+  dct:identifier <https://www.scopus.com/authid/detail.uri?authorId=57205132302> 
+.
+sz:scopus_c408d9d03aca5127a22efe55546d999ac8f1006a rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Jae-hee Kang"@en ;
+  strw:lemma_phrase "NOUN.jae PUNCT.- NOUN.hee NOUN.kang"@en ;
+  dct:identifier <https://www.scopus.com/authid/detail.uri?authorId=57225852260> 
+.
+sz:scopus_887370331f6827afdf318eb5cdb8e9c446bb2578 rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Meir J Stampfer"@en ;
+  strw:lemma_phrase "NOUN.meir NOUN.j NOUN.stampfer"@en ;
+  dct:identifier <https://www.scopus.com/authid/detail.uri?authorId=55541278700> 
+.
+sz:scopus_cf3bb2b3becaa186123fb65ab297b2a98d8b2a25 rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Xiaohong Gu"@en ;
+  strw:lemma_phrase "NOUN.xiaohong NOUN.gu"@en ;
+  dct:identifier <https://www.scopus.com/authid/detail.uri?authorId=57193551845> 
+.
+sz:scopus_f88251247a4db62683dda14a9bb9a34ab6ec5346 rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Molin Wang"@en ;
+  strw:lemma_phrase "NOUN.molin NOUN.wang"@en ;
+  dct:identifier <https://www.scopus.com/authid/detail.uri?authorId=12774321000> 
+.
+sz:300010 org:memberOf sz:6 .
+sz:scopus_d75a301c558f4aac23163d8314f3ed5ba4ad7a1f rdf:type strw:DataRecord, strw:Person ;
+  skos:prefLabel "Yanping Li"@en ;
+  strw:lemma_phrase "NOUN.yanping NOUN.li"@en ;
+  dct:identifier <https://www.scopus.com/authid/detail.uri?authorId=57200572069> 
+.
+sz:300011 org:memberOf sz:6 .

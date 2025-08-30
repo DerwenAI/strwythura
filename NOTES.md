@@ -1,21 +1,12 @@
-
 ## Where do we go next?
 
-  * add a SKOS-based semantic layer, to leverage during graph algos in RAG
-    - TODO: add SKOS:Concept definitions as "chunks" in `LanceDB`
+  * run spaCY NER on ER labels
 
+  * replace RE with DSPy <https://arxiv.org/html/2502.09956v1>
   * Streamlit dashboard view of `rag.py`
-
-  * Entity linking - combine structured and unstructured sources
-
-## Code TODOs
-  - replace RE with DSPy <https://arxiv.org/html/2502.09956v1>
-
-  * back-out `pandas` replaced by `polars`:
-    - `textrank.py`
-
+  * Entity linking - combine structured and unstructured sources using Sz results as a thesaurus
+  * back-out `pandas` replaced by `polars` in `textrank.py`
   * integrate `kglab.standards` for OWL/RDFS closure and SHACL capabilities
-
   * integrate with Kuzu for graph persistence?
 
 

@@ -65,6 +65,7 @@ practices from:
 
   * _natural language processing_
   * _graph data science_
+  * _entity resolution_
   * _ontology pipeline_
   * _context engineering_
   * _human-in-the-loop_
@@ -88,15 +89,19 @@ python3 -m spacy download en_core_web_md
 
 Then to integrate this library within an application:
 
-  1. Run `Ollama` and have already downloaded the Gemma3 LLM as described below.
-  2. Copy settings in `config.toml` into a custom configuration file.
-  3. Define semantics in `domain.ttl` for the domain context of the use case.
-  4. Instantiate new `Strwythura` and `GraphRAG` objects.
+  1. Copy settings in `config.toml` into a custom configuration file.
+  2. Subclass `DomainContext` to extend it for the use case.
+  3. Define semantics in `domain.ttl` for the domain context.
+  4. Run entity resolutin on your structured data.
+  5. Run `Ollama` and have already downloaded the Gemma3 LLM as described below.
+  6. Instantiate new `DomainContext`, `Strwythura`, `VisHTML`, and `GraphRAG` objects or their subclassed extensions.
+  7. ...
+  8. Profit
 
-Follow the example patterns in `build.py` and `errag.py` respectively.
+Follow the patterns in the `build.py` and `errag.py` example scripts.
 
 If you're working with documents in a language other than English,
-well first that's absolutely fantastic. Next, you need to:
+well first that's absolutely fantastic, though next you need to:
 
   * Update model settings in the `config.toml` file.
   * Change the `spaCy` model downloaded here.
@@ -115,12 +120,130 @@ poetry run python3 -m spacy download en_core_web_md
 
 
 <details>
-  <summary><h2>Demo Part 1: Build Assets</h2></summary>
+  <summary><h2>Demo Part 1: Entity Resolution</h2></summary>
+
+Run _entity resolution_ (ER) to produce entities and relations from
+_structured data sources_, which tend to be more reliable than those
+extracted from unstructured content.
+
+What does this ER step buy us?  ER allows us to merge multiple
+structured data sets, even without consistent _foreign keys_ being
+available, producing an overlay of entities and relations among them
+-- which is useful as a "backbone" for constructing a KG. Morever
+when there are judgements being made from the KG about people or
+organizations, ER provides accountability for the merge decisions.
+
+This is especially important in public sector, healthcare, banking,
+insurance -- i.e., in use cases where you might need to "send flowers"
+when automated judgements go wrong.  For example, someone gets denied
+a loan, has a medical insurance claim blocked, gets a tax audit, has
+their voter registration voided, becomes the subject of an arrest
+warrant, and so on.  In other words, people and organizations tend to
+take legal actions when someone else causes them harm. You'll want an
+audit trail of decisions based on evidence, when your software systems
+are making these kinds of judgements.
+
+For the domain context in this tutorial, say we have two hypothetical
+datasets which provide business directory listings:
+
+  * `sz_er/acme_biz.json` -- "ACME Business Directory"
+  * `sz_er/corp_home.json` -- "Corporates Home UK"
+
+Plus we have slices from datasets which provide listings about
+researchers and scientific authors:
+
+  * `sz_er/orcid.json` -- [ORCID](https://orcid.org/)
+  * `sz_er/scopus.json` -- [Scopus](https://www.elsevier.com/products/scopus/data)
+
+These four datasets can be merged using ER, with the results being a
+domain-specific _thesaurus_ that generates graph elements: entities,
+relations, properties. We'll blend this into our _semantic layer_ used
+for organizing the KG later.
+
+
+The following steps are optional, since these ER results have already
+been pre-computed and provided in the `sz_er/export.json` file.
+If you'd like to run [Senzing](https://senzing.com/docs/quickstart/)
+to reproduce these ER results, use the following steps -- otherwise
+continue to the "Part 2" of this tutorial.
+
+Senzing SDK runs in Python or Java, though ER can also be run in batch
+with a container from DockerHub:
+
+```bash
+docker pull senzing/demo-senzing
+```
+
+Once this container is available, run:
+
+```bash
+docker run -it --rm --volume ./sz_er:/tmp/data senzing/demo-senzing
+```
+
+This brings up a Linux command line prompt `I have no name!` and the
+local subdirectory `sz_er` will be mapped to the `/tmp/data' directory
+Type the following commands for batch ER into the command line prompt.
+
+First, set up the Senzing configuration for merging these datasets:
+
+```bash
+G2ConfigTool.py
+```
+
+Within the configuration tool, register the names of the data sources
+being used:
+
+```
+addDataSource ACME_BIZ
+addDataSource CORP_HOME
+addDataSource ORCID
+addDataSource SCOPUS
+save
+exit
+```
+
+Load each file and run ER on its data records:
+
+```bash
+G2Loader.py -f /tmp/data/acme_biz.json
+G2Loader.py -f /tmp/data/corp_home.json
+G2Loader.py -f /tmp/data/orcid.json
+G2Loader.py -f /tmp/data/scopus.json
+```
+
+Export the ER results to the `sz_er/export.json` file, then exit the
+container:
+
+```bash
+G2Export.py -F JSON -o /tmp/data/export.json
+exit
+```
+
+WIP:
+
+Finally, run the `parser.py` script to represent the Senzing ER
+results as a SKOS-based thesaurus:
+
+```bash
+pushd sz_er
+poetry run python3 parser.py
+popd
+```
+
+This produces the `sz_er/er.ttl` file (RDF in "Turtle" format) which
+get used in the next part of the demo to augment the _semantic layer_.
+
+</details>
+
+
+<details>
+  <summary><h2>Demo Part 2: Build Assets</h2></summary>
 
 Given as input:
 
-  * a list of URLs from which to scrape content
   * `domain.ttl` -- semantics for the domain context
+  * `sz_er/er.ttl` -- a domain-specific thesaurus based on entity resolution
+  * a list of URLs from which to scrape content
 
 The `domain.ttl` file provides a basis for iterating with an _ontology
 pipeline_ process, to represent the semantics for the given domain.
@@ -177,7 +300,7 @@ The assets get serialized into these files:
 </details>
 
 <details>
-  <summary><h2>Demo Part 2: Enhanced GraphRAG chat bot</h2></summary>
+  <summary><h2>Demo Part 3: Enhanced GraphRAG chat bot</h2></summary>
 
 A good downstream use case for exploring a newly constructed KG is
 GraphRAG, used for grounding the responses by an LLM in a
@@ -201,15 +324,11 @@ poetry run python3 errag.py
 </details>
 
 <details>
-  <summary><h2>Demo Part 3: Curating an Ontology Pipeline</h2></summary>
+  <summary><h2>Demo Part 4: Curating an Ontology Pipeline</h2></summary>
 
 This code uses a _semantic layer_ -- in other words, a "backbone" for
 the KG -- to organize the entities and relations which get abstracted
 from the lexical graph.
-
-If you had previously run _entity resolution_ from _structured data
-sources_, which tend to be more reliable than unstructured content,
-this approach could integrate those results as well.
 
 For now, run the `curate.py` script to generate a view of the ranked
 NER results, serialized as the `data/sem.csv` file.  This can be
@@ -243,7 +362,7 @@ at the _lexical graph_, without the _entity linking_ (EL) part yet:
 
   1. Load the structured data sources or updates into a data graph.
   2. Perform _entity resolution_ (ER) on PII extracted from the data graph.
-  3. Use ER results to generate a semantic layer as a "backbone" for the KG.
+  3. Blend the ER results into the semantic layer as a "backbone" for structuring the KG.
 
 **Lexical graph:**
 
@@ -375,10 +494,10 @@ help illustrate important intermediate steps within these workflows:
 ```
 
 <ul>
-<li>Part 1: `archive/construct.ipynb` -- detailed KG construction using a lexical graph</li>
-<li>Part 2: `archive/chunk.ipynb` -- simple example of how to scrape and chunk text</li>
-<li>Part 3: `archive/vector.ipynb` -- query LanceDB table for text chunk embeddings (after running `build.py`)</li>
-<li>Part 4: `archive/embed.ipynb` -- query the entity embedding model (after running `build.py`)</li>
+<li>`archive/construct.ipynb` -- detailed KG construction using a lexical graph</li>
+<li>`archive/chunk.ipynb` -- simple example of how to scrape and chunk text</li>
+<li>`archive/vector.ipynb` -- query LanceDB table for text chunk embeddings (after running `build.py`)</li>
+<li>`archive/embed.ipynb` -- query the entity embedding model (after running `build.py`)</li>
 </ul>
 
 <p>

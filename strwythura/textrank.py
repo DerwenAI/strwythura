@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-An adapted TextRank algorithm implementation for NetworkX.
+An adapted `TextRank` algorithm implementation based on `NetworkX` and `Polars`.
+
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
@@ -15,8 +16,8 @@ import numpy as np
 import pandas as pd
 import polars as pl
 
+from .elem import Entity, NodeKind, StrwVocab
 from .opt import calc_quantile_bins, stripe_column, root_mean_square
-from .graph import Entity
 
 
 def run_textrank (
@@ -64,7 +65,7 @@ Run eigenvalue centrality (i.e., _Personalized PageRank_) to rank the entities.
     df: pl.DataFrame = pl.DataFrame([
         node_attr
         for node, node_attr in lex_graph.nodes(data = True)
-        if node_attr["kind"] == "Entity"
+        if node_attr["kind"] == NodeKind.ENTITY.value
     ]).sort(
         [ "rank" ],
         descending = True,
@@ -92,6 +93,6 @@ Connect entities which co-occur within the same sentence.
                 lex_graph.add_edge(
                     pair[0],
                     pair[1],
-                    key = "strw:co_occurs_with",
+                    key = StrwVocab.CO_OCCURS_WITH.value,
                     prob = 1.0,
                 )
