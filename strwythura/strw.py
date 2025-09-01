@@ -164,7 +164,7 @@ Extract entity spans from a text question, generating their lemma keys.
         doc: spacy.tokens.doc.Doc = self.strw.entity_pipe(question)  # type: ignore  # pylint: disable=I1101
 
         for span in doc.ents:
-            lemma_key: str = self.strw.domain_context.parse_lemma(span)
+            lemma_key: str = self.strw.domain_context.parse_lemma(span)  # type: ignore
 
             if debug:
                 ic(span, lemma_key)

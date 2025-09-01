@@ -11,11 +11,10 @@ from collections import defaultdict
 import json
 import math
 import pathlib
-import sys
 import typing
 
-from icecream import ic
-from rdflib.namespace import NamespaceManager, DCTERMS, RDF, ORG, SKOS
+from icecream import ic  # type: ignore
+from rdflib.namespace import DCTERMS, RDF, ORG, SKOS
 import gensim  # type: ignore
 import lancedb  # type: ignore
 import networkx as nx
@@ -25,7 +24,7 @@ import spacy
 from .elem import Entity, NodeKind, StrwVocab, TextChunk
 
 
-class DomainContext:  # pylint: disable=R0902
+class DomainContext:  # pylint: disable=R0902,R0904
     """
 Represent the domain context using an _ontology pipeline_ process:
 vocabulary, taxonomy, thesaurus, and ontology.
@@ -99,7 +98,7 @@ Initialize the chunk table in the vector store.
 
     def parse_lemma (
         self,
-        span: spacy.tokens.doc.Doc,
+        span: list,
         *,
         debug: bool = False,
         ) -> str:
@@ -120,7 +119,7 @@ Construct a parsed, lemmatized key for the given noun phrase.
         lemma_key: str = " ".join(lemmas)
 
         if debug:
-            ic(lemma_key, name)
+            ic(lemma_key, span)
 
         return lemma_key
 
@@ -166,7 +165,7 @@ Get the primary lemma for a `skos:Concept` entity.
         ).toPython()  # type: ignore
 
 
-    def lookup_concept (
+    def form_concept (
         self,
         fragment: str,
         ) -> rdflib.term.URIRef:
@@ -295,7 +294,7 @@ Iterate through `skos:Concept` entities, loading into `NetworkX`
                     )
 
 
-    def parse_er_export (
+    def parse_er_export (  # pylint: disable=R0912,R0913,R0914,R0915
         self,
         datasets: typing.List[ str ],
         *,
@@ -339,13 +338,13 @@ Parse the Senzing entity resolution results exported as JSON.
             with open(data_path, encoding = "utf-8") as fp:
                 for line in fp:
                     rec: dict = json.loads(line)
-                    record_id: str = self.SZ_PREFIX + rec["DATA_SOURCE"].replace(" ", "_").lower() + "_" + rec["RECORD_ID"]
+                    record_id: str = self.SZ_PREFIX + rec["DATA_SOURCE"].replace(" ", "_").lower() + "_" + rec["RECORD_ID"]  # pylint: disable=C0301
                     data_records[record_id] = rec
 
         # parse the JSON export
         with open(export_path, encoding = "utf-8") as fp:
             for line in fp:
-                data: str = json.loads(line)
+                data: dict = json.loads(line)
 
                 entity_id: str = self.SZ_PREFIX + str(data["RESOLVED_ENTITY"]["ENTITY_ID"])
                 ent_descrip: str = ""
@@ -357,7 +356,7 @@ Parse the Senzing entity resolution results exported as JSON.
                 for rec in data["RESOLVED_ENTITY"]["RECORDS"]:
                     ent_descrip = rec["ENTITY_DESC"]
 
-                    record_id: str = rec["RECORD_ID"]
+                    record_id = rec["RECORD_ID"]
                     data_source: str = rec["DATA_SOURCE"].replace(" ", "_").lower()
                     rec_iri: str = f"{self.SZ_PREFIX}{data_source}_{record_id}"
                     parent[rec_iri] = entity_id
@@ -376,10 +375,10 @@ Parse the Senzing entity resolution results exported as JSON.
                     match_code: str = rel["MATCH_LEVEL_CODE"]
 
                     why: str = f"{match_key} {match_level}"
-                    pred_iri: str = "skos:related"
+                    pred_iri = "skos:related"
 
                     if match_code == "POSSIBLY_SAME":
-                        pred_iri: str = "skos:closeMatch"
+                        pred_iri = "skos:closeMatch"
 
                     rel_list.append({
                         "pred": pred_iri,
@@ -397,7 +396,7 @@ Parse the Senzing entity resolution results exported as JSON.
 
                 rdf_frag: str = f"{entity_id} skos:prefLabel \"{ent_descrip}\"@{language} "
 
-                lemma_key: str = self.parse_lemma(simple_pipe(ent_descrip))
+                lemma_key: str = self.parse_lemma(simple_pipe(ent_descrip))  # type: ignore
                 rdf_frag += f";\n  strw:lemma_phrase \"{lemma_key}\"@{language} "
 
                 for rec_node in rec_list:
@@ -452,12 +451,12 @@ Parse the Senzing entity resolution results exported as JSON.
                     org_name: str = rec["EMPLOYER_NAME"]
 
                     if org_name in org_map:
-                        employer = org_map[org_name]
+                        employer = org_map.get(org_name)  # type: ignore
 
             rdf_frag = f"{record_id} rdf:type strw:DataRecord, {rec_type} "
             rdf_frag += f";\n  skos:prefLabel \"{name}\"@{language} "
 
-            lemma_key: str = self.parse_lemma(simple_pipe(name))
+            lemma_key = self.parse_lemma(simple_pipe(name))  # type: ignore
             rdf_frag += f";\n  strw:lemma_phrase \"{lemma_key}\"@{language} "
 
             for url in urls:
@@ -485,7 +484,7 @@ Parse the Senzing entity resolution results exported as JSON.
     def populate_er_node (
         self,
         er_graph: rdflib.Graph,
-        entity_iri: rdflib.term.URIRef,
+        entity_iri: rdflib.term.Node,
         ) -> int:
         """
 Populate a semantic layer node from an ER entity.
@@ -493,7 +492,7 @@ Populate a semantic layer node from an ER entity.
         lemma_phrase_iri: rdflib.term.URIRef = self.rel_iri(StrwVocab.LEMMA_PHRASE)
 
         lemmas: typing.List[ str ] = [
-            lemma.toPython()
+            lemma.toPython()  # type: ignore
             for lemma in er_graph.objects(entity_iri, lemma_phrase_iri)
         ]
 
@@ -521,9 +520,10 @@ Populate a semantic layer node from an ER entity.
         return node_id
 
 
-    def load_er_thesaurus (
+    def load_er_thesaurus (  # pylint: disable=R0914
         self,
         datasets: typing.List[ str ],
+        er_path: typing.Optional[ pathlib.Path ] = None,
         ) -> None:
         """
 Iterate through the _entity resolution_ results, adding a
@@ -536,7 +536,9 @@ semantic layer.
 
         # load the ER triples into their own graph, to extrant and
         # link the known lemmas (i.e., the synonyms in the thesaurus)
-        er_path: pathlib.Path = pathlib.Path(self.config["er"]["thesaurus_path"])
+        if er_path is None:
+            er_path = pathlib.Path(self.config["er"]["thesaurus_path"])
+
         er_graph: rdflib.Graph = rdflib.Graph()
 
         er_graph.parse(
@@ -546,21 +548,19 @@ semantic layer.
 
         # first iterate through the data records, loading lemma keys
         # and populating nodes in the semantic layer
-        lemma_phrase_iri: rdflib.term.URIRef = self.rel_iri(StrwVocab.LEMMA_PHRASE)
-
-        for entity_iri in er_graph.subjects(RDF.type, self.lookup_concept("DataRecord")):
+        for entity_iri in er_graph.subjects(RDF.type, self.form_concept("DataRecord")):
             node_id = self.populate_er_node(er_graph, entity_iri)
             node_map[entity_iri.n3(er_graph.namespace_manager)] = node_id
 
         # now iterate through the entities, overriding any prior lemma
         # keys from data records
-        for entity_iri in er_graph.subjects(RDF.type, self.lookup_concept("SzEntity")):
+        for entity_iri in er_graph.subjects(RDF.type, self.form_concept("SzEntity")):
             node_id = self.populate_er_node(er_graph, entity_iri)
             node_map[entity_iri.n3(er_graph.namespace_manager)] = node_id
 
         # then add SKOS relations (thesaurus synonyms and taxonymy)
         # as edges in the semantic layer
-        for entity_iri in er_graph.subjects(RDF.type, self.lookup_concept("SzEntity")):
+        for entity_iri in er_graph.subjects(RDF.type, self.form_concept("SzEntity")):
             for sem_rel in [ SKOS.related, SKOS.closeMatch, SKOS.exactMatch, ORG.memberOf ]:
                 for obj in er_graph.objects(entity_iri, sem_rel):
                     src_id: int = node_map[entity_iri.n3(er_graph.namespace_manager)]
@@ -581,9 +581,9 @@ semantic layer.
                         )
 
         # also link entities to their taxonomy nodes
-        for taxo_iri in [ self.lookup_concept("Organization"), self.lookup_concept("Person") ]:
+        for taxo_iri in [ self.form_concept("Organization"), self.form_concept("Person") ]:
             for entity_iri in er_graph.subjects(RDF.type, taxo_iri):
-                node_id: int = node_map[entity_iri.n3(er_graph.namespace_manager)]
+                node_id = node_map[entity_iri.n3(er_graph.namespace_manager)]
                 taxo_node_id: int = self.taxo_node[taxo_iri.n3(self.rdf_graph.namespace_manager)]
 
                 self.sem_layer.add_edge(

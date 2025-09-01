@@ -1,7 +1,7 @@
 [er]
 
 export_path = "sz_er/export.json"
-thesaurus_path = "sz_er/er.ttl"
+thesaurus_path = "data/thesaurus.ttl"
 
 [nlp]
 
