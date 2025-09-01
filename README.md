@@ -167,12 +167,11 @@ for organizing the KG later.
 
 The following steps are optional, since these ER results have already
 been pre-computed and provided in the `sz_er/export.json` file.
-If you'd like to run [Senzing](https://senzing.com/docs/quickstart/)
-to reproduce these ER results, use the following steps -- otherwise
-continue to the "Part 2" of this tutorial.
+If you want to run [Senzing](https://senzing.com/docs/quickstart/)
+to produce these ER results, use the following steps.
 
-Senzing SDK runs in Python or Java, though ER can also be run in batch
-with a container from DockerHub:
+Senzing SDK runs in Python or Java, and can also be run as batch using
+a container from DockerHub:
 
 ```bash
 docker pull senzing/demo-senzing
@@ -223,9 +222,9 @@ G2Export.py -F JSON -o /tmp/data/export.json
 exit
 ```
 
-This will later get parsed to produce the `sz_er/er.ttl` file (RDF in
-"Turtle" format) during the next part of the demo to augment the
-_semantic layer_.
+This later gets parsed to produce the `data/thesaurus.ttl` file
+(as RDF in "Turtle" format) during the next part of the demo to
+augment the _semantic layer_.
 
 </details>
 

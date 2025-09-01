@@ -2,6 +2,7 @@
 @prefix sz:    <https://senzing.com/#> .
 
 @prefix dct:   <http://purl.org/dc/terms/> .
+@prefix foaf:  <http://xmlns.com/foaf/spec/> .
 @prefix org:   <http://www.w3.org/ns/org#> .
 @prefix owl:   <http://www.w3.org/2002/07/owl#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -10,30 +11,35 @@
 @prefix wd:    <http://www.wikidata.org/entity/> .
 
 strw:lemma_phrase rdfs:domain skos:Concept ;
-    rdfs:range rdf:langString
+  rdfs:range rdf:langString ;
+  skos:definition "the parsed, lemmatized noun phrase for an extracted entity"@en
 .
 
 strw:follows_lexically rdfs:domain skos:Concept ;
-    rdfs:range skos:Concept
+  rdfs:range skos:Concept ;
+  skos:definition "a sequential co-occurrence of extracted entities within a lexical graph"@en
 .
 
 strw:co_occurs_with rdfs:domain skos:Concept ;
-    rdfs:range skos:Concept
+  rdfs:range skos:Concept ;
+  skos:definition "a neighborhood co-occurrence of extracted entities within a lexical graph"@en
 .
 
 strw:compound_elem_of rdfs:domain skos:Concept ;
-    rdfs:range skos:Concept
+  rdfs:range skos:Concept ;
+  skos:definition "an extracted entity which is potentially included in a longer phrase"@en
 .
 
 strw:within_chunk rdfs:domain skos:Concept ;
-    rdfs:range rdfs:Literal
+  rdfs:range rdfs:Literal ;
+  skos:definition "the source text for an extracted entity"@en
 .
 
 
 strw:DementiaScheme rdf:type skos:ConceptScheme , owl:Ontology ;
   dct:publisher <https://senzing.com/> ;
-  skos:definition "A mid-level SKOS ontology about dementia research used in the `Strwythura` tutorial"@en ;
-  skos:prefLabel "Dementia Example Vocabulary"@en
+  skos:definition "A mid-level SKOS taxonomy about dementia research used in the `Strwythura` tutorial"@en ;
+  skos:prefLabel "Strwythura example SKOS taxonomy about dementia research"@en
  .
 
 
@@ -47,7 +53,7 @@ strw:PeopleGroup rdf:type skos:Concept ;
  dct:identifier wd:Q177634
  .
 
-strw:Person rdf:type skos:Concept ;
+strw:Person rdf:type skos:Concept, foaf:Agent ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "Person"@en ;
  strw:lemma_phrase "NOUN.person"@en ;
@@ -56,7 +62,7 @@ strw:Person rdf:type skos:Concept ;
  skos:broader strw:PeopleGroup
 .
 
-strw:Organization rdf:type skos:Concept ;
+strw:Organization rdf:type skos:Concept, org:Organization ;
  skos:inScheme strw:DementiaScheme ;
  skos:prefLabel "Organization"@en ;
  strw:lemma_phrase "NOUN.organization"@en ;

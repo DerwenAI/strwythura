@@ -283,7 +283,7 @@ the latter first-class citizens within the KG.
         """
 Instantiate one `Entity` object, adding to our working "vocabulary".
         """
-        lemma_key: str = domain_context.parse_lemma(span)
+        lemma_key: str = domain_context.parse_lemma(span)  # type: ignore
 
         ent: Entity = Entity(
             ( span.start, span.end, ),
@@ -333,7 +333,7 @@ Link one `Entity` into this doc's lexical graph.
             )
 
             for tok in ent.span:
-                tok_lemma_key: str = domain_context.parse_lemma([ tok ])
+                tok_lemma_key: str = domain_context.parse_lemma([ tok ])  # type: ignore
 
                 if tok_lemma_key in domain_context.known_lemma:
                     tok_idx: int = domain_context.get_lemma_index(tok_lemma_key)

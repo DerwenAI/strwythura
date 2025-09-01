@@ -114,7 +114,7 @@ Parse an input text chunk, returning a `spaCy` document.
                     pos = DomainContext.POS_TRANSFORM[pos]
 
                 if pos == "NOUN":
-                    lemma_key: str = domain_context.parse_lemma([ tok ])
+                    lemma_key: str = domain_context.parse_lemma([ tok ])  # type: ignore
                     prev_known: bool = domain_context.add_lemma(lemma_key)
                     node_id: int = domain_context.get_lemma_index(lemma_key)
                     node_seq.append(node_id)
