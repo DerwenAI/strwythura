@@ -300,8 +300,9 @@ A good downstream use case for exploring a newly constructed KG is
 GraphRAG, used for grounding the responses by an LLM in a
 question/answer chat.
 
-This implementation uses `BAML` <https://docs.boundaryml.com/home>
-and leverages the KG using _semantic random walks_.
+This implementation uses `DSPy` <https://dspy.ai/> and leverages
+the KG for enhanced GraphRAG by using _semantic expansion_ and
+_semantic random walks_.
 
 To set up, first download/install `Ollama` <https://ollama.com/>
 and pull the Gemma3 model <https://huggingface.co/google/gemma-3-12b-it>
@@ -437,18 +438,6 @@ semantics and representation.
 
 
 <details>
-  <summary>Developer Notes</summary>
-
-After each `BAML` release update, some committer needs to regenerate
-its Python client source:
-
-```bash
-poetry run baml-cli generate --from strwythura/baml_src
-```
-</details>
-
-
-<details>
   <summary>Experimental: Relation Extraction evaluation</summary>
 
 Current Python libraries for _relation extraction_ (RE) are
@@ -469,7 +458,8 @@ RE libraries which have been evaluated:
   * `mREBEL`: <https://github.com/Babelscape/rebel>
 
 This project had used `GLiREL` although its results were quite sparse.
-RE will be replaced by `BAML` or `DSPy` workflows in the near future.
+The _relation extraction_ will be replaced by `DSPy` workflows in the
+near future.
 
 There is some experimental code which illustrates `OpenNRE` evaluation.
 Use the `archive/nre.sh` script to load OpenNRE pre-trained models

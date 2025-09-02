@@ -17,17 +17,17 @@ import typing
 import warnings
 
 from icecream import ic  # type: ignore
+import dspy  # type: ignore
 import networkx as nx
 import polars as pl
 import spacy
 import transformers  # type: ignore
 
-from .baml_client import b
-from .baml_client import types as baml_types
 from .context import DomainContext
 from .elem import NodeKind
 from .kg import KnowledgeGraph
 from .nlp import Parser
+from .rag import DSPy_RAG
 from .vis import VisHTML
 
 
@@ -53,7 +53,6 @@ Constructor.
             self.config = tomllib.load(fp)
 
         # disable noisy logging
-        os.environ["BAML_LOG"] = "WARN"
         os.environ["TOKENIZERS_PARALLELISM"] = "0"
 
         logging.disable(logging.ERROR)
@@ -150,6 +149,7 @@ produce a set of _anchor nodes_ in the NetworkX graph.
 Constructor.
         """
         self.strw: Strwythura = strw
+        self.rag: DSPy_RAG = DSPy_RAG(strw.config)
 
 
     def find_entities (
@@ -364,7 +364,7 @@ Find the neighboring chunks for each _anchor node_ in the given list.
         question: str,
         *,
         debug: bool = False,
-        ) -> baml_types.Response:
+        ) -> dspy.primitives.prediction.Prediction:
         """
 Loop to answer questions.
         """
@@ -373,11 +373,13 @@ Loop to answer questions.
             debug = debug,
         )
 
-        context: str = "\n".join( chunks )
+        self.rag.context = chunks
 
-        response: baml_types.Response = b.RAG(
-            question,
-            context,
+        response = self.rag(
+            question = question,
         )
+
+        if debug:
+            dspy.inspect_history()
 
         return response

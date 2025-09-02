@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-GraphRAG example,
-based on BAML <https://docs.boundaryml.com/examples/prompt-engineering/retrieval-augmented-generation>
+GraphRAG example, based on DSPy.
 
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
@@ -13,10 +12,9 @@ import traceback
 import warnings
 
 from icecream import ic
-import baml_py
+import dspy
 
 from strwythura import DomainContext, GraphRAG, PerfProfiler, Strwythura
-from strwythura.baml_client import types as baml_types
 
 
 if __name__ == "__main__":
@@ -47,22 +45,20 @@ if __name__ == "__main__":
                 if len(question) < 1:
                     continue
 
-                if question.lower() in [ "quitter", "bye" ]:
+                if question.lower() in [ "quitter", "bye", "adieu" ]:
                     break
 
-                response: baml_types.Response = rag.qa_cycle(
+                response: dspy.primitives.prediction.Prediction = rag.qa_cycle(
                     question,
                     debug = True, # False
                 )
 
                 ic(question)
-                ic(response)
+                ic(response.response)
                 print("-" * 10)
 
         except EOFError:
             print("")
-        except baml_py.internal_monkeypatch.BamlValidationError as baml_ex:
-            ic(ex)
         except Exception as ex:
             ic(ex)
             traceback.print_exc()

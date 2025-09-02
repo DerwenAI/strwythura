@@ -11,7 +11,6 @@ GraphRAG downstream.
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
-import tracemalloc
 import typing
 
 from strwythura import DomainContext, PerfProfiler, Strwythura, VisHTML

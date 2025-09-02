@@ -42,4 +42,8 @@ html_width = "100%"
 
 [rag]
 
+lm_name = "ollama_chat/gemma3:12b"
+api_base = "http://localhost:11434"
+temperature = 0.0
+max_tokens = 3000
 num_chunks = 11
