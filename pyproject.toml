@@ -19,7 +19,7 @@ authors = [
 readme = "README.md"
 license = { text = "MIT" }
 
-version = "1.4.2"
+version = "1.5.0"
 
 classifiers = [
     "Programming Language :: Python",
@@ -40,7 +40,6 @@ classifiers = [
 ]
 
 keywords = [
-    "baml",
     "context engineering",
     "entity-linking",
     "entity-resolution",
@@ -48,6 +47,7 @@ keywords = [
     "graphrag",
     "interactive visualization",
     "knowledge-graph",
+    "llm",
     "named-entity-recognition",
     "nlp",
     "ontology",
@@ -73,9 +73,6 @@ dependencies = [
     "lancedb (>=0.24.2,<0.25.0)",
     "polars (>=1.32.3,<2.0.0)",
     "pyvis (>=0.3.2,<0.4.0)",
-
-    "baml-cli (>=0.1.0,<0.2.0)",
-    "baml-py (<=0.205.0)",
     "ollama (>=0.5.1,<0.6.0)",
     "gensim (>=4.3.3,<5.0.0)",
     "datasets (>=4.0.0,<5.0.0)",
@@ -95,6 +92,7 @@ dependencies = [
     "tqdm (>=4.67.1,<5.0.0)",
     "watermark (>=2.5.0,<3.0.0)",
     "ipython (>=9.4.0,<10.0.0)",
+    "dspy (>=3.0.3,<4.0.0)",
 ]
 
 
@@ -114,13 +112,9 @@ types-requests = "^2.32.4.20250611"
 pandas-stubs = "^2.3.0.250703"
 types-networkx = "^3.5.0.20250728"
 
-[[tool.mypy.overrides]]
-
-module = "strwythura.baml_client.*"
-ignore_errors = true
 
 [tool.pylint.main]
 
 ignore-paths = [
-    "strwythura/baml_client",
+    "archive",
 ]

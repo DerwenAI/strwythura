@@ -19,6 +19,8 @@ from .opt import calc_quantile_bins, stripe_column, root_mean_square
 
 from .profile import PerfProfiler
 
+from .rag import DSPy_RAG
+
 from .scrape import Scraper
 
 from .strw import Strwythura, GraphRAG

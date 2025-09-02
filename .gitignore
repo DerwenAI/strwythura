@@ -1,10 +1,9 @@
 # local files
 *~
-chunk.html
-kg.html
+archive/
 data/
+kg.html
 sz_er/*.csv
-sz_er/er.ttl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
