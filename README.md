@@ -105,8 +105,11 @@ Then to integrate this library within an application:
 
 Follow the patterns in the `build.py` and `errag.py` example scripts.
 
+Feel free to swap in different `spaCy` models, different LLMs, etc.
+
+
 If you're working with documents in a language other than English,
-well first that's absolutely fantastic, though next you need to:
+well that's absolutely fantastic, though you will need to:
 
   * Update model settings in the `config.toml` file.
   * Change the `spaCy` model downloaded here.
@@ -116,7 +119,7 @@ well first that's absolutely fantastic, though next you need to:
 ## Set up for demo or development
 
 This library uses [`poetry`](https://python-poetry.org/docs/) for
-package management, and first you need to install it. Then run:
+package management and you need to install it to get things running:
 
 ```bash
 poetry update
@@ -132,20 +135,24 @@ extracted from unstructured content.
 
 What does this ER step buy us?  ER allows us to merge multiple
 structured data sets, even without consistent _foreign keys_ being
-available, producing an overlay of entities and relations among them
--- which is useful as a "backbone" for constructing a KG. Morever
+available, producing an overlay of entities and relations among them.
+This is quite useful as a "backbone" for constructing a KG. Morever
 when there are judgements being made from the KG about people or
 organizations, ER provides accountability for the merge decisions.
 
-This is especially important in public sector, healthcare, banking,
-insurance -- i.e., in use cases where you might need to "send flowers"
-when automated judgements go wrong.  For example, someone gets denied
-a loan, has a medical insurance claim blocked, gets a tax audit, has
-their voter registration voided, becomes the subject of an arrest
-warrant, and so on.  In other words, people and organizations tend to
-take legal actions when someone else causes them harm. You'll want an
-audit trail of decisions based on evidence, when your software systems
-are making these kinds of judgements.
+This approach becomes especially important in public sector,
+healthcare, banking, insurance -- i.e., in use cases where you might
+need to "send flowers" when automated judgements about _identity_ go
+wrong. For example, someone gets denied a loan, has a medical
+insurance claim blocked, gets a tax audit, has their voter
+registration voided, becomes the subject of an arrest warrant, and so
+on.
+
+In other words, people and organizations tend to take legal actions
+when someone else causes them harm by mangling identity
+managment. You'll want an audit trail of decisions based on evidence,
+whenever your software systems make these kinds of judgements.
+
 
 For the domain context in this tutorial, say we have two hypothetical
 datasets which provide business directory listings:
@@ -159,10 +166,14 @@ researchers and scientific authors:
   * `sz_er/orcid.json` -- [ORCID](https://orcid.org/)
   * `sz_er/scopus.json` -- [Scopus](https://www.elsevier.com/products/scopus/data)
 
-These four datasets can be merged using ER, with the results being a
-domain-specific _thesaurus_ that generates graph elements: entities,
-relations, properties. We'll blend this into our _semantic layer_ used
-for organizing the KG later.
+The JSONL format of these datasests is based on _data mapping_, i.e.,
+providing the _entity resolution_ process with heuristics about
+[features available the the structured dataset](https://github.com/jbutcher21/aiclass/blob/main/docs/senzing_entity_spec.md).
+
+These four datasets get merged using ER, where the results produce a
+domain-specific _thesaurus_.  This thesaurus generates instances of
+graph elements: entities, relations, properties. We'll blend this into
+our _semantic layer_ used for organizing the KG later.
 
 
 The following steps are optional, since these ER results have already
@@ -184,10 +195,10 @@ docker run -it --rm --volume ./sz_er:/tmp/data senzing/demo-senzing
 ```
 
 This brings up a Linux command line prompt `I have no name!` and the
-local subdirectory `sz_er` will be mapped to the `/tmp/data' directory
+local subdirectory `sz_er` will be mapped to the `/tmp/data` directory
 Type the following commands for batch ER into the command line prompt.
 
-First, set up the Senzing configuration for merging these datasets:
+Set up the Senzing configuration for merging these datasets:
 
 ```bash
 G2ConfigTool.py
@@ -304,8 +315,13 @@ This implementation uses `DSPy` <https://dspy.ai/> and leverages
 the KG for enhanced GraphRAG by using _semantic expansion_ and
 _semantic random walks_.
 
-To set up, first download/install `Ollama` <https://ollama.com/>
-and pull the Gemma3 model <https://huggingface.co/google/gemma-3-12b-it>
+With a bit of imagination, an interation on this approach could
+leverage `DSPy` plus its sister project `MLflow` <https://mlflow.org/>
+to develop much more sophisticated _agentic workflows_ downstream.
+
+
+To set up, download/install `Ollama` <https://ollama.com/> and pull
+the `gemma3:12b` model <https://huggingface.co/google/gemma-3-12b-it>
 
 ```bash
 ollama pull gemma3:12b
@@ -321,9 +337,9 @@ poetry run python3 errag.py
 <details>
   <summary><h2>Demo Part 4: Curating an Ontology Pipeline</h2></summary>
 
-This code uses a _semantic layer_ -- in other words, a "backbone" for
-the KG -- to organize the entities and relations which get abstracted
-from the lexical graph.
+This approach uses a _semantic layer_ -- in other words, a "backbone"
+for the KG -- to organize the entities and relations which get
+abstracted from the lexical graph.
 
 For now, run the `curate.py` script to generate a view of the ranked
 NER results, serialized as the `data/sem.csv` file.  This can be

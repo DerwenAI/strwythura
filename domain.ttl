@@ -1,7 +1,7 @@
-@prefix strw:  <https://github.com/DerwenAI/strwythura/#> .
+@prefix strw:  <https://github.com/DerwenAI/strwythura/wiki/vocab#> .
 @prefix sz:    <https://senzing.com/#> .
 
-@prefix dct:   <http://purl.org/dc/terms/> .
+@prefix dc:    <http://purl.org/dc/terms/> .
 @prefix foaf:  <http://xmlns.com/foaf/spec/> .
 @prefix org:   <http://www.w3.org/ns/org#> .
 @prefix owl:   <http://www.w3.org/2002/07/owl#> .
@@ -37,7 +37,8 @@ strw:within_chunk rdfs:domain skos:Concept ;
 
 
 strw:DementiaScheme rdf:type skos:ConceptScheme , owl:Ontology ;
-  dct:publisher <https://senzing.com/> ;
+  dc:publisher <https://senzing.com/> ;
+  dc:creator <https://orcid.org/0000-0003-3167-1539> ;
   skos:definition "A mid-level SKOS taxonomy about dementia research used in the `Strwythura` tutorial"@en ;
   skos:prefLabel "Strwythura example SKOS taxonomy about dementia research"@en
  .
@@ -50,7 +51,7 @@ strw:PeopleGroup rdf:type skos:Concept ;
  skos:altLabel "Community"@en ;
  strw:lemma_phrase "NOUN.people NOUN.group"@en ;
  skos:definition "A people group is a social unit of human organisms who share common values"@en ;
- dct:identifier wd:Q177634
+ dc:identifier wd:Q177634
  .
 
 strw:Person rdf:type skos:Concept, foaf:Agent ;
@@ -58,7 +59,7 @@ strw:Person rdf:type skos:Concept, foaf:Agent ;
  skos:prefLabel "Person"@en ;
  strw:lemma_phrase "NOUN.person"@en ;
  skos:definition "A person is any single member of Homo sapiens, unique extant species of the genus Homo"@en ;
- dct:identifier wd:Q5 ;
+ dc:identifier wd:Q5 ;
  skos:broader strw:PeopleGroup
 .
 
@@ -67,7 +68,7 @@ strw:Organization rdf:type skos:Concept, org:Organization ;
  skos:prefLabel "Organization"@en ;
  strw:lemma_phrase "NOUN.organization"@en ;
  skos:definition "An organization is a social entity established to meet needs or pursue goals"@en ;
- dct:identifier wd:Q43229 ;
+ dc:identifier wd:Q43229 ;
  skos:broader strw:PeopleGroup
 .
 
@@ -78,7 +79,7 @@ strw:Company rdf:type skos:Concept ;
  strw:lemma_phrase "NOUN.company"@en ;
  strw:lemma_phrase "NOUN.enterprise"@en ;
  skos:definition "A company legal entity representing an association of people, whether natural, legal or a mixture of both, with a specific objective"@en ;
- dct:identifier wd:Q783794 ;
+ dc:identifier wd:Q783794 ;
  skos:broader strw:Organization
  .
 
@@ -89,7 +90,7 @@ strw:Location rdf:type skos:Concept ;
  skos:prefLabel "Location"@en ;
  strw:lemma_phrase "NOUN.location"@en ;
  skos:definition "Location is a property describing the position of something in space"@en ;
- dct:identifier wd:Q17334923
+ dc:identifier wd:Q17334923
 .
 
 strw:City rdf:type skos:Concept ;
@@ -97,7 +98,7 @@ strw:City rdf:type skos:Concept ;
  skos:prefLabel "City"@en ;
  strw:lemma_phrase "NOUN.city"@en ;
  skos:definition "A city is a large human settlement"@en ;
- dct:identifier wd:Q515 ;
+ dc:identifier wd:Q515 ;
  skos:broader strw:Location
  .
 
@@ -106,7 +107,7 @@ strw:Country rdf:type skos:Concept ;
  skos:prefLabel "Country"@en ;
  strw:lemma_phrase "NOUN.country"@en ;
  skos:definition "A country is a distinct territorial body or political entity"@en ;
- dct:identifier wd:Q6256 ;
+ dc:identifier wd:Q6256 ;
  skos:broader strw:Location
  .
 
@@ -117,7 +118,7 @@ strw:Science rdf:type skos:Concept ;
  skos:prefLabel "Science"@en ;
  strw:lemma_phrase "NOUN.science"@en ;
  skos:definition "Science is the systematic endeavor that builds and organizes knowledge; also, the set of knowledge produced by this system"@en ;
- dct:identifier wd:Q336
+ dc:identifier wd:Q336
  .
 
 strw:Conference rdf:type skos:Concept ;
@@ -126,7 +127,7 @@ strw:Conference rdf:type skos:Concept ;
  skos:altLabel "Convention"@en ;
  strw:lemma_phrase "NOUN.conference"@en ;
  skos:definition "A conference is professional meeting of a group of individuals or companies within a particular field"@en ;
- dct:identifier wd:Q625994 ;
+ dc:identifier wd:Q625994 ;
  skos:broader strw:Company, strw:Location
  .
 
@@ -137,7 +138,7 @@ strw:Publication rdf:type skos:Concept ;
  strw:lemma_phrase "NOUN.publication"@en ;
  strw:lemma_phrase "NOUN.journal"@en ;
  skos:definition "A publication is content from a conference which is made available to the general public"@en ;
- dct:identifier wd:Q732577 ;
+ dc:identifier wd:Q732577 ;
  skos:broader strw:Company ;
  skos:related strw:Conference
  .
@@ -147,7 +148,7 @@ strw:Research rdf:type skos:Concept ;
  skos:prefLabel "Research"@en ;
  strw:lemma_phrase "NOUN.research"@en ;
  skos:definition "Research is a systematic study undertaken to increase knowledge"@en ;
- dct:identifier wd:Q42240 ;
+ dc:identifier wd:Q42240 ;
  skos:broader strw:Science ;
  skos:related strw:Publication
  .
@@ -157,7 +158,7 @@ strw:Medicine rdf:type skos:Concept ;
  skos:prefLabel "Medicine"@en ;
  strw:lemma_phrase "NOUN.medicine"@en ;
  skos:definition "Medicine is the field of study for diagnosing, treating, and preventing disease"@en ;
- dct:identifier wd:Q11190 ;
+ dc:identifier wd:Q11190 ;
  skos:broader strw:Science
  .
 
@@ -167,7 +168,7 @@ strw:Hospital rdf:type skos:Concept ;
  skos:prefLabel "Hospital"@en ;
  strw:lemma_phrase "NOUN.hospital"@en ;
  skos:definition "A hospital is a health care facility"@en ;
- dct:identifier wd:Q16917 ;
+ dc:identifier wd:Q16917 ;
  skos:broader strw:Company, strw:Location ;
  skos:related strw:Medicine
  .
@@ -177,7 +178,7 @@ strw:University rdf:type skos:Concept ;
  skos:prefLabel "University"@en ;
  strw:lemma_phrase "NOUN.univerity"@en ;
  skos:definition "A university is an academic institution for further education"@en ;
- dct:identifier wd:Q3918 ;
+ dc:identifier wd:Q3918 ;
  skos:broader strw:Company, strw:Location ;
  skos:related strw:Research
  .
@@ -191,7 +192,7 @@ strw:Food rdf:type skos:Concept ;
  strw:lemma_phrase "NOUN.food"@en ;
  strw:lemma_phrase "NOUN.nutrition"@en ;
  skos:definition "Food is any substance consumed to provide nutritional support for the body; also, a form of energy stored in chemical"@en ;
- dct:identifier wd:Q2095
+ dc:identifier wd:Q2095
  .
 
 strw:Food_Additive rdf:type skos:Concept ;
@@ -201,7 +202,7 @@ strw:Food_Additive rdf:type skos:Concept ;
  strw:lemma_phrase "NOUN.food NOUN.additive"@en ;
  strw:lemma_phrase "NOUN.additive"@en ;
  skos:definition "A food additive is a substance added to food to preserve flavor or enhance its taste, appearance, or other qualities"@en ;
- dct:identifier wd:Q189567 ;
+ dc:identifier wd:Q189567 ;
  skos:broader strw:Food
  .
 
@@ -212,7 +213,7 @@ strw:Behavior rdf:type skos:Concept ;
  skos:prefLabel "Behavior"@en ;
  strw:lemma_phrase "NOUN.behavior"@en ;
  skos:definition "Behavior is a range of actions by entities, living or not, within a system"@en ;
- dct:identifier wd:Q9332
+ dc:identifier wd:Q9332
  .
 
 
@@ -222,7 +223,7 @@ strw:Organ rdf:type skos:Concept ;
  skos:prefLabel "Organ"@en ;
  strw:lemma_phrase "NOUN.organ"@en ;
  skos:definition "An organ is a collection of biological tissues with similar functions"@en ;
- dct:identifier wd:Q712378
+ dc:identifier wd:Q712378
  .
 
 
@@ -232,7 +233,7 @@ strw:Condition rdf:type skos:Concept ;
  skos:prefLabel "Condition"@en ;
  strw:lemma_phrase "NOUN.condition"@en ;
  skos:definition "A condition is a relative state or circumstances of some object or event"@en ;
- dct:identifier wd:Q813912
+ dc:identifier wd:Q813912
  .
 
 strw:Disease rdf:type skos:Concept ;
@@ -240,7 +241,7 @@ strw:Disease rdf:type skos:Concept ;
  skos:prefLabel "Disease"@en ;
  strw:lemma_phrase "NOUN.disease"@en ;
  skos:definition "Disease is an abnormal condition negatively affecting organisms"@en ;
- dct:identifier wd:Q12136 ;
+ dc:identifier wd:Q12136 ;
  skos:broader strw:Condition ;
  skos:related strw:Organ, strw:Behavior, strw:Medicine
  .
@@ -253,7 +254,26 @@ strw:Doctor rdf:type skos:Concept ;
  strw:lemma_phrase "NOUN.doctor"@en ;
  strw:lemma_phrase "NOUN.physician"@en ;
  skos:definition "A doctor is a professional who practices medicine"@en ;
- dct:identifier wd:Q39631 ;
+ dc:identifier wd:Q39631 ;
  skos:broader strw:Person ;
  skos:related strw:Medicine, strw:Hospital
  .
+
+
+strw:member_of rdfs:domain strw:Person ;
+  rdfs:range strw:Organization ;
+  skos:definition "which people are members of which organizations?"@en ;
+  rdf:type strw:relation, org:memberOf
+.
+
+strw:author_of rdfs:domain strw:Person ;
+  rdfs:range strw:Publication, strw:Research ;
+  skos:definition "which people authored or commented on the study?"@en ;
+  rdf:type strw:relation, dc:creator
+.
+
+strw:associated_with rdfs:domain strw:Food, strw:Food_Additive ;
+  rdfs:range strw:Condition, strw:Disease ;
+  skos:definition "which food or food additives are associated with which conditions or diseases?"@en ;
+  rdf:type strw:relation
+.
