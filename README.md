@@ -45,6 +45,7 @@ For more detailed discussions, see:
 
   * enhanced GraphRAG: ["GraphRAG to enhance LLM-based apps"](https://derwen.ai/s/hm7h#3)
   * ontology pipeline: ["Intentional Arrangement"](https://jessicatalisman.substack.com/) by **Jessica Talisman**
+  * [_Ontology Engineering_](https://www.goodreads.com/book/show/49542318-ontology-engineering) by **Elisa Kendall**, **Deborah McGuiness**, **Ying Ding**
   * `spaCy`: <https://spacy.io/>
   * `GLiNER`: <https://huggingface.co/urchade/gliner_base>
   * _TextRank_: <https://www.derwen.ai/docs/ptr/explain_algo/>
