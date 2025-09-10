@@ -379,7 +379,7 @@ Loop to answer questions.
             question = question,
         )
 
-        if debug:
+        if debug and False: # disable for now; too verbose
             dspy.inspect_history()
 
         return response

@@ -1,3 +1,25 @@
+## RE prompts:
+
+  * strw:member_of
+        https://www.w3.org/TR/vocab-org/#org:memberOf
+
+    - "which doctors are associated with which institutions?"
+    - "which people are members of which organizations?"
+
+  * strw:author_of
+        http://purl.org/dc/elements/1.1/creator
+
+    - "which experts commented on the study?"
+    - "which people authored the study?"
+  
+  * strw:associated_with
+
+    - "which food additives are associated with which conditions?"
+
+  - "Organize these associations into a cause-effect style table (Behavior → Associated Condition) for clarity"
+  - "Given the BEHAVIOR "eating a healthy diet", in the following text which conditions is that behavior associated?"
+
+
 ## Where do we go next?
 
   * replace RE with DSPy <https://arxiv.org/html/2502.09956v1>

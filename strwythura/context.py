@@ -30,7 +30,7 @@ Represent the domain context using an _ontology pipeline_ process:
 vocabulary, taxonomy, thesaurus, and ontology.
     """
     STRW_PREFIX: str = "strw:"
-    STRW_BASE: str = "https://github.com/DerwenAI/strwythura/#"
+    STRW_BASE: str = "https://github.com/DerwenAI/strwythura/wiki/vocab#"
 
     SZ_PREFIX: str = "sz:"
 
@@ -314,10 +314,10 @@ Parse the Senzing entity resolution results exported as JSON.
 
         rdf_list: typing.List[ str ] = [
             """
-@prefix strw:  <https://github.com/DerwenAI/strwythura/#> .
+@prefix strw:  <https://github.com/DerwenAI/strwythura/wiki/vocab#> .
 @prefix sz:    <https://senzing.com/#> .
 
-@prefix dct:   <http://purl.org/dc/terms/> .
+@prefix dc:    <http://purl.org/dc/terms/> .
 @prefix org:   <http://www.w3.org/ns/org#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
@@ -460,7 +460,7 @@ Parse the Senzing entity resolution results exported as JSON.
             rdf_frag += f";\n  strw:lemma_phrase \"{lemma_key}\"@{language} "
 
             for url in urls:
-                rdf_frag += f";\n  dct:identifier <{url}> "
+                rdf_frag += f";\n  dc:identifier <{url}> "
 
             rdf_frag += "\n."
             rdf_list.append(rdf_frag)
