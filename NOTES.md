@@ -1,3 +1,9 @@
+## TODO's
+
+  * refactor the Senzing => SKOS code into a standalone PyPi package
+  * leverage DSPy for RE
+  
+
 ## RE prompts:
 
   * strw:member_of
