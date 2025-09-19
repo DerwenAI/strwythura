@@ -107,7 +107,7 @@ video = "https://senzing.com/gph-graph-rag-llm-knowledge-graphs/"
 [tool.poetry.group.dev.dependencies]
 
 pylint = "^3.3.7"
-mypy = "^1.17.1"
+mypy = "^1.18.2"
 types-requests = "^2.32.4.20250611"
 pandas-stubs = "^2.3.0.250703"
 types-networkx = "^3.5.0.20250728"
