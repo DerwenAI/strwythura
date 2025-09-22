@@ -543,12 +543,13 @@ this library.
 ```
 
 Kudos to 
-[@louisguitton](https://github.com/louisguitton), 
+[@louisguitton](https://github.com/louisguitton),
 [@cj2001](https://github.com/cj2001),
-[@prrao87](https://github.com/prrao87), 
+[@prrao87](https://github.com/prrao87),
 [@hellovai](https://github.com/hellovai),
-[@docktermj](https://github.com/docktermj), 
-[@jbutcher21](https://github.com/jbutcher21),  
+[@docktermj](https://github.com/docktermj),
+[@jbutcher21](https://github.com/jbutcher21),
+[@brianmacy](https://github.com/brianmacy),
 and the kind folks at [GraphGeeks](https://graphgeeks.org/) for their support.
 </details>
 
