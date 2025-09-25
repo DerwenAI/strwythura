@@ -1,5 +1,5 @@
 @prefix strw:  <https://github.com/DerwenAI/strwythura/wiki/vocab#> .
-@prefix sz:    <https://senzing.com/#> .
+@prefix sz:    <https://github.com/senzing-garage/sz-semantics/wiki/ns#> .
 
 @prefix dc:    <http://purl.org/dc/terms/> .
 @prefix foaf:  <http://xmlns.com/foaf/spec/> .
