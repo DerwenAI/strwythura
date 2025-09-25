@@ -315,7 +315,7 @@ Parse the Senzing entity resolution results exported as JSON.
         rdf_list: typing.List[ str ] = [
             """
 @prefix strw:  <https://github.com/DerwenAI/strwythura/wiki/vocab#> .
-@prefix sz:    <https://senzing.com/#> .
+@prefix sz:    <https://github.com/senzing-garage/sz-semantics/wiki/ns#> .
 
 @prefix dc:    <http://purl.org/dc/terms/> .
 @prefix org:   <http://www.w3.org/ns/org#> .

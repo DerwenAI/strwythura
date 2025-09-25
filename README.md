@@ -127,6 +127,12 @@ poetry update
 poetry run python3 -m spacy download en_core_web_md
 ```
 
+---
+
+![](./docs/assets/strw_arch.png)
+
+---
+
 <details>
   <summary><h2>Demo Part 1: Entity Resolution</h2></summary>
 
