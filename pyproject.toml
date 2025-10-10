@@ -77,6 +77,7 @@ dependencies = [
     "ollama (>=0.5.1,<0.6.0)",
     "gensim (>=4.3.3,<5.0.0)",
     "datasets (>=4.0.0,<5.0.0)",
+    "transformers (<4.57.0)",
 
     "requests (>=2.32.4,<3.0.0)",
     "requests-cache (>=1.2.1,<2.0.0)",
