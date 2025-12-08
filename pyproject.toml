@@ -1,25 +1,63 @@
-[build-system]
-
-requires = [
-    "poetry-core>=2.0.0,<3.0.0"
-]
-
-build-backend = "poetry.core.masonry.api"
-
-
 [project]
 
 name = "strwythura"
-description = "Construct a knowledge graph from unstructured data sources, organized by results from entity resolution, implementing an enhanced GraphRAG approach, and also implementing an ontology pipeline plus context engineering for optimizing AI application outcomes within a specific domain."
+version = "2.0.0"
+
+description = "Construct a knowledge graph from unstructured data sources, organized by results from entity resolution, implementing an enhanced GraphRAG approach, and also implementing an ontology pipeline, plus context engineering for optimizing AI application outcomes within a specific domain."
 
 authors = [
-    { name = "Paco Nathan", email = "paco@senzing.com"}
+    { name = "Paco Nathan", email = "paco@senzing.com" },
 ]
 
 readme = "README.md"
 license = { text = "MIT" }
 
-version = "1.5.2"
+requires-python = ">=3.11,<3.12"
+
+dependencies = [
+    # entity resolution
+    "senzing-grpc (==0.5.11)",
+    "sz-semantics (>=1.2.0,<2.0.0)",
+
+    # web page crawling, text acquisition
+    "requests (>=2.32.4,<3.0.0)",
+    "requests-cache (>=1.2.1,<2.0.0)",
+    "w3lib (>=2.3.1,<3.0.0)",
+    "bs4 (>=0.0.2,<0.0.3)",
+    "lxml (>=6.0.0,<7.0.0)",
+    "nltk (>=3.9.1,<4.0.0)",
+
+    # NLP parsing, NER
+    "spacy (>=3.8.7,<4.0.0)",
+    "gliner (>=0.2.21,<0.3.0)",
+    "gliner-spacy (>=0.0.11,<0.0.12)",
+    "accelerate (>=1.10.1,<2.0.0)",
+    "transformers (<4.57.0)",
+    "datasets (>=4.0.0,<5.0.0)",
+    "datasketch (>=1.8.0,<2.0.0)",
+
+    # embedding, vector store
+    "arrowspace (>=0.13.3,<0.14.0)",
+    "numpy (>=1.17,<3.0.0)",
+    "gensim (>=4.3.3,<5.0.0)",
+    "lancedb (==0.25.3)",
+    "lance-namespace (==0.0.20)",
+    "polars (>=1.32.3,<2.0.0)",
+
+    # graph representation/validation
+    "networkx (>=3.5,<4.0)",
+    "rdflib (>=7.4.0,<8.0.0)",
+    "pyshacl (>=0.30.1,<0.31.0)",
+    "validators (>=0.35.0,<0.36.0)",
+
+    # context engineering
+    "dspy (>=3.0.4,<4.0.0)",
+
+    # observability
+    "opik (>=1.9.33,<2.0.0)",
+    "icecream (>=2.1.8,<3.0.0)",
+    "pyinstrument (>=5.0.3,<6.0.0)",
+]
 
 classifiers = [
     "Programming Language :: Python",
@@ -41,60 +79,26 @@ classifiers = [
 
 keywords = [
     "context engineering",
-    "entity-linking",
-    "entity-resolution",
+    "entity linking",
+    "entity embedding",
+    "entity resolution",
     "graph algorithms",
     "graphrag",
     "interactive visualization",
-    "knowledge-graph",
+    "knowledge graph",
     "llm",
-    "named-entity-recognition",
+    "named entity recognition",
     "nlp",
     "ontology",
-    "ontology-pipeline",
-    "relation-extraction",
-    "semantic-expansion",
-    "semantic-layer",
-    "semantic-random-walk",
+    "ontology pipeline",
+    "relation extraction",
+    "semantic expansion",
+    "semantic layer",
+    "semantic random walk",
+    "spectral indexing",
     "textgraphs",
-    "unstructured-data",
-    "vector-database",
-]
-
-requires-python = ">=3.11,<3.12"
-
-dependencies = [
-    "spacy (>=3.8.7,<4.0.0)",
-    "gliner (>=0.2.21,<0.3.0)",
-    "gliner-spacy (>=0.0.11,<0.0.12)",
-    "accelerate (>=1.10.1,<2.0.0)",
-    "networkx (>=3.5,<4.0)",
-    "rdflib (>=7.1.4,<8.0.0)",
-    "lancedb (>=0.24.2,<0.25.0)",
-    "polars (>=1.32.3,<2.0.0)",
-    "pyvis (>=0.3.2,<0.4.0)",
-    "dspy (>=3.0.3,<4.0.0)",
-    "ollama (>=0.5.1,<0.6.0)",
-    "gensim (>=4.3.3,<5.0.0)",
-    "datasets (>=4.0.0,<5.0.0)",
-    "transformers (<4.57.0)",
-
-    "requests (>=2.32.4,<3.0.0)",
-    "requests-cache (>=1.2.1,<2.0.0)",
-    "w3lib (>=2.3.1,<3.0.0)",
-    "bs4 (>=0.0.2,<0.0.3)",
-    "lxml (>=6.0.0,<7.0.0)",
-    "nltk (>=3.9.1,<4.0.0)",
-
-    "icecream (>=2.1.5,<3.0.0)",
-    "pyinstrument (>=5.0.3,<6.0.0)",
-
-    "ipython (>=9.4.0,<10.0.0)",
-    "ipywidgets (>=8.1.7,<9.0.0)",
-    "jupyterlab (>=4.4.5,<5.0.0)",
-    "jupyterlab-execute-time (>=3.2.0,<4.0.0)",
-    "tqdm (>=4.67.1,<5.0.0)",
-    "watermark (>=2.5.0,<3.0.0)",
+    "unstructured data",
+    "vector database",
 ]
 
 
@@ -104,6 +108,7 @@ homepage = "https://github.com/DerwenAI/strwythura"
 doi = "https://doi.org/10.5281/zenodo.16934079"
 slides = "https://derwen.ai/s/2njz#1"
 video = "https://senzing.com/gph-graph-rag-llm-knowledge-graphs/"
+article = "https://pacoid.medium.com/strwythura-2a8007af3682"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -120,3 +125,12 @@ types-networkx = "^3.5.0.20250728"
 ignore-paths = [
     "archive",
 ]
+
+
+[build-system]
+
+requires = [
+    "poetry-core>=2.0.0,<3.0.0"
+]
+
+build-backend = "poetry.core.masonry.api"

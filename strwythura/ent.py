@@ -1,0 +1,314 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Manage the entity store.
+
+see copyright/license https://github.com/DerwenAI/strwythura/README.md
+"""
+
+from collections import OrderedDict
+import json
+import pathlib
+
+from arrowspace import ArrowSpaceBuilder, GraphLaplacian
+from icecream import ic
+from pydantic import model_validator
+import gensim
+import numpy as np
+
+from .elem import Entity, \
+    de_token_span
+
+
+class EntityStore:
+    """
+Manage the semantic graph embeddings with this domain context:
+    vocabulary => taxonomy => thesaurus => ontology
+    """
+
+    def __init__ (
+        self,
+        config: dict,
+        ) -> None:
+        """
+Constructor.
+        """
+        self.config: dict = config
+
+        # manage the known entities
+        self.entities: OrderedDict = OrderedDict()
+
+        # node IDs used for the `NetworkX` property graph
+        self.max_nodes: int = 0
+
+        # entity embeddings
+        self.w2v_vectors: list[list[ int ]] = []
+        self.w2v_model: gensim.models.Word2Vec | None = None
+
+
+    def increment_nodes (
+        self,
+        ) -> int:
+        """
+Increment the count of nodes.
+        """
+        node_id: int = self.max_nodes
+        self.max_nodes += 1
+
+        return node_id
+
+
+    def encode_entity (
+        self,
+        ent: Entity,
+        *,
+        create: bool = False,
+        ) -> Entity | None:
+        """
+Encode a known entity, indexed by its parsed lemma key in the entity
+store, and set its `node_id` as a unique identifier in the ERKG.
+
+This encoding serves as a UID for nodes in the semantic layer and
+within vector representation for embeddings.
+
+If a entity arrives with a duplicate `lemma_key` then promote the
+one which comes from a higher priority source (and therefore more
+info populated).
+
+Return the entity which is stored.
+        """
+        if create:
+            if ent.lemma_key not in self.entities:
+                # add a new entity into the store
+                ent.node_id = self.increment_nodes()
+                ent.count = 1
+                self.entities[ent.lemma_key] = ent
+
+            elif ent.span.source < self.entities[ent.lemma_key].span.source:
+                # replace previous entity with one from a a higher priority source
+                ent.node_id = self.entities[ent.lemma_key].node_id
+                ent.count = self.entities[ent.lemma_key].count + 1
+                self.entities[ent.lemma_key] = ent
+
+            else:
+                # increment the incidence count
+                self.entities[ent.lemma_key].count += 1
+
+        return self.entities.get(ent.lemma_key)
+
+
+    def decode_entity (
+        self,
+        node_id: int,
+        ) -> Entity | None:
+        """
+Lookup an entity based on its UID.
+        """
+        return list(self.entities.values())[node_id]
+
+
+    def load_json (
+        self,
+        store_path: pathlib.Path,
+        ) -> None:
+        """
+De-serialize the entity definitions from a JSONL file, first clearing
+any previous definitions.
+        """
+        self.entities: OrderedDict = OrderedDict()
+
+        with store_path.open("r", encoding = "utf-8") as fp:
+            for line in fp:
+                ent: Entity = Entity.model_validate(
+                    json.loads(line),
+                )
+
+                self.entities[ent.lemma_key] = ent
+                self.max_nodes = max(self.max_nodes, ent.node_id + 1)
+
+        ic(self.max_nodes, len(self.entities))
+
+
+    def save_json (
+        self,
+        store_path: pathlib.Path,
+        ) -> None:
+        """
+Serialize the entity definitions to a JSONL file.
+        """
+        with store_path.open("w",  encoding = "utf-8") as fp:
+            for ent in self.entities.values():
+                ent.span.span = de_token_span(ent.span.span)
+                fp.write(json.dumps(ent.model_dump(mode = "json")))
+                fp.write("\n")
+
+
+    def embed_sequence (
+        self,
+        seq_vec: list[ int ],
+        ) -> None:
+        """
+Build an embedding vector input for a sequence of entities from a
+parsed sentence.
+        """
+        self.w2v_vectors.append(seq_vec)
+
+
+    def load_vec (
+        self,
+        vec_path: pathlib.Path,
+        ) -> None:
+        """
+De-serialize the entity embedding vectors from a text file,
+overwriting any previous definitions.
+        """
+        with vec_path.open("r", encoding = "utf-8") as fp:
+            self.w2v_vectors = []
+
+            for line in fp:
+                self.w2v_vectors.append(
+                    [ int(x) for x in line.strip().split(",") ]
+                )
+
+
+    def save_vec (
+        self,
+        vec_path: pathlib.Path,
+        ) -> None:
+        """
+Serialize the entity embedding vectors to a text file.
+        """
+        with vec_path.open("w", encoding = "utf-8") as fp:
+            for vec in self.w2v_vectors:
+                vec_rep: str = ",".join(map(lambda x: str(x), vec))
+
+                # filter null vectors
+                if len(vec_rep) > 0:
+                    fp.write(vec_rep)
+                    fp.write("\n")
+
+
+    def train_embeddings (
+        self,
+        ) -> None:
+        """
+Train a `gensim.Word2Vec` model for entity embeddings.
+        """
+        w2v_max: int = max([  # pylint: disable=R1728
+            len(vec) - 1
+            for vec in self.w2v_vectors
+        ])
+
+        # TODO: here's where we need to resolve once synonyms get
+        # introduced into the thesaurus via curation
+        w2v_vect: list[list[ str ]] = [
+            [
+                str(x)
+                for x in vec
+            ]
+            for vec in self.w2v_vectors
+        ]
+
+        self.w2v_model = gensim.models.Word2Vec(
+            sentences = w2v_vect,
+            vector_size = 23,
+            window = w2v_max,
+            min_count = 1,
+            sg = 1, # use skip-gram, not CBOW
+        )
+
+
+    def load_w2v (
+        self,
+        w2v_path: pathlib.Path,
+        ) -> None:
+        """
+De-serialize the entity embeddings model from a file in `gensim.Word2Vec`
+format.
+        """
+        self.w2v_model = gensim.models.Word2Vec.load(w2v_path.as_posix())
+
+
+    def save_w2v (
+        self,
+        w2v_path: pathlib.Path,
+        ) -> None:
+        """
+Serialize the entity embeddings model to a file in `gensim.Word2Vec`
+format.
+        """
+        self.w2v_model.save(w2v_path.as_posix())
+
+
+    def build_aspace (
+        self,
+        w2v_model: gensim.models.Word2Vec,
+        *,
+        tau: float = 1.0,
+        debug: bool = True,
+        ) -> tuple[ ArrowSpaceBuilder, GraphLaplacian ]:
+        """
+Build an `ArrowSpace` computed signal graph and lambdas,
+then compare with `gensim` similarity measures.
+        """
+        # extract the embedding vectors from a `gensim` model
+        embed_vecs: list = []
+
+        for node_id, lemma_key in enumerate(self.entities.keys()):
+            entity_key: str = str(node_id)
+
+            if entity_key in w2v_model.wv.index_to_key:
+                embedding: list[ float ] = w2v_model.wv[entity_key]
+                embed_vecs.append(embedding)
+
+                if debug:
+                    ic(node_id, lemma_key)
+                    print(embedding)
+
+        # build an ArrowSpace with computed signal graph and lambdas
+        aspace_params: dict = {
+            "eps": 1.0,
+            "k": 6,
+            "topk": 6,
+            "p": 2.0,
+            "sigma": 1.0,
+        }
+
+        aspace, gl = ArrowSpaceBuilder.build(
+            aspace_params,
+            np.array(
+                embed_vecs,
+                dtype = np.float64,
+            ),
+        )
+
+        # search comparable items
+        # defaults: k = nitems, alpha = 0.9, beta = 0.1
+        for query_id in range(len(self.entities)):
+            query: np.array = np.array(
+                embed_vecs[query_id],
+                dtype = np.float64,
+            )
+
+            if debug:
+                print("\n", self.decode_entity(query_id))
+
+            similar_words = w2v_model.wv.most_similar(
+                str(query_id),
+                topn = 5,
+            )
+
+            if debug:
+                ic(similar_words)
+
+                for node_id, sim_metric in aspace.search(query, gl, tau):
+                    if node_id != query_id:
+                        ic(
+                            node_id,
+                            sim_metric,
+                            self.decode_entity(node_id),
+                        )
+
+        # return the ArrowSpace and Graph laplacian
+        return aspace, gl

@@ -1,0 +1,65 @@
+@prefix dc:   <http://purl.org/dc/elements/1.1/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix sz:   <https://github.com/senzing-garage/sz-semantics/wiki/ns#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+sz:EntityShape a sh:NodeShape;
+  sh:targetClass sz:Entity ;
+
+  sh:property [
+    # required link to data records as evidence
+    sh:path prov:wasDerivedFrom ;
+    sh:minCount 1;  # TODO: should be `1` except blank nodes cause errors
+    sh:nodeKind sh:IRI ;
+    sh:class sz:DataRecord ;
+  ] ;
+
+  sh:property [
+    # optional preferred label
+    sh:path skos:prefLabel ;
+    sh:minCount 0;
+    sh:maxCount 1;
+    sh:datatype rdf:langString ;
+  ] ;
+
+  sh:property [
+    # optional lemma phrase (unique key for entity linking)
+    sh:path sz:lemma_phrase ;
+    sh:minCount 0;
+    sh:maxCount 1;
+    sh:datatype xsd:string ;  # TODO: should be `rdf:langString` instead
+  ] ;
+.
+
+sz:DataRecordShape a sh:NodeShape;
+  sh:targetClass sz:DataRecord ;
+
+  sh:property [
+    # optional preferred label
+    sh:path skos:prefLabel ;
+    sh:minCount 0;
+    sh:maxCount 1;
+    sh:datatype rdf:langString ;
+  ] ;
+
+  sh:property [
+    # required foreign key
+    sh:path dc:identifier ;
+    sh:minCount 1;
+    sh:maxCount 1;
+    sh:datatype xsd:string ;
+  ] ;
+
+  sh:property [
+    # link to data source
+    sh:path prov:wasQuotedFrom ;
+    sh:minCount 1;
+    sh:maxCount 1;
+    sh:nodeKind sh:IRI ;
+    sh:class dcat:Dataset ;
+  ] ;
+.

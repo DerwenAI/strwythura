@@ -1,0 +1,20 @@
+{
+    "name": "Dementia Study",
+    "language": "en",
+    "taxonomy": "data/dementia/domain.ttl",
+
+    "sources": {
+        "data": {
+            "CORP_HOME": "data/dementia/corp_home.json",
+            "ACME_BIZ": "data/dementia/acme_biz.json",
+            "ORCID": "data/dementia/orcid.json",
+            "SCOPUS": "data/dementia/scopus.json"
+        },
+        "content": [
+            "https://www.theguardian.com/society/article/2024/jul/31/eating-processed-red-meat-could-increase-risk-of-dementia-study-finds",
+            "https://aaic.alz.org/releases-2024/processed-red-meat-raises-risk-of-dementia.asp",
+            "https://www.massgeneralbrigham.org/en/about/newsroom/press-releases/red-meat-increases-risk-of-dementia",
+            "https://www.alz.org/alzheimers-dementia/what-is-dementia"
+        ]
+    }
+}

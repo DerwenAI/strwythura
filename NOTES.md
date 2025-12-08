@@ -1,8 +1,65 @@
-## TODO's
+## TODOs
 
-  * refactor the Senzing => SKOS code into a standalone PyPi package
+  * enable `Opik`
+
+  * are `node_id` values being overwritten?
+     - data records colliding with lexical graph noun phrases:
+      "data_src": "sz:ds_corp_home",
+      "id": 53,
+     - ic| self.max_nodes: 173, len(self.entities): 174
+
+  * better text scrubbing
+
+  * add edges for `strw:compound_elem_of`
+
+
+  * formalize the description about the reranker process
+     - https://www.lancedb.com/docs/reranking/custom-reranker/
+     - use a "cross encoder" approach?
+     - https://dubell.io/leveraging-bm25-and-vector-search-in-a-local-rag-application/
+
+  * migrate from `Turtle` to `N3` format
+  * fix `n3()` prefix resolution for `ctx.py`, `lex.py`, etc.
+
+  * `textrank`
+     - rework with Polars in lieu of Pandas
+
+
+  * integrate `retriv.SparseRetriever` for Okapi BM25 on text chunks
+     - can we use `LanceDB` FTS w/o cloud?
+     - https://lancedb.com/docs/search/full-text-search/
+
+
+  * gensim => ArrowSpace embeddings for entities
+     - alteratively, use `sentence_transformer` in lieu of Gensim?
+
+  * eval `GrandCypher` atop `NetworkX`
+     - can this impl Text2Cypher efficiently?
+
+  * build `RDFlib` plugin atop `NetworkX`
+
+  * use `deepeval` to score the GraphRAG responses
+     - https://docs.google.com/presentation/d/1vDogMddS_T-oXFBdhogo653r8H2sGrSD/edit?slide=id.g78dc4dcc24882d5d_0#slide=id.g78dc4dcc24882d5d_0
+
+  * add a text => lemma embedding model
+     - https://www.sbert.net/docs/sentence_transformer/usage/usage.html
+
+  * build an HITL interface for accept/reject/override LLM suggestions on lex nodes w/o NER
+     - `FastAPI` webapp
+     - `DSPy` suggestion
+
   * leverage DSPy for RE
-  
+
+
+## Issues
+
+  Q: how do we filter blank node constructs from SHACL rules?
+
+  Q: how do we handle SKOS:Concept nodes with multiple lemmas? i.e., to produce a list from a SPARQL query?
+
+  Q: why does `tracemalloc` cause `RDFlib` to block?
+
+
 
 ## RE prompts:
 
