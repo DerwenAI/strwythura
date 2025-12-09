@@ -44,11 +44,12 @@ dependencies = [
     "lance-namespace (==0.0.20)",
     "polars (>=1.32.3,<2.0.0)",
 
-    # graph representation/validation
+    # graph representation/validation/visualization
     "networkx (>=3.5,<4.0)",
     "rdflib (>=7.4.0,<8.0.0)",
     "pyshacl (>=0.30.1,<0.31.0)",
     "validators (>=0.35.0,<0.36.0)",
+    "pyvis (>=0.3.2,<0.4.0)",
 
     # context engineering
     "dspy (>=3.0.4,<4.0.0)",

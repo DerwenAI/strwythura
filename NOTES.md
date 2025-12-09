@@ -12,6 +12,14 @@
 
   * add edges for `strw:compound_elem_of`
 
+  * build an HITL interface for accept/reject/override LLM suggestions on lex nodes w/o NER
+     - `FastAPI` webapp, using `DSPy` suggestion
+     - operate on the serialized files (offline) during Part 4
+     - use autocompletion to guide selections based on domain context
+     - actions:
+         + NounChunk -> Lemma, or Synonym
+	 + ParsedNoun -> Lemma, or Synonym     
+
 
   * formalize the description about the reranker process
      - https://www.lancedb.com/docs/reranking/custom-reranker/
@@ -23,7 +31,6 @@
 
   * `textrank`
      - rework with Polars in lieu of Pandas
-
 
   * integrate `retriv.SparseRetriever` for Okapi BM25 on text chunks
      - can we use `LanceDB` FTS w/o cloud?
@@ -43,10 +50,6 @@
 
   * add a text => lemma embedding model
      - https://www.sbert.net/docs/sentence_transformer/usage/usage.html
-
-  * build an HITL interface for accept/reject/override LLM suggestions on lex nodes w/o NER
-     - `FastAPI` webapp
-     - `DSPy` suggestion
 
   * leverage DSPy for RE
 

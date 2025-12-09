@@ -425,7 +425,8 @@ workflow steps, and also enhance some components:
 &nbsp;
 
 **Strwythura** `/ˈsdrʊ-i̯-θɪr-a/` pronounced "STRU-uh-thur-ah" --
-is the verb ["to structure"](https://en.wiktionary.org/wiki/strwythur) in Welsh:
+is a conjugation of the verb ["to structure"](https://en.wiktionary.org/wiki/strwythur)
+ in Welsh:
 _to construct or arrange according to a plan; to give a pattern or organization_.
 
 </details>
