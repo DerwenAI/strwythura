@@ -4,7 +4,6 @@
 ![License](https://img.shields.io/github/license/DerwenAI/strwythura)
 ![Repo size](https://img.shields.io/github/repo-size/DerwenAI/strwythura)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/w/DerwenAI/strwythura?style=plastic)
 
 This tutorial is about using _entity embeddings_ in graphs, combining
 _structured data sources_ and _unstructured content sources_.
@@ -492,6 +491,7 @@ packages which this tutorial uses:
   * <https://ollama.com/>
   * <https://huggingface.co/google/gemma-3-12b-it>
   * <https://github.com/comet-ml/opik>
+  * <https://pyvis.readthedocs.io/>
   * <https://pyinstrument.readthedocs.io/>
   * <https://github.com/gruns/icecream>
 
@@ -522,6 +522,7 @@ Kudos to
 [@prrao87](https://github.com/prrao87),
 [@louisguitton](https://github.com/louisguitton),
 [@jesstalisman-ia](https://github.com/jesstalisman-ia),
+[@Mec-iS](https://github.com/Mec-iS),
 [@hellovai](https://github.com/hellovai),
 and the kind folks at [GraphGeeks](https://graphgeeks.org/) for their support.
 
