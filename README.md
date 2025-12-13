@@ -474,6 +474,7 @@ packages which this tutorial uses:
 
   * <https://github.com/senzing-garage/sz-semantics>
   * <https://github.com/senzing-garage/serve-grpc>
+  * <https://github.com/Placekey/placekey-py>
   * <https://github.com/RDFLib/rdflib>
   * <https://lancedb.com/>
   * <https://www.crummy.com/software/BeautifulSoup/>

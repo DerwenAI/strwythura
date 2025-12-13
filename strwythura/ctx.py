@@ -11,6 +11,7 @@ from collections import Counter, defaultdict, OrderedDict
 import itertools
 import json
 import pathlib
+import sys
 import typing
 
 from icecream import ic
@@ -91,6 +92,9 @@ Constructor.
         self.chunk_table: lancedb.table.LanceTable | None = None
 
 
+    ######################################################################
+    ## manage the vector store
+
     def open_vector_tables (
         self,
         *,
@@ -137,8 +141,14 @@ Add a chunk into both the vector store and the ERKG.
         self.chunk_table.add([ chunk ])
         self.start_chunk_id += 1
 
-        # add to the ERKG
+        # add node to the ERKG
         chunk_node_id: str = f"chunk_{chunk.uid}"
+
+        self.test_node(
+            chunk_node_id,
+            chunk.url,
+            "add_chunk",
+        )
 
         self.erkg.add_node(
             chunk_node_id,
@@ -160,6 +170,9 @@ Iterator for TextChunk metadata from the `LanceDB` table.
         for uid, url in self.chunk_table.search().select([ "uid", "url" ]).to_polars().iter_rows():
             yield uid, url
 
+
+    ######################################################################
+    ## manage the semantics
 
     def get_label_map (
         self,
@@ -245,8 +258,14 @@ WHERE {
                 text,
             )
 
-            # add a node in the ERKG
+            # add node to the ERKG
             self.iri_map[concept_iri] = found_ent.node_id
+
+            self.test_node(
+                found_ent.node_id,
+                concept_iri,
+                "promote_taxo_nodes",
+            )
 
             self.erkg.add_node(
                 found_ent.node_id,
@@ -322,9 +341,15 @@ WHERE {
             if debug:
                 ic(rec_iri, rec_key, data_src)
 
-            # add a node in the ERKG
+            # add node to the ERKG
             node_id: int = self.ent_store.increment_nodes()
             self.iri_map[rec_iri] = node_id
+
+            self.test_node(
+                node_id,
+                rec_iri,
+                "promote_data_nodes",
+            )
 
             self.erkg.add_node(
                 node_id,
@@ -403,8 +428,14 @@ WHERE {
                 node_id = found_ent.node_id
                 rank = found_ent.rank
 
-            # add a node in the ERKG
+            # add node to the ERKG
             self.iri_map[ent_iri] = node_id
+
+            self.test_node(
+                node_id,
+                ent_iri,
+                "promote_er_nodes",
+            )
 
             self.erkg.add_node(
                 node_id,
@@ -506,7 +537,13 @@ for the entities extracted from NER.
                 else:
                     label: str = ent.span.label
 
-                # add a node in the ERKG
+                # add node to the ERKG
+                self.test_node(
+                    ent.node_id,
+                    ent.lemma_key,
+                    "promote_ner_nodes",
+                )
+
                 self.erkg.add_node(
                     ent.node_id,
                     kind = NodeKind.ENTITY.value,
@@ -519,8 +556,9 @@ for the entities extracted from NER.
                     count = ent.count,
                 )
 
-                # TODO: link to chunk
 
+    ######################################################################
+    ## entity co-occurrence
 
     def co_occur_entities (
         self,
@@ -579,6 +617,30 @@ Connect entities which co-occur within the same sentence.
                     key = sem_rel,
                     prob = prob,
                 )
+
+
+    ######################################################################
+    ## manage the knowledge graph
+
+    def test_node (
+        self,
+        node_id: int | str,
+        label: str,
+        message: str,
+        *,
+        full_stop: bool = False,
+        ) -> None:
+        """
+Verify that a `node_id` does not already exist in the ERKG.
+        """
+        if not self.erkg.has_node(node_id):
+            return
+
+        print(f"{message}: {node_id} {label}")
+        ic(self.erkg.nodes[node_id])
+
+        if full_stop:
+            sys.exit(-1)
 
 
     def load_erkg (

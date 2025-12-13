@@ -1,7 +1,5 @@
 ## TODOs
 
-  * enable `Opik`
-
   * are `node_id` values being overwritten?
      - data records colliding with lexical graph noun phrases:
       "data_src": "sz:ds_corp_home",
@@ -9,6 +7,12 @@
      - ic| self.max_nodes: 173, len(self.entities): 174
 
   * better text scrubbing
+
+  * entity embedding vectors per paragraph, instead of per sentence
+
+  * use larger chunks
+
+  * enable `Opik`
 
   * add edges for `strw:compound_elem_of`
 

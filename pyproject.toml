@@ -19,6 +19,9 @@ dependencies = [
     "senzing-grpc (==0.5.11)",
     "sz-semantics (>=1.2.0,<2.0.0)",
 
+    # location/geospatial
+    "placekey (>=0.0.36,<0.0.37)",
+
     # web page crawling, text acquisition
     "requests (>=2.32.4,<3.0.0)",
     "requests-cache (>=1.2.1,<2.0.0)",
@@ -44,11 +47,13 @@ dependencies = [
     "lance-namespace (==0.0.20)",
     "polars (>=1.32.3,<2.0.0)",
 
-    # graph representation/validation/visualization
-    "networkx (>=3.5,<4.0)",
+    # graph representation/validation
     "rdflib (>=7.4.0,<8.0.0)",
     "pyshacl (>=0.30.1,<0.31.0)",
     "validators (>=0.35.0,<0.36.0)",
+    "networkx (>=3.5,<4.0)",
+
+    # graph visualization
     "pyvis (>=0.3.2,<0.4.0)",
 
     # context engineering
@@ -56,8 +61,8 @@ dependencies = [
 
     # observability
     "opik (>=1.9.33,<2.0.0)",
-    "icecream (>=2.1.8,<3.0.0)",
     "pyinstrument (>=5.0.3,<6.0.0)",
+    "icecream (>=2.1.8,<3.0.0)",
 ]
 
 classifiers = [
