@@ -1,16 +1,16 @@
 ## TODOs
 
-  * are `node_id` values being overwritten?
-     - data records colliding with lexical graph noun phrases:
-      "data_src": "sz:ds_corp_home",
-      "id": 53,
-     - ic| self.max_nodes: 173, len(self.entities): 174
-
   * better text scrubbing
 
   * entity embedding vectors per paragraph, instead of per sentence
 
   * use larger chunks
+
+  * verify: NER nodes in ERKG should always have a `rdf:type` IRI class
+
+  * Step 5: update `count` and `rank` for ER and TAXO nodes in the ERKG
+
+  * fix `n3()` prefix resolution for `lex.py`, etc.
 
   * enable `Opik`
 
@@ -31,7 +31,6 @@
      - https://dubell.io/leveraging-bm25-and-vector-search-in-a-local-rag-application/
 
   * migrate from `Turtle` to `N3` format
-  * fix `n3()` prefix resolution for `ctx.py`, `lex.py`, etc.
 
   * `textrank`
      - rework with Polars in lieu of Pandas

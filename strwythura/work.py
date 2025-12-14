@@ -129,12 +129,8 @@ Reform the `RDFlib` semantic graph => `NetworkX` property graph
 as a "backbone" for structuring the knowledge graph, prior to
 entity linking from unstructured sources.
         """
-        self.domain_ctx.promote_taxo_nodes(debug = True)
-        ic(len(self.domain_ctx.erkg.nodes))
-            
-        self.domain_ctx.promote_er_nodes(self.parser, debug = True)
-        ic(len(self.domain_ctx.erkg.nodes))
-
+        self.domain_ctx.promote_taxo_nodes()
+        self.domain_ctx.promote_er_nodes(self.parser)
         self.domain_ctx.promote_data_nodes()
         self.domain_ctx.promote_er_edges()
 
@@ -177,12 +173,10 @@ For each of the given URLs:
                     debug = debug,
                 )
 
-                if debug or True:
+                if debug:
                     ic(chunk, num_sent)
 
                 sent_id += num_sent
-
-            ic(sent_id)
 
 
     ######################################################################

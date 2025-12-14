@@ -8,6 +8,7 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
 from collections import Counter, defaultdict, OrderedDict
+import inspect
 import itertools
 import json
 import pathlib
@@ -50,11 +51,22 @@ Represents one chunk of text from a document.
     vector: Vector(EMBED_FUNC.ndims()) = EMBED_FUNC.VectorField(default = None)
 
 
+    def get_iri (
+        self,
+        ) -> str:
+        """
+Construct an IRI based on the chunk `uid` value.
+        """
+        return f"{STRW_PREFIX}chunk_{self.uid}"
+
+
 class DomainContext:
     """
 Represent the domain context using an _ontology pipeline_ process:
 vocabulary, taxonomy, thesaurus, and ontology.
     """
+    TAXO_SENT_ID: int = 0
+
 
     def __init__ (
         self,
@@ -74,6 +86,7 @@ Constructor.
 
         # some entities and data records won't have lemma, so we'll
         # provide an alternative means of node lookup based on IRI
+        ## TODO: remove this
         self.iri_map: dict[ str, str ] = {}
 
         # intermediate parsing outcomes
@@ -118,7 +131,12 @@ overwriting any previous data if indicated.
             )
 
             df_chunks: pl.DataFrame = self.chunk_table.search().select([ "uid" ]).to_polars()
-            self.start_chunk_id = max([ uid for uid in df_chunks.iter_rows() ])[0]
+            uids: list[ int ] = [ uid for uid in df_chunks.iter_rows() ]
+
+            if len(uids) > 0:
+                self.start_chunk_id = max(uids)[0] + 1
+            else:
+                self.start_chunk_id = 0
 
 
     def add_chunk (
@@ -142,20 +160,14 @@ Add a chunk into both the vector store and the ERKG.
         self.start_chunk_id += 1
 
         # add node to the ERKG
-        chunk_node_id: str = f"chunk_{chunk.uid}"
-
-        self.test_node(
-            chunk_node_id,
-            chunk.url,
-            "add_chunk",
-        )
-
-        self.erkg.add_node(
-            chunk_node_id,
-            kind = NodeKind.CHUNK.value,
-            chunk = chunk.uid,
-            url = chunk.url,
-            rank = 0.0,
+        self.add_node(
+            chunk.get_iri(),
+            NodeKind.CHUNK,
+            attrs = {
+                "chunk" : chunk.uid,
+                "url": chunk.url,
+                "sent": chunk.sent_id,
+            },
         )
 
         return chunk
@@ -185,7 +197,7 @@ Used for _entity linking_ in using zero-shot NER tasks, such as the `GLiNER`
 library.
         """
         query: str = """
-SELECT ?concept_iri ?label
+SELECT DISTINCT ?concept_iri ?label
 WHERE {
   ?concept_iri a skos:Concept ;
     skos:prefLabel ?label ;
@@ -201,6 +213,46 @@ WHERE {
         }
 
 
+    def promote_data_nodes (
+        self,
+        *,
+        debug: bool = False,
+        ) -> None:
+        """
+Reform the semantic graph in `RDFlib` => property graph in `NetworkX`
+to represent the data record provenance from ER.
+        """
+        query: str = """
+SELECT DISTINCT ?rec_iri ?rec_key ?data_src
+WHERE {
+  ?rec_iri a sz:DataRecord ;
+    dc:identifier ?rec_key ;
+    prov:wasQuotedFrom ?data_src ;
+  .
+}""".strip()
+
+        # iterate through the SPARQL query results
+        qres: SPARQLResult = self.thesaurus.rdf_graph.query(query)
+
+        for row in qres:
+            rec_iri: str = self.thesaurus.n3(row[0])
+            rec_key: str = row[1].toPython().strip()
+            data_src: str = self.thesaurus.n3(row[2])
+
+            if debug:
+                ic(rec_iri, rec_key, data_src)
+
+            # add node to the ERKG
+            self.add_node(
+                rec_iri,
+                NodeKind.DATAREC,
+                attrs = {
+                    "rec_key": rec_key,
+                    "data_src": data_src,
+                },
+            )
+
+
     def promote_taxo_nodes (
         self,
         *,
@@ -213,11 +265,10 @@ for the `SKOS:Concept` items from the taxonomy.
 Also add embeddings for each `SKOS:definition` text in the vector store.
         """
         query: str = """
-SELECT ?concept_iri ?text ?label ?lemma
+SELECT DISTINCT ?concept_iri ?text ?lemma
 WHERE {
   ?concept_iri a skos:Concept ;
     skos:definition ?text ;
-    skos:prefLabel ?label ;
     sz:lemma_phrase ?lemma ;
   .
 }""".strip()
@@ -225,14 +276,13 @@ WHERE {
         qres: SPARQLResult = self.thesaurus.rdf_graph.query(query)
 
         # iterate through the SPARQL query results
-        for row in qres:
+        for i, row in enumerate(qres):
             concept_iri: str = self.thesaurus.n3(row[0])
             text: str = row[1].toPython()
-            label: str = row[2].toPython()
-            lemma_key: str = row[3].toPython()
+            lemma_key: str = row[2].toPython()
 
             if debug:
-                ic(concept_iri, text, label, lemma_key)
+                ic(i, concept_iri, text, lemma_key)
 
             # create an entry in the entity store
             ent: Entity = Entity(
@@ -254,34 +304,27 @@ WHERE {
             # as a chunk in the vector store
             chunk_id: int = self.add_chunk(
                 concept_iri,
-                0, # zero sentence is reserved for taxonomy concepts
+                self.TAXO_SENT_ID, # zero sentence reserved for taxonomy concepts
                 text,
             )
 
             # add node to the ERKG
-            self.iri_map[concept_iri] = found_ent.node_id
-
-            self.test_node(
-                found_ent.node_id,
+            self.add_node(
                 concept_iri,
-                "promote_taxo_nodes",
-            )
-
-            self.erkg.add_node(
-                found_ent.node_id,
-                kind = NodeKind.TAXONOMY.value,
-                label = label,
-                lemma = lemma_key,
-                text = text,
-                iri = concept_iri,
-                rank = found_ent.rank,
-                count = 0,
+                NodeKind.TAXONOMY,
+                attrs = {
+                    "count": found_ent.count,
+                    "rank": found_ent.rank,
+                    "text": text,
+                    "lemma": lemma_key,
+                },
+                stop = False,
             )
 
         # query for SKOS relations within the taxonomy,
         # then add ERKG edges to represent these
         query = """
-SELECT ?ent ?sem_rel ?rel
+SELECT DISTINCT ?ent ?sem_rel ?rel
 WHERE {
   VALUES ?sem_rel {
     skos:broader
@@ -305,62 +348,10 @@ WHERE {
 
             # add a ERKG edge for the related entities
             self.erkg.add_edge(
-                self.iri_map[ent_iri],
-                self.iri_map[rel_iri],
+                ent_iri,
+                rel_iri,
 	        key = sem_rel,
 	        prob = 1.0,
-            )
-
-
-    def promote_data_nodes (
-        self,
-        *,
-        debug: bool = False,
-        ) -> None:
-        """
-Reform the semantic graph in `RDFlib` => property graph in `NetworkX`
-to represent the data record provenance from ER.
-        """
-        query: str = """
-SELECT ?rec_iri ?rec_key ?data_src
-WHERE {
-  ?rec_iri a sz:DataRecord ;
-    dc:identifier ?rec_key ;
-    prov:wasQuotedFrom ?data_src ;
-  .
-}""".strip()
-
-        # iterate through the SPARQL query results
-        qres: SPARQLResult = self.thesaurus.rdf_graph.query(query)
-
-        for row in qres:
-            rec_iri: str = self.thesaurus.n3(row[0])
-            rec_key: str = row[1].toPython().strip()
-            data_src: str = self.thesaurus.n3(row[2])
-
-            if debug:
-                ic(rec_iri, rec_key, data_src)
-
-            # add node to the ERKG
-            node_id: int = self.ent_store.increment_nodes()
-            self.iri_map[rec_iri] = node_id
-
-            self.test_node(
-                node_id,
-                rec_iri,
-                "promote_data_nodes",
-            )
-
-            self.erkg.add_node(
-                node_id,
-                kind = NodeKind.DATAREC.value,
-                label = rec_iri,
-                text = rec_iri,
-                iri = rec_iri,
-                rec_key = rec_key,
-                data_src = data_src,
-                rank = 0.0,
-                count = 0,
             )
 
 
@@ -375,7 +366,7 @@ Reform the semantic graph in `RDFlib` => property graph in `NetworkX`
 to represent the entity definitions from ER.
         """
         query: str = """
-SELECT ?ent ?ent_class ?label
+SELECT DISTINCT ?ent ?ent_class ?label
 WHERE {
   VALUES ?ent_class {
     sz:Person
@@ -398,6 +389,7 @@ WHERE {
             if debug:
                 ic(ent_iri, concept_iri, label)
 
+            ## TODO: THIS LOGIC IS HORKED
             if len(label) < 1:
                 # create a ERKG node, though without an entity definition
                 node_id: int = self.ent_store.increment_nodes()
@@ -425,34 +417,25 @@ WHERE {
                     create = True,
                 )
 
-                node_id = found_ent.node_id
                 rank = found_ent.rank
 
             # add node to the ERKG
-            self.iri_map[ent_iri] = node_id
-
-            self.test_node(
-                node_id,
+            self.add_node(
                 ent_iri,
-                "promote_er_nodes",
-            )
-
-            self.erkg.add_node(
-                node_id,
-                kind = NodeKind.ENTITY.value,
-                label = label,
-                lemma = lemma_key,
-                text = label,
-                iri = ent_iri,
-                rank = rank,
-                count = 0,
+                NodeKind.ENTITY,
+                attrs = {
+                    "count": found_ent.count,
+                    "rank": rank,
+                    "text": label,
+                    "lemma": lemma_key,
+                }
             )
 
             # add a ERKG edge to link to the SKOS:concept class
             self.erkg.add_edge(
-	        node_id,
-                self.iri_map[concept_iri],
-	        key = RDF.type,
+	        ent_iri,
+                concept_iri,
+	        key = self.thesaurus.n3(RDF.type),
 	        prob = 1.0,
             )
 
@@ -469,7 +452,7 @@ to represent the SKOS relations from ER.
         # query blank nodes for ent => ent | rec
         # SKOS relations, then add edges
         query: str = """
-SELECT ?ent ?rel_ent ?sem_rel ?key ?lev
+SELECT DISTINCT ?ent ?rel_ent ?sem_rel ?key ?lev
 WHERE {
   ?bl rdf:predicate ?sem_rel ;
     rdf:subject ?ent ;
@@ -484,10 +467,7 @@ WHERE {
 
         for row in qres:
             ent_iri: str = self.thesaurus.n3(row[0])
-            ent_node_id: int = self.iri_map[ent_iri]
-
             rel_iri: str = self.thesaurus.n3(row[1])
-            rel_node_id: int = self.iri_map[rel_iri]
 
             sem_rel: str = self.thesaurus.n3(row[2])
             prob: float = 1.0
@@ -510,8 +490,8 @@ WHERE {
 
             # add a ERKG edge for ent => ent | rec relations
             self.erkg.add_edge(
-	        ent_node_id,
-                rel_node_id,
+	        ent_iri,
+                rel_iri,
 	        key = sem_rel,
 	        prob = prob,
                 match_key = match_key,
@@ -538,27 +518,21 @@ for the entities extracted from NER.
                     label: str = ent.span.label
 
                 # add node to the ERKG
-                self.test_node(
-                    ent.node_id,
-                    ent.lemma_key,
-                    "promote_ner_nodes",
-                )
-
-                self.erkg.add_node(
-                    ent.node_id,
-                    kind = NodeKind.ENTITY.value,
-                    label = label,
-                    lemma = ent.lemma_key,
-                    source = ent.span.source.value,
-                    text = ent.span.text,
-                    iri = ent.span.iri,
-                    rank = ent.rank,
-                    count = ent.count,
+                self.add_node(
+                    ent.span.iri,
+                    NodeKind.ENTITY,
+                    attrs = {
+                        "count": ent.count,
+                        "rank": ent.rank,
+                        "text": ent.span.text,
+                        "lemma": ent.lemma_key,
+                        "method": ent.span.source.value,
+                    },
                 )
 
 
     ######################################################################
-    ## entity co-occurrence
+    ## manage additional entity context
 
     def co_occur_entities (
         self,
@@ -622,25 +596,57 @@ Connect entities which co-occur within the same sentence.
     ######################################################################
     ## manage the knowledge graph
 
-    def test_node (
+    def add_node (
         self,
-        node_id: int | str,
-        label: str,
-        message: str,
+        iri: str,
+        kind: NodeKind,
         *,
-        full_stop: bool = False,
-        ) -> None:
+        attrs: dict = {},
+        stop: bool = True,
+        debug: bool = False,
+        ) -> dict | None:
         """
-Verify that a `node_id` does not already exist in the ERKG.
+Add a node into the ERKG with required and optional properties.
+
+Required properties: each node must have an IRI as its unique
+identifier, and a `NodeKind` value.
+
+Optional properties: specified as key/value pairs in the `attrs`
+dictionary.
         """
-        if not self.erkg.has_node(node_id):
-            return
+        # test whether the IRI already exists in the ERKG?
+        if self.erkg.has_node(iri):
+            calframe: list = inspect.getouterframes(inspect.currentframe(), 2)
+            caller: str = calframe[1][3]
+            prev_attrs: dict = self.erkg.nodes[iri]
 
-        print(f"{message}: {node_id} {label}")
-        ic(self.erkg.nodes[node_id])
+            print(f"{caller}: {iri} {kind}")
+            ic("PRE-EXISTING", prev_attrs)
 
-        if full_stop:
-            sys.exit(-1)
+            if stop:
+                # if requested for debugging, stop the application
+                sys.exit(-1)
+            else:
+                # return the pre-existing node data and do not update
+                return prev_attrs
+
+        # add a node into the ERKG
+        if debug:
+            ic("ADDING", iri, kind.value, attrs)
+
+        self.erkg.add_node(
+            iri,
+            kind = kind.value,
+        )
+
+        # set the optional node attributes, if any
+        if len(attrs) > 0:
+            nx.set_node_attributes(
+                self.erkg,
+                { iri: attrs },
+            )
+
+        return None
 
 
     def load_erkg (
