@@ -53,14 +53,14 @@ to modify the definitions for other languages and dialects.
     def __init__ (
         self,
         config: dict,
-        domain_ctx: DomainContext,
+        ctx: DomainContext,
         ) -> None:
         """
 Constructor.
         """
         self.config: dict = config
-        self.domain_ctx: DomainContext = domain_ctx
-        self.label_map: dict[ str, str ] = self.domain_ctx.get_label_map()
+        self.ctx: DomainContext = ctx
+        self.label_map: dict[ str, str ] = self.ctx.get_label_map()
         self.ner_pipe: spacy.Language = self.build_ner_pipe()
 
 
@@ -386,7 +386,7 @@ Parse a text chunk, then per sentence:
                     lemma_key = lemma_key,
                 )
 
-                found_ent: Entity = self.domain_ctx.ent_store.encode_entity(
+                found_ent: Entity = self.ctx.ent_store.encode_entity(
                     ent,
                     create = True,
                 )
@@ -398,7 +398,7 @@ Parse a text chunk, then per sentence:
                 ic(sent_id, sent, ent_seq)
 
             # add this sentence to the _textgraph_ in `LexicalGraph`
-            self.domain_ctx.lexical.add_sent(ent_seq)
+            self.ctx.lex.add_sent(ent_seq)
 
             # load an entity sequence vector into `gensim.Word2Vec` using `EntityStore`
             seq_vec: list[ int ] = [
@@ -407,7 +407,7 @@ Parse a text chunk, then per sentence:
                 if ent.node_id is not None
             ]
 
-            self.domain_ctx.ent_store.embed_sequence(seq_vec)
+            self.ctx.ent_store.embed_sequence(seq_vec)
 
             if debug:
                 print(seq_vec)

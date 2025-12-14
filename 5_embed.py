@@ -32,23 +32,23 @@ if __name__ == "__main__":
         format = "turtle",
     )
 
-    work.domain_ctx.ent_store.load_json(
+    work.ctx.ent_store.load_json(
         pathlib.Path(work.config["ent"]["store_path"]),
     )
 
-    work.domain_ctx.ent_store.load_vec(
+    work.ctx.ent_store.load_vec(
         pathlib.Path(work.config["ent"]["vec_path"]),
     )
 
-    work.domain_ctx.lexical.load_graph(
+    work.ctx.lex.load_graph(
         pathlib.Path(work.config["nlp"]["lex_path"]),
     )
 
-    work.domain_ctx.load_erkg(
+    work.ctx.load_erkg(
         pathlib.Path(work.config["erkg"]["erkg_path"]),
     )
 
-    work.domain_ctx.open_vector_tables()
+    work.ctx.open_vector_tables()
     work.load_parser()
 
     # distill graph elements from the lexical graph into the ERKG
@@ -58,27 +58,27 @@ if __name__ == "__main__":
     )
 
     # serialize the intermediate results
-    work.domain_ctx.lexical.save_graph(
+    work.ctx.lex.save_graph(
         pathlib.Path(work.config["nlp"]["lex_path"]),
     )
 
-    work.domain_ctx.save_erkg(
+    work.ctx.save_erkg(
         pathlib.Path(work.config["erkg"]["erkg_path"]),
     )
 
     # TODO: here's where we need to resolve synonyms, after synonyms
     # are introduced into the thesaurus through curation
-    work.domain_ctx.ent_store.train_embeddings()
+    work.ctx.ent_store.train_embeddings()
 
-    work.domain_ctx.ent_store.save_w2v(
+    work.ctx.ent_store.save_w2v(
         pathlib.Path(work.config["ent"]["w2v_path"]),
     )
 
     # TODO: build an `ArrowSpace` computed signal graph and lambdas
     # then compare top-K results with `gensim`
     if False:
-        aspace, gl = work.domain_ctx.ent_store.build_aspace(
-            work.domain_ctx.ent_store.w2v_model,
+        aspace, gl = work.ctx.ent_store.build_aspace(
+            work.ctx.ent_store.w2v_model,
         )
 
 

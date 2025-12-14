@@ -28,7 +28,7 @@ if __name__ == "__main__":
     )
 
     work.load_assets()
-    work.domain_ctx.open_vector_tables()
+    work.ctx.open_vector_tables()
     work.load_parser()
 
     domain: dict = json.load(

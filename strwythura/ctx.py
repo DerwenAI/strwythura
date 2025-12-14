@@ -73,7 +73,7 @@ vocabulary, taxonomy, thesaurus, and ontology.
         config: dict,
         thesaurus: Thesaurus,
         ent_store: EntityStore,
-        lexical: LexicalGraph,
+        lex: LexicalGraph,
         ) -> None:
         """
 Constructor.
@@ -84,13 +84,8 @@ Constructor.
         self.thesaurus: Thesaurus = thesaurus
         self.ent_store: EntityStore = ent_store
 
-        # some entities and data records won't have lemma, so we'll
-        # provide an alternative means of node lookup based on IRI
-        ## TODO: remove this
-        self.iri_map: dict[ str, str ] = {}
-
         # intermediate parsing outcomes
-        self.lexical: LexicalGraph = lexical
+        self.lex: LexicalGraph = lex
 
         # the constructed knowledge graph in `NetworkX`
         # each edge has: `src_id`, `dst_id`, `key` (relation), `prob`
@@ -347,11 +342,12 @@ WHERE {
                 ic(ent_iri, sem_rel, rel_iri)
 
             # add a ERKG edge for the related entities
-            self.erkg.add_edge(
+            self.add_edge(
                 ent_iri,
+                sem_rel,
                 rel_iri,
-	        key = sem_rel,
 	        prob = 1.0,
+                update = True,
             )
 
 
@@ -432,11 +428,12 @@ WHERE {
             )
 
             # add a ERKG edge to link to the SKOS:concept class
-            self.erkg.add_edge(
+            self.add_edge(
 	        ent_iri,
+                self.thesaurus.n3(RDF.type),
                 concept_iri,
-	        key = self.thesaurus.n3(RDF.type),
 	        prob = 1.0,
+                update = True,
             )
 
 
@@ -489,13 +486,16 @@ WHERE {
                 ic(ent_iri, rel_iri, sem_rel, match_key, match_level)
 
             # add a ERKG edge for ent => ent | rec relations
-            self.erkg.add_edge(
+            self.add_edge(
 	        ent_iri,
+                sem_rel,
                 rel_iri,
-	        key = sem_rel,
 	        prob = prob,
-                match_key = match_key,
-                match_level = match_level,
+                attrs = {
+                    "match_key": match_key,
+                    "match_level": match_level,
+                },
+                update = True,
             )
 
 
@@ -585,7 +585,7 @@ Connect entities which co-occur within the same sentence.
                     ic(pair, count, prob)
 
                 # add relation into the lexical graph
-                self.lexical.lex_graph.add_edge(
+                self.lex.lex_graph.add_edge(
                     pair[0],
                     pair[1],
                     key = sem_rel,
@@ -595,6 +595,75 @@ Connect entities which co-occur within the same sentence.
 
     ######################################################################
     ## manage the knowledge graph
+
+    def add_edge (
+        self,
+        src_iri: str,
+        rel_iri: str,
+        dst_iri: str,
+        prob = 0.0,
+        *,
+        attrs: dict = {},
+        update: bool = False,
+        stop: bool = True,
+        debug: bool = False,
+        ) -> dict | None:
+        """
+Add an edge into the ERKG with required and optional properties.
+
+Required properties: each edge must have an IRI as its `MultiGraph`
+unique key, and a `prob` probability value.
+
+Optional properties: specified as key/value pairs in the `attrs`
+dictionary.
+        """
+        edge: tuple = ( src_iri, dst_iri, rel_iri, )
+        pre_exist: bool = False
+
+        # override conflicting settings
+        if update:
+            stop = False
+
+        # test whether the edge IRI already exists in the ERKG?
+        if self.erkg.has_edge(*edge):
+            pre_exist = True
+
+            calframe: list = inspect.getouterframes(inspect.currentframe(), 2)
+            caller: str = calframe[1][3]
+            prev_attrs: dict = self.erkg.edges[*edge]
+            print(f"dupe: {caller} {edge} {prob} {attrs}")
+
+            if debug | stop:
+                print("PRE-EXISTING EDGE", prev_attrs)
+
+            if stop:
+                # if requested for debugging, stop the application
+                sys.exit(-1)
+            elif not update:
+                # return the pre-existing edge data and do not update
+                return prev_attrs
+
+        # add an edge into the ERKG
+        if not pre_exist:
+            if debug:
+                ic("ADD EDGE", edge, prob, attrs)
+
+            self.erkg.add_edge(
+	        src_iri,
+                dst_iri,
+	        key = rel_iri,
+	        prob = prob,
+            )
+
+        # set the optional edge attributes, if any
+        if (update or not pre_exist) and len(attrs) > 0:
+            nx.set_edge_attributes(
+                self.erkg,
+                { edge: attrs },
+            )
+
+        return None
+
 
     def add_node (
         self,
@@ -614,14 +683,15 @@ identifier, and a `NodeKind` value.
 Optional properties: specified as key/value pairs in the `attrs`
 dictionary.
         """
-        # test whether the IRI already exists in the ERKG?
+        # test whether the node IRI already exists in the ERKG?
         if self.erkg.has_node(iri):
             calframe: list = inspect.getouterframes(inspect.currentframe(), 2)
             caller: str = calframe[1][3]
             prev_attrs: dict = self.erkg.nodes[iri]
+            print(f"dupe: {caller} {iri} {kind}")
 
-            print(f"{caller}: {iri} {kind}")
-            ic("PRE-EXISTING", prev_attrs)
+            if debug | stop:
+                print("PRE-EXISTING NODE", prev_attrs)
 
             if stop:
                 # if requested for debugging, stop the application
@@ -632,7 +702,7 @@ dictionary.
 
         # add a node into the ERKG
         if debug:
-            ic("ADDING", iri, kind.value, attrs)
+            ic("ADD NODE", iri, kind.value, attrs)
 
         self.erkg.add_node(
             iri,

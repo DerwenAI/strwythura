@@ -8,6 +8,7 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
 import ssl
+import unicodedata
 
 from bs4 import BeautifulSoup
 import requests
@@ -54,6 +55,31 @@ previous serialized cache from disk.
         return session
 
 
+    def scrub_text (
+        self,
+        text: str | None,
+        ) -> str | None:
+        """
+Scrub text of non-printable characters, typesetting artifacts, UTF-8 errors, etc.
+Courtesy of <https://github.com/DerwenAI/pytextrank>
+        """
+        if text is None:
+            return None
+
+        #return str(unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("utf-8").replace("\u200b", ""))
+
+        min_scrub: str = unicodedata.normalize(
+            "NFKD",
+            text,
+            #str(from_bytes(str.encode(text)).best()) # unneeded when unicode issues are fixed in the data
+        ).replace("\u200b", "").strip()
+
+        #min_scrub: str = unicodedata.normalize("NFKD", text).replace("\u200b", "").strip()
+        #max_scrub: str = min_scrub.encode("ascii", "ignore").decode("utf-8").strip()
+
+        return min_scrub
+
+
     def scrape_html (
         self,
         url: str,
@@ -75,6 +101,6 @@ A simple web page content scraper, which returns a list of text paragraphs.
         )
 
         return [
-            para.text.strip()
+            self.scrub_text(para.text.strip())
             for para in soup.find_all("p")
         ]

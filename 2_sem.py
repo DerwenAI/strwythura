@@ -27,7 +27,7 @@ if __name__ == "__main__":
         config_path = pathlib.Path("config.toml"),
     )
 
-    work.domain_ctx.open_vector_tables(create = True)
+    work.ctx.open_vector_tables(create = True)
     work.load_parser()
 
     domain: dict = json.load(
@@ -51,11 +51,11 @@ if __name__ == "__main__":
         format = "turtle",
     )
 
-    work.domain_ctx.ent_store.save_json(
+    work.ctx.ent_store.save_json(
         pathlib.Path(work.config["ent"]["store_path"]),
     )
 
-    work.domain_ctx.save_erkg(
+    work.ctx.save_erkg(
         pathlib.Path(work.config["erkg"]["erkg_path"]),
     )
 

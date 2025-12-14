@@ -172,7 +172,7 @@ Search the entity store for direct matches from NER
 
                 # try to find known entities directly
                 if item.label in [ "NOUN" ] and lemma_key not in self.work.parser.STOP_WORDS:
-                    found_ent: Entity = self.work.domain_ctx.ent_store.encode_entity(
+                    found_ent: Entity = self.work.ctx.ent_store.encode_entity(
                         Entity(span = item, lemma_key = lemma_key)
                     )
 
@@ -220,7 +220,7 @@ Search the vector store for chunks in the neighborhood of the question.
         chunk_nodes: dict[ int, float ] = {}
         sem_rel: str = f"{STRW_PREFIX}within_chunk"
 
-        chunk_list: list[ dict ] = self.work.domain_ctx.chunk_table.search(
+        chunk_list: list[ dict ] = self.work.ctx.chunk_table.search(
             question
         ).select(
             [ "uid", "_distance" ]
@@ -233,7 +233,7 @@ Search the vector store for chunks in the neighborhood of the question.
             distance: float = round((100.0 - row["_distance"]) / 100.0, 4)
             rag_chunks[chunk_id] = distance
 
-            for node_id, _, keys, weight in self.work.domain_ctx.erkg.in_edges(
+            for node_id, _, keys, weight in self.work.ctx.erkg.in_edges(
                 nbunch = f"chunk_{chunk_id}",
                     data = "weight",
                     keys = True,
@@ -250,7 +250,7 @@ Search the vector store for chunks in the neighborhood of the question.
         forest: MinHashLSHForest = MinHashLSHForest(num_perm = num_perm)
 
         for node_id, metric in chunk_nodes.items():
-            hit: dict = self.work.domain_ctx.erkg.nodes[node_id]
+            hit: dict = self.work.ctx.erkg.nodes[node_id]
             mh_hit: MinHash = MinHash(num_perm = num_perm)
 
             for lemma in hit["lemma"].split(" "):
@@ -321,7 +321,7 @@ most-referenced entities in the subgraph.
             anchor_nodes,
         )
 
-        subgraph: nx.MultiDiGraph = self.work.domain_ctx.erkg.subgraph(
+        subgraph: nx.MultiDiGraph = self.work.ctx.erkg.subgraph(
             anchor_nodes.union(set(subgraph_iter))
         )
 
@@ -331,7 +331,7 @@ most-referenced entities in the subgraph.
         ).items()
 
         for node, rank in sorted(rank_iter, key = lambda x: x[1], reverse = True):
-            dat: dict = self.work.domain_ctx.erkg.nodes[node]
+            dat: dict = self.work.ctx.erkg.nodes[node]
 
             if debug:
                 ic(node, rank, dat)
@@ -356,13 +356,13 @@ In other words, this emulates a _semantic random walk_.
                 ic(pair)
 
             try:
-                for path in nx.all_shortest_paths(self.work.domain_ctx.erkg, pair[0], pair[1]):
+                for path in nx.all_shortest_paths(self.work.ctx.erkg, pair[0], pair[1]):
                     if debug:
                         ic(path)
 
                     for node in path:
                         if node not in pair:
-                            dat: dict = self.work.domain_ctx.erkg.nodes[node]
+                            dat: dict = self.work.ctx.erkg.nodes[node]
 
                             if debug:
                                 ic(node, dat)
@@ -386,8 +386,8 @@ Find the neighboring chunks for each _anchor node_.
             if debug:
                 ic(node)
 
-            for neighbor in self.work.domain_ctx.erkg.neighbors(node):
-                dat: dict = self.work.domain_ctx.erkg.nodes[neighbor]
+            for neighbor in self.work.ctx.erkg.neighbors(node):
+                dat: dict = self.work.ctx.erkg.nodes[neighbor]
 
                 if dat["kind"] == NodeKind.CHUNK.value:
                     if debug:
@@ -410,10 +410,10 @@ Perform a semantic expansion using entity embeddings.
         neighbors: dict[ int, float ] = {}
 
         for node_id in anchor_nodes:
-            anchor_node: dict = self.work.domain_ctx.erkg.nodes[node_id]
+            anchor_node: dict = self.work.ctx.erkg.nodes[node_id]
 
             try:
-                for uid, distance in self.work.domain_ctx.ent_store.w2v_model.wv.most_similar(
+                for uid, distance in self.work.ctx.ent_store.w2v_model.wv.most_similar(
                     str(node_id),
                     topn = w2v_top_k,
                 ):
@@ -424,7 +424,7 @@ Perform a semantic expansion using entity embeddings.
                 pass
 
         for neigh_id, distance in sorted(neighbors.items(), key = lambda x: x[1]):
-            neighbor: dict = self.work.domain_ctx.erkg.nodes[neigh_id]
+            neighbor: dict = self.work.ctx.erkg.nodes[neigh_id]
 
             if "source" in neighbor and EntitySource(neighbor["source"]) <= EntitySource.NER:
                 anchor_nodes.add(neigh_id)
@@ -439,7 +439,7 @@ Retrieve text for the combined list of chunks.
         """
         id_list: str = ", ".join([ str(c_id) for c_id in rag_chunks.keys() ])
 
-        chunks: list[ str ] = self.work.domain_ctx.chunk_table.search().where(
+        chunks: list[ str ] = self.work.ctx.chunk_table.search().where(
             f"uid IN ({id_list})"
         ).select(
             [ "text" ]
@@ -473,7 +473,7 @@ leveraging the ERKG and entity embeddings.
             ic(rag_chunks)
 
             for node_id in anchor_nodes:
-                anchor_node: dict = self.work.domain_ctx.erkg.nodes[node_id]
+                anchor_node: dict = self.work.ctx.erkg.nodes[node_id]
                 ic(anchor_node)
 
         # perform a semantic expansion using entity embeddings

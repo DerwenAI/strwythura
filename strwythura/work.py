@@ -7,6 +7,7 @@ Manage the workflow components and dependency injection.
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
+import json
 import logging
 import os
 import pathlib
@@ -56,7 +57,7 @@ Constructor.
         self.thesaurus: Thesaurus = Thesaurus()
         self.scraper: Scraper = Scraper(self.config)
 
-        self.domain_ctx: DomainContext = self.load_class(
+        self.ctx: DomainContext = self.load_class(
             self.config["ctx"]["domain_class"],
             self.config,
             self.thesaurus,
@@ -90,7 +91,7 @@ models used in the `spaCy` NLP pipeline.
         self.parser = self.load_class(
             self.config["nlp"]["parser_class"],
             self.config,
-            self.domain_ctx,
+            self.ctx,
         )
 
 
@@ -129,10 +130,10 @@ Reform the `RDFlib` semantic graph => `NetworkX` property graph
 as a "backbone" for structuring the knowledge graph, prior to
 entity linking from unstructured sources.
         """
-        self.domain_ctx.promote_taxo_nodes()
-        self.domain_ctx.promote_er_nodes(self.parser)
-        self.domain_ctx.promote_data_nodes()
-        self.domain_ctx.promote_er_edges()
+        self.ctx.promote_taxo_nodes()
+        self.ctx.promote_er_nodes(self.parser)
+        self.ctx.promote_data_nodes()
+        self.ctx.promote_er_edges()
 
 
     ######################################################################
@@ -160,7 +161,7 @@ For each of the given URLs:
 
             # add each text chunk and its embedding to the vector store
             for chunk_text in self.scraper.scrape_html(url):
-                chunk: TextChunk = self.domain_ctx.add_chunk(
+                chunk: TextChunk = self.ctx.add_chunk(
                     url,
                     sent_id,
                     chunk_text,
@@ -173,8 +174,13 @@ For each of the given URLs:
                     debug = debug,
                 )
 
-                if debug:
+                if debug | True:
                     ic(chunk, num_sent)
+
+                ## TODO: debugging
+                if chunk.uid == 51:
+                    with open("debug.json", "w", encoding = "utf-8") as fp:
+                        fp.write(json.dumps(chunk.model_dump(mode = "json")))
 
                 sent_id += num_sent
 
@@ -201,32 +207,32 @@ entity linking:
         # the `weight` and `count` to normalize as a ranking, then
         # update the rank values in both the lexical graph and the
         # entity store
-        for _, row in self.domain_ctx.lexical.run_textrank().iterrows():
+        for _, row in self.ctx.lex.run_textrank().iterrows():
             node_id: int = row["node_id"]
             rank: float = round(float(row["rank"]), 5)
 
             nx.set_node_attributes(
-                self.domain_ctx.lexical.lex_graph,
+                self.ctx.lex.lex_graph,
                 { node_id : rank },
                 "rank",
             )
 
-            lemma_key: str = self.domain_ctx.lexical.lex_graph.nodes[node_id]["lemma_key"]
-            ent: Entity = self.domain_ctx.ent_store.entities[lemma_key]
+            lemma_key: str = self.ctx.lex.lex_graph.nodes[node_id]["lemma_key"]
+            ent: Entity = self.ctx.ent_store.entities[lemma_key]
             ent.rank = rank
 
         # calculate the conditional probability for each pair of
         # entities which co-occur in a sentence, then represent
         # in the `LexicalGraph` using semantic relations
-        self.domain_ctx.co_occur_entities()
+        self.ctx.co_occur_entities()
 
         # promote distilled entities into the knowledge graph
-        self.domain_ctx.promote_ner_nodes()
+        self.ctx.promote_ner_nodes()
 
         # cross-link chunks with entities
-        for ent in self.domain_ctx.ent_store.entities.values():
+        for ent in self.ctx.ent_store.entities.values():
             for ent_inst in ent.inst:
-                self.domain_ctx.erkg.add_edge(
+                self.ctx.erkg.add_edge(
                     ent.node_id,
                     f"chunk_{ent_inst.chunk_id}",
                     key = f"{STRW_PREFIX}within_chunk",
@@ -250,18 +256,18 @@ De-serialize assets from the previous steps.
             format = "turtle",
         )
 
-        self.domain_ctx.ent_store.load_json(
+        self.ctx.ent_store.load_json(
             pathlib.Path(self.config["ent"]["store_path"]),
         )
 
-        self.domain_ctx.ent_store.load_w2v(
+        self.ctx.ent_store.load_w2v(
             pathlib.Path(self.config["ent"]["w2v_path"]),
         )
 
-        self.domain_ctx.lexical.load_graph(
+        self.ctx.lex.load_graph(
             pathlib.Path(self.config["nlp"]["lex_path"]),
         )
 
-        self.domain_ctx.load_erkg(
+        self.ctx.load_erkg(
             pathlib.Path(self.config["erkg"]["erkg_path"]),
         )
