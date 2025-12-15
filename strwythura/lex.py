@@ -77,21 +77,21 @@ in a sentence.
         for hop in range(self.config["tr"]["tr_lookback"]):
             for ent_pos, ent in enumerate(ent_seq[: -1 - hop]):
                 rel: Entity = ent_seq[hop + ent_pos + 1]
-                edge: tuple = ( ent.node_id, rel.node_id, sem_rel, )
+                edge: tuple = ( ent.uid, rel.uid, sem_rel, )
 
                 if debug:
                     ic(edge)
 
-                if not self.lex_graph.has_node(ent.node_id):
+                if not self.lex_graph.has_node(ent.uid):
                     self.lex_graph.add_node(
-                        ent.node_id,
+                        ent.uid,
                         lemma_key = ent.lemma_key,
                         count = ent.count,
                     )
 
-                if not self.lex_graph.has_node(rel.node_id):
+                if not self.lex_graph.has_node(rel.uid):
                     self.lex_graph.add_node(
-                        rel.node_id,
+                        rel.uid,
                         lemma_key = rel.lemma_key,
                         count = rel.count,
                     )

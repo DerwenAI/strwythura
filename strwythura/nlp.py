@@ -11,8 +11,6 @@ import typing
 import warnings
 
 from icecream import ic
-from rdflib import Namespace
-from rdflib.namespace import OWL
 import spacy
 
 from .ctx import DomainContext
@@ -27,6 +25,8 @@ and relations, based on `GLiNER`, `DSPy`, and textgraphs.
 The default definitions are for American English usage. Subclass
 to modify the definitions for other languages and dialects.
     """
+    BASE_CONCEPT: str = "owl:Thing"
+
     STOP_WORDS: set[ str ] = set([
         "PRON.each",
         "PRON.he",
@@ -181,7 +181,7 @@ of priority:
                 text = nck.text,
                 span = nck,
                 source = EntitySource.NC,
-                iri = OWL.Thing,
+                iri = self.BASE_CONCEPT,
             )
             for nck in sent.noun_chunks
             if len(nck) > 1
@@ -211,7 +211,7 @@ of priority:
                 text = tok.text.strip(),
                 span = [ tok ],
                 label = self.normalize_pos(tok.pos_),
-                iri = OWL.Thing,
+                iri = self.BASE_CONCEPT,
             )
             for tok in sent
         ]
@@ -404,9 +404,9 @@ using `EntityStore`
 
         # load an entity sequence vector into `gensim.Word2Vec` using `EntityStore`
         seq_vec: list[ int ] = [
-            ent.node_id
+            ent.uid
             for ent in ent_seq
-            if ent.node_id is not None
+            if ent.uid is not None
         ]
 
         self.ctx.ent_store.embed_sequence(seq_vec)

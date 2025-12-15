@@ -197,6 +197,9 @@ For each of the given URLs:
                     "\n\n".join(chunks),
                 )
 
+                if debug:
+                    ic(chunk)
+
                 # parse each paragraph
                 for para in chunks:
                     num_sent: int = self.parser.parse_para(
@@ -205,7 +208,7 @@ For each of the given URLs:
                         debug = debug,
                     )
 
-                    if debug | True:
+                    if debug:
                         ic(para, num_sent)
 
                     sent_id += num_sent
@@ -247,6 +250,9 @@ entity linking:
             ent: Entity = self.ctx.ent_store.entities[lemma_key]
             ent.rank = rank
 
+        # cross-link entities and chunks
+        self.ctx.link_entity_chunks()
+
         # calculate the conditional probability for each pair of
         # entities which co-occur in a sentence, then represent
         # in the `LexicalGraph` using semantic relations
@@ -254,18 +260,6 @@ entity linking:
 
         # promote distilled entities into the knowledge graph
         self.ctx.promote_ner_nodes()
-
-        # cross-link chunks with entities
-        for ent in self.ctx.ent_store.entities.values():
-            for ent_inst in ent.inst:
-                self.ctx.erkg.add_edge(
-                    ent.node_id,
-                    f"chunk_{ent_inst.chunk_id}",
-                    key = f"{STRW_PREFIX}within_chunk",
-                    prob = 1.0,
-                    weight = ent.rank,
-                    sent_id = ent_inst.sent_id,
-                )
 
 
     ######################################################################

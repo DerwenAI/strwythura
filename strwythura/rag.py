@@ -177,7 +177,7 @@ Search the entity store for direct matches from NER
                     )
 
                     if found_ent is not None:
-                        anchor_nodes.add(found_ent.node_id)
+                        anchor_nodes.add(found_ent.uid)
 
                 # as a fallback, keep the lemma keys for each noun phrase to use in an LSH
                 if item.source in [ EntitySource.NER ]:

@@ -71,10 +71,19 @@ the constructed knowledge graph.
     """
     span: NounSpan
     lemma_key: str
-    node_id: int | None = None
+    uid: int | None = None
     inst: list[ EntityInstance ] = []
     count: int = 0
     rank: float = 0.0
+
+    def get_iri (
+        self,
+        ) -> str:
+        """
+Construct an IRI based on the `lemma_key` value.
+        """
+        stub: str = self.lemma_key.replace(" ", "_")
+        return f"{STRW_PREFIX}lemma_{stub}"
 
 
 def de_token_span (

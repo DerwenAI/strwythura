@@ -33,7 +33,9 @@ from .ent import EntityStore
 from .lex import LexicalGraph
 
 
-# NB: `LanceDB` requires the embedding model to be hard-coded (so far)
+# NB: `LanceDB` requires the embedding model to be hard-coded
+# at compile time -- would be better to have as a configuration
+# parameter which could be changed at run time.
 EMBED_MODEL: str = "BAAI/bge-small-en-v1.5"
 
 EMBED_FUNC: transformers.TransformersEmbeddingFunction = \
@@ -50,14 +52,15 @@ Represents one chunk of text from a document.
     text: str = EMBED_FUNC.SourceField()
     vector: Vector(EMBED_FUNC.ndims()) = EMBED_FUNC.VectorField(default = None)
 
-
+    @classmethod
     def get_iri (
-        self,
+        cls,
+        uid: int,
         ) -> str:
         """
 Construct an IRI based on the chunk `uid` value.
         """
-        return f"{STRW_PREFIX}chunk_{self.uid}"
+        return f"{STRW_PREFIX}chunk_{uid}"
 
 
 class DomainContext:
@@ -156,7 +159,7 @@ Add a chunk into both the vector store and the ERKG.
 
         # add node to the ERKG
         self.add_node(
-            chunk.get_iri(),
+            TextChunk.get_iri(chunk.uid),
             NodeKind.CHUNK,
             attrs = {
                 "chunk" : chunk.uid,
@@ -214,8 +217,8 @@ WHERE {
         debug: bool = False,
         ) -> None:
         """
-Reform the semantic graph in `RDFlib` => property graph in `NetworkX`
-to represent the data record provenance from ER.
+Reform selected RDF triples in `RDFlib` to be represented in a `NetworkX`
+property graph: for the provenance of data records used in ER.
         """
         query: str = """
 SELECT DISTINCT ?rec_iri ?rec_key ?data_src
@@ -254,8 +257,8 @@ WHERE {
         debug: bool = False,
         ) -> None:
         """
-Reform the semantic graph in `RDFlib` => property graph in `NetworkX`
-for the `SKOS:Concept` items from the taxonomy.
+Reform selected RDF triples in `RDFlib` to be represented in a `NetworkX`
+property graph: for the `SKOS:Concept` items from the taxonomy.
 
 Also add embeddings for each `SKOS:definition` text in the vector store.
         """
@@ -358,8 +361,8 @@ WHERE {
         debug: bool = False,
         ) -> None:
         """
-Reform the semantic graph in `RDFlib` => property graph in `NetworkX`
-to represent the entity definitions from ER.
+Reform selected RDF triples in `RDFlib` to be represented in a `NetworkX`
+property graph: for the entity definitions from ER.
         """
         query: str = """
 SELECT DISTINCT ?ent ?ent_class ?label
@@ -385,10 +388,11 @@ WHERE {
             if debug:
                 ic(ent_iri, concept_iri, label)
 
-            ## TODO: THIS LOGIC IS HORKED
+            ## TODO: THIS LOGIC IS HORKED!!
+            ## each ER needs to become a distinct entity
             if len(label) < 1:
                 # create a ERKG node, though without an entity definition
-                node_id: int = self.ent_store.increment_nodes()
+                uid: int = self.ent_store.increment_uid()
                 lemma_key: str = ""
                 label = ent_iri
 
@@ -443,8 +447,8 @@ WHERE {
         debug: bool = False,
         ) -> None:
         """
-Reform the semantic graph in `RDFlib` => property graph in `NetworkX`
-to represent the SKOS relations from ER.
+Reform selected RDF triples in `RDFlib` to be represented in a `NetworkX`
+property graph: for the SKOS relations from ER.
         """
         # query blank nodes for ent => ent | rec
         # SKOS relations, then add edges
@@ -505,21 +509,15 @@ WHERE {
         debug: bool = False,
         ) -> None:
         """
-Reform the semantic graph in `RDFlib` => property graph in `NetworkX`
-for the entities extracted from NER.
+Reform selected RDF triples in `RDFlib` to be represented in a `NetworkX`
+property graph: for the entities extracted from NER.
         """
         # iterate through the entity store
         for ent in self.ent_store.entities.values():
             if ent.span.source >= EntitySource.NER:
-                if ent.span.label is None:
-                    # create a default label for noun chunks
-                    label: str = "NC"
-                else:
-                    label: str = ent.span.label
-
                 # add node to the ERKG
                 self.add_node(
-                    ent.span.iri,
+                    ent.get_iri(),
                     NodeKind.ENTITY,
                     attrs = {
                         "count": ent.count,
@@ -528,11 +526,46 @@ for the entities extracted from NER.
                         "lemma": ent.lemma_key,
                         "method": ent.span.source.value,
                     },
+                    stop = False,
+                )
+
+                # add a ERKG edge to link to the SKOS:concept class
+                self.add_edge(
+	            ent.get_iri(),
+                    self.thesaurus.n3(RDF.type),
+                    ent.span.iri,
+	            prob = 1.0,
+                    update = True,
                 )
 
 
     ######################################################################
     ## manage additional entity context
+
+    def link_entity_chunks (
+        self,
+        *,
+        debug: bool = False,
+        ) -> None:
+        """
+Cross-link entities with the chunks in which they appear.
+        """
+        sem_rel: str = f"{STRW_PREFIX}within_chunk"
+
+        for ent in self.ent_store.entities.values():
+            for ent_inst in ent.inst:
+                self.add_edge(
+                    ent.get_iri(),
+                    sem_rel,
+                    TextChunk.get_iri(ent_inst.chunk_id),
+                    prob = 1.0,
+                    attrs = {
+                        "weight": ent.rank,
+                        "sent": ent_inst.sent_id,
+                    },
+                    update = True,
+                )
+
 
     def co_occur_entities (
         self,
@@ -546,10 +579,16 @@ Connect entities which co-occur within the same sentence.
         inst_dict: dict[ int, dict[ int, int ]] = defaultdict(lambda: defaultdict(list))
         counter: Counter = Counter() 
 
-        # partition entity co-occurrence by `( chunk_id, sent_id, node_id, )`
+        decoder: dict[ int, Entity ] = {
+            ent.uid: ent
+            for ent in self.ent_store.entities.values()
+        }
+
+        # partition entity co-occurrence by `( chunk_id, sent_id, ent.uid, )`
         for ent in self.ent_store.entities.values():
-            for ent_inst in ent.inst:
-                inst_dict[ent_inst.chunk_id][ent_inst.sent_id].append(ent.node_id)
+            if ent.span.source >= EntitySource.NER:
+                for ent_inst in ent.inst:
+                    inst_dict[ent_inst.chunk_id][ent_inst.sent_id].append(ent.uid)
 
         if debug:
             ic(inst_dict)
@@ -584,12 +623,13 @@ Connect entities which co-occur within the same sentence.
                 if debug:
                     ic(pair, count, prob)
 
-                # add relation into the lexical graph
-                self.lex.lex_graph.add_edge(
-                    pair[0],
-                    pair[1],
-                    key = sem_rel,
+                # add relation into the ERKG
+                self.add_edge(
+                    decoder[pair[0]].get_iri(),
+                    sem_rel,
+                    decoder[pair[1]].get_iri(),
                     prob = prob,
+                    update = True,
                 )
 
 

@@ -39,24 +39,24 @@ Constructor.
         # manage the known entities
         self.entities: OrderedDict = OrderedDict()
 
-        # node IDs used for the `NetworkX` property graph
-        self.max_nodes: int = 0
+        # entity UIDs used for embedding, etc.
+        self.max_uid: int = 0
 
         # entity embeddings
-        self.w2v_vectors: list[list[ int ]] = []
+        self.w2v_vectors: list[ list[ int ] ] = []
         self.w2v_model: gensim.models.Word2Vec | None = None
 
 
-    def increment_nodes (
+    def increment_uid (
         self,
         ) -> int:
         """
 Increment the count of nodes.
         """
-        node_id: int = self.max_nodes
-        self.max_nodes += 1
+        uid: int = self.max_uid
+        self.max_uid += 1
 
-        return node_id
+        return uid
 
 
     def encode_entity (
@@ -67,7 +67,7 @@ Increment the count of nodes.
         ) -> Entity | None:
         """
 Encode a known entity, indexed by its parsed lemma key in the entity
-store, and set its `node_id` as a unique identifier in the ERKG.
+store, and set its IRI as a unique identifier in the ERKG.
 
 This encoding serves as a UID for nodes in the semantic layer and
 within vector representation for embeddings.
@@ -81,13 +81,13 @@ Return the entity which is stored.
         if create:
             if ent.lemma_key not in self.entities:
                 # add a new entity into the store
-                ent.node_id = self.increment_nodes()
+                ent.uid = self.increment_uid()
                 ent.count = 1
                 self.entities[ent.lemma_key] = ent
 
             elif ent.span.source < self.entities[ent.lemma_key].span.source:
                 # replace previous entity with one from a a higher priority source
-                ent.node_id = self.entities[ent.lemma_key].node_id
+                ent.uid = self.entities[ent.lemma_key].uid
                 ent.count = self.entities[ent.lemma_key].count + 1
                 self.entities[ent.lemma_key] = ent
 
@@ -100,12 +100,13 @@ Return the entity which is stored.
 
     def decode_entity (
         self,
-        node_id: int,
+        uid: int,
         ) -> Entity | None:
         """
-Lookup an entity based on its UID.
+Lookup an entity based on its `uid`.
+TODO: not sure this works anymore!!
         """
-        return list(self.entities.values())[node_id]
+        return list(self.entities.values())[uid]
 
 
     def load_json (
@@ -125,9 +126,9 @@ any previous definitions.
                 )
 
                 self.entities[ent.lemma_key] = ent
-                self.max_nodes = max(self.max_nodes, ent.node_id + 1)
+                self.max_uid = max(self.max_uid, ent.uid + 1)
 
-        ic(self.max_nodes, len(self.entities))
+        ic(self.max_uid, len(self.entities))
 
 
     def save_json (
@@ -255,15 +256,15 @@ then compare with `gensim` similarity measures.
         # extract the embedding vectors from a `gensim` model
         embed_vecs: list = []
 
-        for node_id, lemma_key in enumerate(self.entities.keys()):
-            entity_key: str = str(node_id)
+        for uid, lemma_key in enumerate(self.entities.keys()):
+            entity_key: str = str(uid)
 
             if entity_key in w2v_model.wv.index_to_key:
                 embedding: list[ float ] = w2v_model.wv[entity_key]
                 embed_vecs.append(embedding)
 
                 if debug:
-                    ic(node_id, lemma_key)
+                    ic(uid, lemma_key)
                     print(embedding)
 
         # build an ArrowSpace with computed signal graph and lambdas
@@ -285,29 +286,29 @@ then compare with `gensim` similarity measures.
 
         # search comparable items
         # defaults: k = nitems, alpha = 0.9, beta = 0.1
-        for query_id in range(len(self.entities)):
+        for query_uid in [ ent.uid for ent in self.entities.values() ]:
             query: np.array = np.array(
-                embed_vecs[query_id],
+                embed_vecs[query_uid],
                 dtype = np.float64,
             )
 
             if debug:
-                print("\n", self.decode_entity(query_id))
+                print("\n", self.decode_entity(query_uid))
 
             similar_words = w2v_model.wv.most_similar(
-                str(query_id),
+                str(query_uid),
                 topn = 5,
             )
 
             if debug:
                 ic(similar_words)
 
-                for node_id, sim_metric in aspace.search(query, gl, tau):
-                    if node_id != query_id:
+                for uid, sim_metric in aspace.search(query, gl, tau):
+                    if uid != query_uid:
                         ic(
-                            node_id,
+                            uid,
                             sim_metric,
-                            self.decode_entity(node_id),
+                            self.decode_entity(uid),
                         )
 
         # return the ArrowSpace and Graph laplacian

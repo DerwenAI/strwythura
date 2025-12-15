@@ -1,15 +1,35 @@
+Motto: "nos intelligentia sumus" -- vis-a-vis AI definition
+
 ## TODOs
 
-  * fix Part 5: `promote_ner_nodes()`
-     - refactor `iri` as a `rdf:type` edge
-     - make `lemma_key` into the IRI
+Quoi? who is yuhan li?
+ic| ex: KeyError(138)
+Traceback (most recent call last):
+  File "/Users/paco/src/strwythura/strwythura/rag.py", line 547, in question_answer
+    chunks: list[ str ] = self.run_errag(
+                          ^^^^^^^^^^^^^^^
+  File "/Users/paco/src/strwythura/strwythura/rag.py", line 480, in run_errag
+    self.perform_semantic_expansion(
+  File "/Users/paco/src/strwythura/strwythura/rag.py", line 413, in perform_semantic_expansion
+    anchor_node: dict = self.work.ctx.erkg.nodes[node_id]
+                        ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/paco/src/strwythura/.venv/lib/python3.11/site-packages/networkx/classes/reportviews.py", line 196, in __getitem__
+    return self._nodes[n]
+           ~~~~~~~~~~~^^^
+KeyError: 138
+
+
+  * why isn't the NER `NOUN.dementia` getting promoted into the ERKG
+
+  * fix Part 5:
      - also update `count` and `rank` for ER and TAXO nodes in the ERKG
-
-  * SHACL verify: NER nodes in ERKG should always have a `rdf:type` IRI class
-
-  * `ent.node_id` => `ent.uid`
+     - fix the logic in `ctx.py: promote_er_nodes()`
 
   * refactor ERKG to its own module
+
+  * Streamlit dashboard view of `rag.py`
+
+  * filter the `strw:co_occurs_with` relations based on quantiles
 
   * fix `n3()` prefix resolution for `lex.py`, etc.
 
@@ -41,21 +61,25 @@
      - https://lancedb.com/docs/search/full-text-search/
 
 
-  * gensim => ArrowSpace embeddings for entities
-     - alteratively, use `sentence_transformer` in lieu of Gensim?
-
   * eval `GrandCypher` atop `NetworkX`
      - can this impl Text2Cypher efficiently?
 
   * build `RDFlib` plugin atop `NetworkX`
+     - migrate `kglab.standards` for OWL/RDFS closure and SHACL capabilities
+     - SHACL verify: NER nodes in ERKG should always have a `rdf:type` IRI class
 
   * use `deepeval` to score the GraphRAG responses
      - https://docs.google.com/presentation/d/1vDogMddS_T-oXFBdhogo653r8H2sGrSD/edit?slide=id.g78dc4dcc24882d5d_0#slide=id.g78dc4dcc24882d5d_0
 
+  * gensim => ArrowSpace embeddings for entities
+     - alteratively, use `sentence_transformer` in lieu of Gensim?
+
   * add a text => lemma embedding model
      - https://www.sbert.net/docs/sentence_transformer/usage/usage.html
 
-  * leverage DSPy for RE
+  * replace RE by leveraging DSPy <https://arxiv.org/html/2502.09956v1>
+
+  * entity linking - combine structured and unstructured sources using Sz results as a thesaurus
 
 
 ## Issues
@@ -88,17 +112,6 @@
 
   - "Organize these associations into a cause-effect style table (Behavior → Associated Condition) for clarity"
   - "Given the BEHAVIOR "eating a healthy diet", in the following text which conditions is that behavior associated?"
-
-
-## Where do we go next?
-
-  * replace RE with DSPy <https://arxiv.org/html/2502.09956v1>
-  * Streamlit dashboard view of `rag.py`
-  * entity linking - combine structured and unstructured sources using Sz results as a thesaurus
-
-  * back-out `pandas` replaced by `polars` in `textrank.py`
-  * integrate `kglab.standards` for OWL/RDFS closure and SHACL capabilities
-  * integrate with Kuzu for graph persistence?
 
 
 ## Structured Data
