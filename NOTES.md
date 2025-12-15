@@ -1,15 +1,13 @@
 ## TODOs
 
-  * use larger chunks
-
-  * entity embedding vectors per paragraph, instead of per sentence
-
   * fix Part 5: `promote_ner_nodes()`
      - refactor `iri` as a `rdf:type` edge
      - make `lemma_key` into the IRI
      - also update `count` and `rank` for ER and TAXO nodes in the ERKG
 
   * SHACL verify: NER nodes in ERKG should always have a `rdf:type` IRI class
+
+  * `ent.node_id` => `ent.uid`
 
   * refactor ERKG to its own module
 

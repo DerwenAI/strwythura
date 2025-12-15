@@ -138,6 +138,35 @@ entity linking from unstructured sources.
     ######################################################################
     ## Part 3
 
+    def make_chunks (
+        self,
+        chunks: list[ str ],
+        chunk_size: int,
+        ) -> typing.Iterator[ list[ str ] ]:
+        """
+Iterate through the paragraphs parsed from an article, assembling its
+text chunks.
+        """
+        sum_chars: int = 0
+        bucket: list[ str ] = []
+
+        for text in chunks:
+            num_chars: int = len(text)
+
+            if num_chars > 0:
+                if (sum_chars + num_chars) < chunk_size:
+                    bucket.append(text)
+                    sum_chars += num_chars
+                else:
+                    # emit prev bucket
+                    yield bucket
+                    bucket = [ text ]
+                    sum_chars = num_chars
+
+        # emit last bucket
+        yield bucket
+
+
     def crawl_chunk_parse (
         self,
         content_sources: list[ str ],
@@ -153,30 +182,33 @@ For each of the given URLs:
   - add the chunk and its embedding to the vector store
   - parse the text in each chunk, linking into the graph
         """
+        chunk_size: int = self.config["nlp"]["chunk_size"]
+
         for url in content_sources:
             sent_id: int = 0
-
             ic(url)
 
-            # add each text chunk and its embedding to the vector store
-            for chunk_text in self.scraper.scrape_html(url):
+            for chunks in self.make_chunks(self.scraper.scrape_html(url), chunk_size):
+                # add each accumulated text chunk and its embedding
+                # to the vector store
                 chunk: TextChunk = self.ctx.add_chunk(
                     url,
                     sent_id,
-                    chunk_text,
+                    "\n\n".join(chunks),
                 )
 
-                # parse the text chunk
-                num_sent: int = self.parser.parse_chunk(
-                    chunk.uid,
-                    chunk.text,
-                    debug = debug,
-                )
+                # parse each paragraph
+                for para in chunks:
+                    num_sent: int = self.parser.parse_para(
+                        chunk.uid,
+                        para,
+                        debug = debug,
+                    )
 
-                if debug | True:
-                    ic(chunk, num_sent)
+                    if debug | True:
+                        ic(para, num_sent)
 
-                sent_id += num_sent
+                    sent_id += num_sent
 
 
     ######################################################################

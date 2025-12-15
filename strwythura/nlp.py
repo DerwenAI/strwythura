@@ -331,7 +331,7 @@ of priority:
             yield item
 
 
-    def parse_chunk (
+    def parse_para (
         self,
         chunk_id: int,
         chunk_text: str,
@@ -339,23 +339,24 @@ of priority:
         debug: bool = False,
         ) -> int:
         """
-Parse a text chunk, then per sentence:
+Parse a text paragraph, then per sentence:
 
-  * transform each sentence into a sequence of NER spans, noun chunks, or tokens
-  * extract entities, with labels mapped to IRIs where possible to infer
+  * transform into a sequence of NER spans, noun chunks, or tokens
+  * extract entities, with labels mapped to IRIs where possible
   * tokenize entities based on lemmatization
+  * use `textgraph` to add to the `LexicalGraph` lexical graph
 
-  * load an entity sequence vector into `gensim.Word2Vec` using `EntityStore`
-  * use `textgraph` to augment a lexical graph using `LexicalGraph`
+For the paragraph, load an entity sequence vector into `gensim.Word2Vec`
+using `EntityStore`
         """
         doc: spacy.tokens.doc.Doc = self.ner_pipe(chunk_text)
         num_sent: int = 0
+        ent_seq: list[ Entity ] = []
 
         # transform sentence as: NER spans, noun chunks, tokens
         for sent_id, sent in enumerate(doc.sents):
             num_sent = sent_id
             sent_text: str = str(sent).strip()
-            ent_seq: list[ Entity ] = []
 
             if debug:
                 ic(sent_id, sent_text)
@@ -392,6 +393,7 @@ Parse a text chunk, then per sentence:
                 )
 
                 found_ent.inst.append(ent_inst)
+                ## TODO: make sequence based on paragraph
                 ent_seq.append(found_ent)
 
             if debug:
@@ -400,16 +402,16 @@ Parse a text chunk, then per sentence:
             # add this sentence to the _textgraph_ in `LexicalGraph`
             self.ctx.lex.add_sent(ent_seq)
 
-            # load an entity sequence vector into `gensim.Word2Vec` using `EntityStore`
-            seq_vec: list[ int ] = [
-                ent.node_id
-                for ent in ent_seq
-                if ent.node_id is not None
-            ]
+        # load an entity sequence vector into `gensim.Word2Vec` using `EntityStore`
+        seq_vec: list[ int ] = [
+            ent.node_id
+            for ent in ent_seq
+            if ent.node_id is not None
+        ]
 
-            self.ctx.ent_store.embed_sequence(seq_vec)
+        self.ctx.ent_store.embed_sequence(seq_vec)
 
-            if debug:
-                print(seq_vec)
+        if debug:
+            print(seq_vec)
 
         return num_sent + 1

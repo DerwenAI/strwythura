@@ -21,6 +21,7 @@ spacy_model = "en_core_web_md"
 lex_path = "data/lex.json"
 #gliner_model = "urchade/gliner_medium-v2.1"
 gliner_model = "urchade/gliner_small-v2.1"
+chunk_size = 1000
 
 [tr]
 
@@ -56,7 +57,7 @@ lm_name = "ollama_chat/gemma3:12b"
 api_base = "http://localhost:11434"
 temperature = 0.0
 max_tokens = 3000
-num_chunks = 11
+max_chunks = 11
 num_perm = 128
 lsh_top_k_question = 9
 lsh_top_k_lemma = 3

@@ -209,7 +209,7 @@ Search the entity store for direct matches from NER
         self,
         question: str,
         *,
-        num_chunks: int = 11,
+        max_chunks: int = 11,
         num_perm: int = 128,
         ) -> tuple[ dict[ int, float ], MinHashLSHForest ]:
         """
@@ -225,7 +225,7 @@ Search the vector store for chunks in the neighborhood of the question.
         ).select(
             [ "uid", "_distance" ]
         ).limit(
-            num_chunks
+            max_chunks
         ).to_list()
 
         for row in chunk_list:
@@ -267,7 +267,7 @@ Search the vector store for chunks in the neighborhood of the question.
         self,
         question: str,
         *,
-        num_chunks: int = 11,
+        max_chunks: int = 11,
         num_perm: int = 128,
         lsh_top_k_question: int = 9,
         lsh_top_k_lemma: int = 3,
@@ -290,7 +290,7 @@ Find the anchor nodes to use for enhanced GraphRAG.
 
         rag_chunks, forest = self.find_chunks(
             question,
-            num_chunks = num_chunks,
+            max_chunks = max_chunks,
             num_perm = num_perm,
         )
 
@@ -463,7 +463,7 @@ leveraging the ERKG and entity embeddings.
 
         anchor_nodes, rag_chunks = self.get_anchor_nodes(
             question,
-            num_chunks = self.work.config["rag"]["num_chunks"],
+            max_chunks = self.work.config["rag"]["max_chunks"],
             num_perm = self.work.config["rag"]["num_perm"],
             lsh_top_k_question = self.work.config["rag"]["lsh_top_k_question"],
             lsh_top_k_lemma = self.work.config["rag"]["lsh_top_k_lemma"],
