@@ -7,7 +7,6 @@ Manage the workflow components and dependency injection.
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
-import json
 import logging
 import os
 import pathlib
@@ -176,11 +175,6 @@ For each of the given URLs:
 
                 if debug | True:
                     ic(chunk, num_sent)
-
-                ## TODO: debugging
-                if chunk.uid == 51:
-                    with open("debug.json", "w", encoding = "utf-8") as fp:
-                        fp.write(json.dumps(chunk.model_dump(mode = "json")))
 
                 sent_id += num_sent
 

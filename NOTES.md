@@ -1,7 +1,8 @@
 ## TODOs
 
-  * better text scrubbing
-ic| chunk: TextChunk(uid=51, url='https://aaic.alz.org/releases-2024/processed-red-meat-raises-risk-of-dementia.asp', sent_id=5, text='â\x80\x9cPrevention of Alzheimerâ\x80\x99s disease and all other dementia is a major focus, and the Alzheimerâ\x80\x99s Association has long encouraged eating a healthier diet â\x80\x94 including foods that are less processed â\x80\x94 because theyâ\x80\x99ve been associated with lower the risk of cognitive decline,â\x80\x9d said Heather M. Snyder, Ph.D., Alzheimerâ\x80\x99s Association vice president of medical and scientific relations. â\x80\x9cThis large, long-term study provides a specific example of one way to eat healthier.â\x80\x9d', vector=None)
+  * use larger chunks
+
+  * entity embedding vectors per paragraph, instead of per sentence
 
   * fix Part 5: `promote_ner_nodes()`
      - refactor `iri` as a `rdf:type` edge
@@ -11,10 +12,6 @@ ic| chunk: TextChunk(uid=51, url='https://aaic.alz.org/releases-2024/processed-r
   * SHACL verify: NER nodes in ERKG should always have a `rdf:type` IRI class
 
   * refactor ERKG to its own module
-
-  * entity embedding vectors per paragraph, instead of per sentence
-
-  * use larger chunks
 
   * fix `n3()` prefix resolution for `lex.py`, etc.
 
