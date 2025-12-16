@@ -22,6 +22,7 @@ import opik
 import polars as pl
 import spacy
 
+from .ctx import TextChunk
 from .elem import Entity, EntitySource, NodeKind, STRW_PREFIX
 from .work import Workflow
 
@@ -143,386 +144,13 @@ Constructor.
             use_opik = use_opik
         )
 
-
-    ######################################################################
-    ## get anchor nodes and text chunks by leveraging semantics in the ERKG
-
-    def find_entities (
-        self,
-        question: str,
-        *,
-        num_perm: int = 128,
-        ) -> tuple[set[ int ], list[ MinHash ]]:
-        """
-Search the entity store for direct matches from NER
-        """
-        anchor_nodes: set[ int ] = set()
-        lem_seq: list[ str ] = []
-        doc: spacy.tokens.doc.Doc = self.work.parser.ner_pipe(question)
-
-        lemma_todo: set[ str ] = {
-            self.work.parser.tokenize_lemma(span)
-            for span in doc.ents
-        }
-
-        for sent in doc.sents:
-            for item in self.work.parser.transform_sentence(sent):
-                lemma_key: str = self.work.parser.tokenize_lemma(item.span)
-                lem_seq.append(lemma_key)
-
-                # try to find known entities directly
-                if item.label in [ "NOUN" ] and lemma_key not in self.work.parser.STOP_WORDS:
-                    found_ent: Entity = self.work.ctx.ent_store.encode_entity(
-                        Entity(span = item, lemma_key = lemma_key)
-                    )
-
-                    if found_ent is not None:
-                        anchor_nodes.add(found_ent.uid)
-
-                # as a fallback, keep the lemma keys for each noun phrase to use in an LSH
-                if item.source in [ EntitySource.NER ]:
-                    lemma_todo.add(lemma_key)
-
-        # prepare for min hash approximation searches on lemmas
-        ner_mh: list[ MinHash ] = []
-
-        # the first hash is special: built on a sequence of lemma keys --
-        # one per parsed token -- for the entire sentence
-        ner_mh.append(MinHash(num_perm = num_perm))
-
-        for lemma_key in lem_seq:
-            for lemma in lemma_key.split(" "):
-                ner_mh[0].update(lemma.encode("utf-8"))
-
-        for lemma_key in lemma_todo:
-            mh: MinHash = MinHash(num_perm = num_perm)
-
-            for lemma in lemma_key.split(" "):
-                mh.update(lemma.encode("utf-8"))
-
-            ner_mh.append(mh)
-
-        return anchor_nodes, ner_mh
-
-
-    def find_chunks (
-        self,
-        question: str,
-        *,
-        max_chunks: int = 11,
-        num_perm: int = 128,
-        ) -> tuple[ dict[ int, float ], MinHashLSHForest ]:
-        """
-Search the vector store for chunks in the neighborhood of the question.
-(basic RAG process)
-        """
-        rag_chunks: dict[ int, float ] = {}
-        chunk_nodes: dict[ int, float ] = {}
-        sem_rel: str = f"{STRW_PREFIX}within_chunk"
-
-        chunk_list: list[ dict ] = self.work.ctx.chunk_table.search(
-            question
-        ).select(
-            [ "uid", "_distance" ]
-        ).limit(
-            max_chunks
-        ).to_list()
-
-        for row in chunk_list:
-            chunk_id: int = row["uid"]
-            distance: float = round((100.0 - row["_distance"]) / 100.0, 4)
-            rag_chunks[chunk_id] = distance
-
-            for node_id, _, keys, weight in self.work.ctx.erkg.in_edges(
-                nbunch = f"chunk_{chunk_id}",
-                    data = "weight",
-                    keys = True,
-            ):
-                if sem_rel in keys:
-                    metric: float = round(weight * distance, 4)
-
-                    if node_id not in chunk_nodes:
-                        chunk_nodes[node_id] = metric
-                    else:
-                        chunk_nodes[node_id] = max(chunk_nodes[node_id], metric)
-
-        # create a MinHash LSH Forest
-        forest: MinHashLSHForest = MinHashLSHForest(num_perm = num_perm)
-
-        for node_id, metric in chunk_nodes.items():
-            hit: dict = self.work.ctx.erkg.nodes[node_id]
-            mh_hit: MinHash = MinHash(num_perm = num_perm)
-
-            for lemma in hit["lemma"].split(" "):
-                mh_hit.update(lemma.encode("utf-8"))
-
-            forest.add(node_id, mh_hit)
-
-        forest.index()
-
-        return rag_chunks, forest
-
-
-    def get_anchor_nodes (
-        self,
-        question: str,
-        *,
-        max_chunks: int = 11,
-        num_perm: int = 128,
-        lsh_top_k_question: int = 9,
-        lsh_top_k_lemma: int = 3,
-        ) -> tuple[ set[ int ], dict[ int, float ]]:
-        """
-Find the anchor nodes to use for enhanced GraphRAG.
-        """
-        # find entities in the neighborhood of the question
-        anchor_nodes: set[ int ] = set()
-        ner_mh: list[ MinHash ] = []
-
-        anchor_nodes, ner_mh = self.find_entities(
-            question,
-            num_perm = num_perm,
-        )
-
-        # find chunks in the neighborhood of the question
-        rag_chunks: dict[ int, float ] = {}
-        forest: MinHashLSHForest | None = None
-
-        rag_chunks, forest = self.find_chunks(
-            question,
-            max_chunks = max_chunks,
-            num_perm = num_perm,
-        )
-
-        for node_id in forest.query(ner_mh[0], lsh_top_k_question):
-            anchor_nodes.add(node_id)
-
-        for mh_item in ner_mh[1:]:
-            for node_id in forest.query(mh_item, lsh_top_k_lemma):
-                anchor_nodes.add(node_id)
-
-        return anchor_nodes, rag_chunks
-
-
-    ######################################################################
-    ## semantic expansion and random walks
-
-    def extract_question_subgraph (
-        self,
-        anchor_nodes: set[ int ],
-        *,
-        debug: bool = False,
-        ) -> typing.Iterator[ int ]:
-        """
-Extract a subgraph, then run a _centrality_ algorithm to rerank the
-most-referenced entities in the subgraph.
-        """
-        subgraph_iter: typing.Iterator[ str ] = self.semantic_random_walk(
-            anchor_nodes,
-        )
-
-        subgraph: nx.MultiDiGraph = self.work.ctx.erkg.subgraph(
-            anchor_nodes.union(set(subgraph_iter))
-        )
-
-        rank_iter: dict = nx.pagerank(
-            subgraph,
-            self.work.config["tr"]["tr_alpha"],
-        ).items()
-
-        for node, rank in sorted(rank_iter, key = lambda x: x[1], reverse = True):
-            dat: dict = self.work.ctx.erkg.nodes[node]
-
-            if debug:
-                ic(node, rank, dat)
-
-            yield node
-
-
-    def semantic_random_walk (
-        self,
-        anchor_nodes: set[ int ],
-        *,
-        debug: bool = False,
-        ) -> typing.Iterator[ str ]:
-        """
-Generate pairwise shortest paths among the nodes from semantic
-expansion, to define a subgraph.
-
-In other words, this emulates a _semantic random walk_.
-        """
-        for pair in itertools.combinations(anchor_nodes, 2):
-            if debug:
-                ic(pair)
-
-            try:
-                for path in nx.all_shortest_paths(self.work.ctx.erkg, pair[0], pair[1]):
-                    if debug:
-                        ic(path)
-
-                    for node in path:
-                        if node not in pair:
-                            dat: dict = self.work.ctx.erkg.nodes[node]
-
-                            if debug:
-                                ic(node, dat)
-
-                            yield node
-            except nx.NetworkXNoPath:
-                # ignore attempts when the source node is unreachable
-                pass
-
-
-    def find_chunk_neighbors (
-        self,
-        anchor_nodes: set[ int ],
-        *,
-        debug: bool = False,
-        ) -> typing.Iterator[ int ]:
-        """
-Find the neighboring chunks for each _anchor node_.
-        """
-        for node in anchor_nodes:
-            if debug:
-                ic(node)
-
-            for neighbor in self.work.ctx.erkg.neighbors(node):
-                dat: dict = self.work.ctx.erkg.nodes[neighbor]
-
-                if dat["kind"] == NodeKind.CHUNK.value:
-                    if debug:
-                        ic(neighbor, dat)
-
-                    chunk_id: int = int(neighbor.replace("chunk_", ""))
-                    yield chunk_id
-
-
-    def perform_semantic_expansion (
-        self,
-        anchor_nodes: set[ int ],
-        *,
-        w2v_top_k: int = 20,
-        w2v_min_dist: float = 0.33,
-        ) -> None:
-        """
-Perform a semantic expansion using entity embeddings.
-        """
-        neighbors: dict[ int, float ] = {}
-
-        for node_id in anchor_nodes:
-            anchor_node: dict = self.work.ctx.erkg.nodes[node_id]
-
-            try:
-                for uid, distance in self.work.ctx.ent_store.w2v_model.wv.most_similar(
-                    str(node_id),
-                    topn = w2v_top_k,
-                ):
-                    if distance <= w2v_min_dist:
-                        neigh_id: int = int(uid)
-                        neighbors[neigh_id] = round(distance, 4)
-            except KeyError:
-                pass
-
-        for neigh_id, distance in sorted(neighbors.items(), key = lambda x: x[1]):
-            neighbor: dict = self.work.ctx.erkg.nodes[neigh_id]
-
-            if "source" in neighbor and EntitySource(neighbor["source"]) <= EntitySource.NER:
-                anchor_nodes.add(neigh_id)
-
-
-    def get_chunks_text (
-        self,
-        rag_chunks: dict[ int, float ],
-        ) -> list[ str ]:
-        """
-Retrieve text for the combined list of chunks.
-        """
-        id_list: str = ", ".join([ str(c_id) for c_id in rag_chunks.keys() ])
-
-        chunks: list[ str ] = self.work.ctx.chunk_table.search().where(
-            f"uid IN ({id_list})"
-        ).select(
-            [ "text" ]
-        ).to_polars()["text"].to_list()
-
-        return chunks
-
-
-    def run_errag (
-        self,
-        question: str,
-        *,
-        debug: bool = False,
-        ) -> list[ str ]:
-        """
-Run an enchanced GraphRAG to prioritize and retrieve text chunks by
-leveraging the ERKG and entity embeddings.
-        """
-        anchor_nodes: set[ int ] = set()
-        rag_chunks: dict[ int, float ] = {}
-
-        anchor_nodes, rag_chunks = self.get_anchor_nodes(
-            question,
-            max_chunks = self.work.config["rag"]["max_chunks"],
-            num_perm = self.work.config["rag"]["num_perm"],
-            lsh_top_k_question = self.work.config["rag"]["lsh_top_k_question"],
-            lsh_top_k_lemma = self.work.config["rag"]["lsh_top_k_lemma"],
-        )
-
-        if debug:
-            ic(rag_chunks)
-
-            for node_id in anchor_nodes:
-                anchor_node: dict = self.work.ctx.erkg.nodes[node_id]
-                ic(anchor_node)
-
-        # perform a semantic expansion using entity embeddings
-        self.perform_semantic_expansion(
-            anchor_nodes,
-            w2v_top_k = self.work.config["rag"]["w2v_top_k"],
-            w2v_min_dist = self.work.config["rag"]["w2v_min_dist"],
-        )
-
-        # extract a subgraph constructed from the shortest paths
-        # between anchor nodes
-        subgraph: set[ int ] = set(self.extract_question_subgraph(anchor_nodes))
-
-        if debug:
-            ic(subgraph)
-
-        # add the chunks for each anchor node
-        for chunk_id in self.find_chunk_neighbors(subgraph):
-            if chunk_id not in rag_chunks:
-                rag_chunks[chunk_id] = 0.5 # impute to median distance 
-
-        if debug:
-            ic(rag_chunks)
-
-        # retrieve text for the combined list of chunks
-        chunks: list[ str ] = self.get_chunks_text(rag_chunks)
-
-        return chunks
+        # search assets
+        self.anchor_nodes: set[ str ] = set()
+        self.rag_chunks: dict[ str, float ] = {}
 
 
     ######################################################################
     ## question/answer
-
-    def qa_signature (
-        self,
-        question: str,
-        chunks: list[ str ],
-        ) -> dspy.primitives.prediction.Prediction:
-        """
-Run one question/answer cycle.
-        """
-        self.rag.context = chunks
-        response: dspy.primitives.prediction.Prediction = self.rag(question)
-
-        if False: # disable for now; too verbose
-            dspy.inspect_history()
-
-        return response
-
 
     def question_answer (
         self,
@@ -567,3 +195,295 @@ Loop to answer questions.
         finally:
             print("\nÀ bientôt!\n")
             time.sleep(.1)
+
+
+    def qa_signature (
+        self,
+        question: str,
+        chunks: list[ str ],
+        ) -> dspy.primitives.prediction.Prediction:
+        """
+Run one question/answer cycle.
+        """
+        self.rag.context = chunks
+        response: dspy.primitives.prediction.Prediction = self.rag(question)
+
+        if False: # disable for now; too verbose
+            dspy.inspect_history()
+
+        return response
+
+
+    ######################################################################
+    ## enhanced GraphRAG methods
+
+    def run_errag (
+        self,
+        question: str,
+        *,
+        disable_graph: bool = False,
+        debug: bool = True, # False
+        ) -> list[ str ]:
+        """
+Run an enchanced GraphRAG to retrieve and prioritize text chunks
+by leveraging the ERKG and entity embeddings.
+        """
+        max_chunks: int = self.work.config["rag"]["max_chunks"]
+        num_perm: int = self.work.config["rag"]["num_perm"]
+
+        # find the text chunks which are nearest to the question,
+        # then find the entity nodes linked to these chunks
+        chunk_nodes: dict[ str, float ] = self.find_rag_chunks(
+            question,
+            max_chunks = max_chunks,
+            num_perm = num_perm,
+        )
+
+        if disable_graph:
+            # disable the GraphRAG aspects, using RAG-only --
+            # for testing and evaluation purposes
+            return
+
+        # find entities in the neighborhood of the question,
+        # identifying the initial set of anchor nodes, plus MinHash
+        # digests for the lemmatized phrases among these entities
+        ner_mh: list[ MinHash ] = self.find_nearby_entities(
+            question,
+            num_perm = num_perm,
+        )
+
+        # use a locality-sensitive hash to filter the entity nodes
+        # linked to chunks, to augment the set of anchor nodes
+        self.augment_anchor_nodes(
+            chunk_nodes,
+            ner_mh,
+            num_perm = num_perm,
+            lsh_top_k_question = self.work.config["rag"]["lsh_top_k_question"],
+            lsh_top_k_lemma = self.work.config["rag"]["lsh_top_k_lemma"],
+        )
+
+        # purely for debugging
+        if debug:
+            ic(self.rag_chunks)
+
+            for node_id in self.anchor_nodes:
+                anchor_node: dict = self.work.ctx.erkg.nodes[node_id]
+                ic(anchor_node)
+
+        # perform a semantic expansion using entity embeddings
+        self.perform_semantic_expansion(
+            w2v_top_k = self.work.config["rag"]["w2v_top_k"],
+            w2v_min_dist = self.work.config["rag"]["w2v_min_dist"],
+        )
+
+
+    def find_rag_chunks (
+        self,
+        question: str,
+        *,
+        max_chunks: int = 11,
+        num_perm: int = 128,
+        debug: bool = True, # False
+        ) -> dict[ str, float ]:
+        """
+Search the vector store for text chunks in the neighborhood of the
+`question` prompt, which is the basic RAG process.
+
+Then find graph nodes for entities linked to the selected chunks,
+which are returned as a dictionary.
+        """
+        chunk_list: list[ dict ] = self.work.ctx.chunk_table.search(
+            question
+        ).select(
+            [ "uid", "_distance" ]
+        ).limit(
+            max_chunks
+        ).to_list()
+
+        chunk_nodes: dict[ str, float ] = {}
+        sem_rel: str = f"{STRW_PREFIX}within_chunk"
+
+        for row in chunk_list:
+            chunk_id: int = row["uid"]
+            chunk_iri: str = TextChunk.get_iri(chunk_id)
+            distance: float = round((100.0 - row["_distance"]) / 100.0, 4)
+
+            if debug:
+                ic(chunk_iri, distance)
+
+            self.rag_chunks[chunk_id] = distance
+
+            for node_id, _, keys, weight in self.work.ctx.erkg.in_edges(
+                nbunch = chunk_iri,
+                data = "weight",
+                keys = True,
+            ):
+                if sem_rel in keys:
+                    metric: float = round(weight * distance, 4)
+
+                    if node_id not in chunk_nodes:
+                        chunk_nodes[node_id] = metric
+                    else:
+                        chunk_nodes[node_id] = max(chunk_nodes[node_id], metric)
+
+        return chunk_nodes
+
+
+    def find_nearby_entities (
+        self,
+        question: str,
+        *,
+        num_perm: int = 128,
+        debug: bool = True, # False
+        ) -> list[ MinHash ]:
+        """
+Search the entity store for direct matches from NER
+        """
+        lem_seq: list[ str ] = []
+        doc: spacy.tokens.doc.Doc = self.work.parser.ner_pipe(question)
+
+        lemma_todo: set[ str ] = {
+            self.work.parser.tokenize_lemma(span)
+            for span in doc.ents
+        }
+
+        for sent in doc.sents:
+            for item in self.work.parser.transform_sentence(sent):
+                lemma_key: str = self.work.parser.tokenize_lemma(item.span)
+                lem_seq.append(lemma_key)
+
+                # try to find known entities directly
+                if item.label in [ "NOUN" ] and lemma_key not in self.work.parser.STOP_WORDS:
+                    found_ent: Entity = self.work.ctx.ent_store.encode_entity(
+                        Entity(span = item, lemma_key = lemma_key)
+                    )
+
+                    if found_ent is not None:
+                        self.anchor_nodes.add(found_ent.get_iri())
+
+                # as a fallback, keep the lemma keys for each noun phrase to use in an LSH
+                if item.source in [ EntitySource.NER ]:
+                    lemma_todo.add(lemma_key)
+
+        if debug:
+            ic(lemma_todo)
+            ic(lem_seq)
+            ic(self.anchor_nodes)
+
+        # prepare for min hash approximation searches on lemmas
+        ner_mh: list[ MinHash ] = []
+
+        # the first hash is special: built on a sequence of lemma keys --
+        # one per parsed token -- for the entire sentence
+        ner_mh.append(MinHash(num_perm = num_perm))
+
+        for lemma_key in lem_seq:
+            for lemma in lemma_key.split(" "):
+                ner_mh[0].update(lemma.encode("utf-8"))
+
+        for lemma_key in lemma_todo:
+            mh: MinHash = MinHash(num_perm = num_perm)
+
+            for lemma in lemma_key.split(" "):
+                mh.update(lemma.encode("utf-8"))
+
+            ner_mh.append(mh)
+
+        return ner_mh
+
+
+    def augment_anchor_nodes (
+        self,
+        chunk_nodes: dict[ str, float ],
+        ner_mh: list[ MinHash ],
+        *,
+        num_perm: int = 128,
+        lsh_top_k_question: int = 3,
+        lsh_top_k_lemma: int = 3,
+        debug: bool = True, # False
+        ) -> None:
+        """
+Use a _locality-sensitive hash_ (LSH) to filter the entity nodes
+linked to chunks, to augment the set of anchor nodes.
+        """
+        # index a MinHash LSH Forest of lemmatized terms among
+        # the entity nodes linked to chunks
+        forest: MinHashLSHForest = MinHashLSHForest(
+            num_perm = num_perm,
+        )
+
+        for node_id, metric in chunk_nodes.items():
+            hit: dict = self.work.ctx.erkg.nodes[node_id]
+
+            if debug:
+                ic(node_id, metric, hit)
+
+            if "lemma" in hit:
+                mh_hit: MinHash = MinHash(num_perm = num_perm)
+
+                for lemma in hit["lemma"].split(" "):
+                    mh_hit.update(lemma.encode("utf-8"))
+
+                forest.add(node_id, mh_hit)
+
+        forest.index()
+
+        # filter the entity nodes linked to chunks, retaining those
+        # closest to the `question`, to augment the anchor nodes
+        for node_id in forest.query(ner_mh[0], lsh_top_k_question):
+            self.anchor_nodes.add(node_id)
+
+        for mh_item in ner_mh[1:]:
+            for node_id in forest.query(mh_item, lsh_top_k_lemma):
+                self.anchor_nodes.add(node_id)
+
+
+    def perform_semantic_expansion (
+        self,
+        *,
+        w2v_top_k: int = 20,
+        w2v_min_dist: float = 0.33,
+        debug: bool = True,
+        ) -> None:
+        """
+Perform a _semantic expansion_ using entity embeddings, with the set of
+anchor nodes as the starting points.
+        """
+        decoder: dict[ int, Entity ] = self.work.ctx.ent_store.get_decoder()
+        neighbors: dict[ str, float ] = {}
+
+        for node_id in self.anchor_nodes:
+            try:
+                anchor_node: dict = self.work.ctx.erkg.nodes[node_id]
+
+                if "lemma" in anchor_node:
+                    lemma_key: str = anchor_node["lemma"]
+                    ent: Entity = self.work.ctx.ent_store.entities[lemma_key]
+
+                    if debug:
+                        ic(node_id, lemma_key)
+
+                    for uid, distance in self.work.ctx.ent_store.w2v_model.wv.most_similar(
+                        str(ent.uid),
+                        topn = w2v_top_k,
+                    ):
+                        ic(uid, type(uid), distance)
+
+                        if distance <= w2v_min_dist:
+                            neigh_iri: str = decoder(int(uid)).get_iri()
+
+                            if debug:
+                                ic(neigh_iri, distance)
+
+                            neighbors[neigh_iri] = round(distance, 4)
+
+            except KeyError as ex:
+                ic(node_id)
+                ic(ex)
+                traceback.print_exc()
+
+        for neigh_iri, distance in sorted(neighbors.items(), key = lambda x: x[1]):
+            neighbor: dict = self.work.ctx.erkg.nodes[neigh_iri]
+
+            if "method" in neighbor and EntitySource(neighbor["method"]) <= EntitySource.NER:
+                self.anchor_nodes.add(neigh_iri)

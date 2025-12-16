@@ -575,14 +575,8 @@ Cross-link entities with the chunks in which they appear.
         """
 Connect entities which co-occur within the same sentence.
         """
-        sem_rel: str = f"{STRW_PREFIX}co_occurs_with"
         inst_dict: dict[ int, dict[ int, int ]] = defaultdict(lambda: defaultdict(list))
         counter: Counter = Counter() 
-
-        decoder: dict[ int, Entity ] = {
-            ent.uid: ent
-            for ent in self.ent_store.entities.values()
-        }
 
         # partition entity co-occurrence by `( chunk_id, sent_id, ent.uid, )`
         for ent in self.ent_store.entities.values():
@@ -609,6 +603,8 @@ Connect entities which co-occur within the same sentence.
         # partition by first element, to compute a conditional
         # probability per second element
         tally: dict[ int, list ] = defaultdict(list)
+        decoder: dict[ int, Entity ] = self.ent_store.get_decoder()
+        sem_rel: str = f"{STRW_PREFIX}co_occurs_with"
 
         for pair, count in counter.items():
             tally[pair[0]].append(( pair, count, ))

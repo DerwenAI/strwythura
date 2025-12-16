@@ -59,6 +59,18 @@ Increment the count of nodes.
         return uid
 
 
+    def get_decoder (
+        self,
+        ) -> dict[ int, Entity ]:
+        """
+Construct a dictionary to lookup entities by their `uid` value.
+        """
+        return {
+            ent.uid: ent
+            for ent in self.entities.values()
+        }
+
+
     def encode_entity (
         self,
         ent: Entity,
@@ -96,17 +108,6 @@ Return the entity which is stored.
                 self.entities[ent.lemma_key].count += 1
 
         return self.entities.get(ent.lemma_key)
-
-
-    def decode_entity (
-        self,
-        uid: int,
-        ) -> Entity | None:
-        """
-Lookup an entity based on its `uid`.
-TODO: not sure this works anymore!!
-        """
-        return list(self.entities.values())[uid]
 
 
     def load_json (
@@ -292,9 +293,6 @@ then compare with `gensim` similarity measures.
                 dtype = np.float64,
             )
 
-            if debug:
-                print("\n", self.decode_entity(query_uid))
-
             similar_words = w2v_model.wv.most_similar(
                 str(query_uid),
                 topn = 5,
@@ -305,11 +303,7 @@ then compare with `gensim` similarity measures.
 
                 for uid, sim_metric in aspace.search(query, gl, tau):
                     if uid != query_uid:
-                        ic(
-                            uid,
-                            sim_metric,
-                            self.decode_entity(uid),
-                        )
+                        ic(uid, sim_metric)
 
         # return the ArrowSpace and Graph laplacian
         return aspace, gl

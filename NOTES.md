@@ -2,24 +2,10 @@ Motto: "nos intelligentia sumus" -- vis-a-vis AI definition
 
 ## TODOs
 
-Quoi? who is yuhan li?
-ic| ex: KeyError(138)
-Traceback (most recent call last):
-  File "/Users/paco/src/strwythura/strwythura/rag.py", line 547, in question_answer
-    chunks: list[ str ] = self.run_errag(
-                          ^^^^^^^^^^^^^^^
-  File "/Users/paco/src/strwythura/strwythura/rag.py", line 480, in run_errag
-    self.perform_semantic_expansion(
-  File "/Users/paco/src/strwythura/strwythura/rag.py", line 413, in perform_semantic_expansion
-    anchor_node: dict = self.work.ctx.erkg.nodes[node_id]
-                        ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "/Users/paco/src/strwythura/.venv/lib/python3.11/site-packages/networkx/classes/reportviews.py", line 196, in __getitem__
-    return self._nodes[n]
-           ~~~~~~~~~~~^^^
-KeyError: 138
-
-
   * why isn't the NER `NOUN.dementia` getting promoted into the ERKG
+
+  * fix Part 6:
+     - implement semantic random walk, and later
 
   * fix Part 5:
      - also update `count` and `rank` for ER and TAXO nodes in the ERKG
