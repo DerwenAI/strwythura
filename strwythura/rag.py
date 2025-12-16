@@ -146,7 +146,7 @@ Constructor.
 
         # search assets
         self.anchor_nodes: set[ str ] = set()
-        self.rag_chunks: dict[ str, float ] = {}
+        self.rag_chunks: dict[ int, float ] = {}
 
 
     ######################################################################
@@ -242,7 +242,7 @@ by leveraging the ERKG and entity embeddings.
         if disable_graph:
             # disable the GraphRAG aspects, using RAG-only --
             # for testing and evaluation purposes
-            return
+            return self.get_chunks_text()
 
         # find entities in the neighborhood of the question,
         # identifying the initial set of anchor nodes, plus MinHash
@@ -278,8 +278,13 @@ by leveraging the ERKG and entity embeddings.
         # between anchor nodes
         subgraph: set[ str ] = set(list(self.extract_question_subgraph()))
 
-        if debug:
-            ic(subgraph)
+        # add the chunks for each anchor node
+        for chunk_id in self.find_chunk_neighbors():
+            if chunk_id not in self.rag_chunks:
+                self.rag_chunks[chunk_id] = 0.5 # impute to median distance 
+
+        # retrieve text for the combined list of chunks
+        return self.get_chunks_text()
 
 
     def find_rag_chunks (
@@ -309,7 +314,7 @@ which are returned as a dictionary.
         sem_rel: str = f"{STRW_PREFIX}within_chunk"
 
         for row in chunk_list:
-            chunk_id: int = row["uid"]
+            chunk_id: int = int(row["uid"])
             chunk_iri: str = TextChunk.get_iri(chunk_id)
             distance: float = round((100.0 - row["_distance"]) / 100.0, 4)
 
@@ -339,7 +344,7 @@ which are returned as a dictionary.
         question: str,
         *,
         num_perm: int = 128,
-        debug: bool = False,
+        debug: bool = True, # False
         ) -> list[ MinHash ]:
         """
 Search the entity store for direct matches from NER
@@ -357,8 +362,12 @@ Search the entity store for direct matches from NER
                 lemma_key: str = self.work.parser.tokenize_lemma(item.span)
                 lem_seq.append(lemma_key)
 
+                if debug:
+                    ic(item, lemma_key)
+
                 # try to find known entities directly
-                if item.label in [ "NOUN" ] and lemma_key not in self.work.parser.STOP_WORDS:
+                # NB: this only works for single-word phrases
+                if item.label in [ "ADP", "NOUN" ] and lemma_key not in self.work.parser.STOP_WORDS:
                     found_ent: Entity = self.work.ctx.ent_store.encode_entity(
                         Entity(span = item, lemma_key = lemma_key)
                     )
@@ -386,11 +395,17 @@ Search the entity store for direct matches from NER
             for lemma in lemma_key.split(" "):
                 ner_mh[0].update(lemma.encode("utf-8"))
 
+                if debug:
+                    ic("mh0", lemma)
+
         for lemma_key in lemma_todo:
             mh: MinHash = MinHash(num_perm = num_perm)
 
             for lemma in lemma_key.split(" "):
                 mh.update(lemma.encode("utf-8"))
+
+                if debug:
+                    ic("mh", lemma)
 
             ner_mh.append(mh)
 
@@ -409,15 +424,12 @@ Search the entity store for direct matches from NER
 Use a _locality-sensitive hash_ (LSH) to filter the entity nodes
 linked to chunks, to augment the set of anchor nodes.
         """
-        lsh_top_k_question: int = self.work.config["rag"]["lsh_top_k_question"]
-        lsh_top_k_lemma: int = self.work.config["rag"]["lsh_top_k_lemma"]
-
-        # index a MinHash LSH Forest of lemmatized terms among
-        # the entity nodes linked to chunks
+        # index a MinHash LSH Forest of lemmatized terms
         forest: MinHashLSHForest = MinHashLSHForest(
             num_perm = num_perm,
         )
 
+        # add lemma keys for entity nodes linked to chunks
         for node_id, metric in chunk_nodes.items():
             hit: dict = self.work.ctx.erkg.nodes[node_id]
 
@@ -429,16 +441,35 @@ linked to chunks, to augment the set of anchor nodes.
 
                 forest.add(node_id, mh_hit)
 
+        # add lemma keys for entity resolution results
+        for lemma_key, ent in self.work.ctx.ent_store.entities.items():
+            if ent.span.source == EntitySource.ER:
+                mh_hit: MinHash = MinHash(num_perm = num_perm)
+
+                for lemma in lemma_key.split(" "):
+                    mh_hit.update(lemma.encode("utf-8"))
+
+                ent_iri: str = ent.get_iri()
+
+                if not forest.__contains__(ent_iri):
+                    forest.add(ent_iri, mh_hit)
+
         forest.index()
 
         # filter the entity nodes linked to chunks, retaining those
         # closest to the `question`, to augment the anchor nodes
+        lsh_top_k_question: int = self.work.config["rag"]["lsh_top_k_question"]
+        lsh_top_k_lemma: int = self.work.config["rag"]["lsh_top_k_lemma"]
+
         for node_id in forest.query(ner_mh[0], lsh_top_k_question):
             self.anchor_nodes.add(node_id)
 
         for mh_item in ner_mh[1:]:
             for node_id in forest.query(mh_item, lsh_top_k_lemma):
                 self.anchor_nodes.add(node_id)
+
+        if debug:
+            ic(self.anchor_nodes)
 
 
     def perform_semantic_expansion (
@@ -479,15 +510,15 @@ anchor nodes as the starting points.
                             neighbors[neigh_iri] = round(distance, 4)
 
             except KeyError as ex:
-                ic(node_id)
+                # TODO: using logging to trace these embedding errors?
+                print("w2v_model.wv.most_similar:", node_id)
                 ic(ex)
-                traceback.print_exc()
 
         for neigh_iri, distance in sorted(neighbors.items(), key = lambda x: x[1]):
             neighbor: dict = self.work.ctx.erkg.nodes[neigh_iri]
 
             if "method" in neighbor and EntitySource(neighbor["method"]) <= EntitySource.NER:
-                ic("ADD", neigh_iri)
+                ic("ADD", neigh_iri, neighbor)
 
                 self.anchor_nodes.add(neigh_iri)
 
@@ -495,12 +526,13 @@ anchor nodes as the starting points.
     def extract_question_subgraph (
         self,
         *,
-        debug: bool = True, # False
+        debug: bool = False, # True
         ) -> typing.Iterator[ str ]:
         """
 Extract a subgraph, then run a _centrality_ algorithm to rerank the
 most-referenced entities in the subgraph.
         """
+        # TODO: visualize the walks -- the pathing does not seem to work?
         walks: set[ str ] = set(list(self.semantic_random_walk()))
 
         if debug:
@@ -553,3 +585,50 @@ In other words, this emulates a _semantic random walk_.
             except nx.NetworkXNoPath:
                 # ignore attempts when the source node is unreachable
                 pass
+
+
+    def find_chunk_neighbors (
+        self,
+        *,
+        debug: bool = False,
+        ) -> typing.Iterator[ str ]:
+        """
+Find the neighboring chunks for each anchor node.
+        """
+        for node_id in self.anchor_nodes:
+            if debug:
+                ic(node_id)
+
+            for neighbor in self.work.ctx.erkg.neighbors(node_id):
+                hit: dict = self.work.ctx.erkg.nodes[neighbor]
+
+                if hit.get("kind") == NodeKind.CHUNK.value:
+                    chunk_id: int = int(neighbor.replace("strw:chunk_", ""))
+
+                    if debug:
+                        ic(neighbor, hit, chunk_id)
+
+                    yield chunk_id
+
+
+    def get_chunks_text (
+        self,
+        *,
+        debug: bool = True,
+        ) -> list[ str ]:
+        """
+Retrieve text for the combined list of chunks.
+        """
+        # TODO: should this be sorted, i.e., as a _reranking_ function?
+        chunk_ids: str = ", ".join([ str(c_id) for c_id in self.rag_chunks.keys() ])
+
+        if debug:
+            ic(chunk_ids)
+
+        chunks: list[ str ] = self.work.ctx.chunk_table.search().where(
+            f"uid IN ({chunk_ids})"
+        ).select(
+            [ "text" ]
+        ).to_polars()["text"].to_list()
+
+        return chunks

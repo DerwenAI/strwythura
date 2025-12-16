@@ -315,6 +315,7 @@ WHERE {
                     "rank": found_ent.rank,
                     "text": text,
                     "lemma": lemma_key,
+                    "method": EntitySource.TAXO.value,
                 },
                 stop = False,
             )
@@ -408,6 +409,7 @@ WHERE {
                         text = label,
                         span = span,
                         source = EntitySource.ER,
+                        iri = ent_iri,
                     ),
                     lemma_key = lemma_key,
                 )
@@ -428,6 +430,7 @@ WHERE {
                     "rank": rank,
                     "text": label,
                     "lemma": lemma_key,
+                    "method": EntitySource.ER.value,
                 }
             )
 
@@ -667,9 +670,9 @@ dictionary.
             calframe: list = inspect.getouterframes(inspect.currentframe(), 2)
             caller: str = calframe[1][3]
             prev_attrs: dict = self.erkg.edges[*edge]
-            print(f"dupe: {caller} {edge} {prob} {attrs}")
 
             if debug | stop:
+                print(f"dupe: {caller} {edge} {prob} {attrs}")
                 print("PRE-EXISTING EDGE", prev_attrs)
 
             if stop:
@@ -733,9 +736,9 @@ dictionary.
             calframe: list = inspect.getouterframes(inspect.currentframe(), 2)
             caller: str = calframe[1][3]
             prev_attrs: dict = self.erkg.nodes[iri]
-            print(f"dupe: {caller} {iri} {kind}")
 
             if debug | stop:
+                print(f"dupe: {caller} {iri} {kind}")
                 print("PRE-EXISTING NODE", prev_attrs)
 
             if stop:

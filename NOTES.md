@@ -2,6 +2,8 @@ Motto: "nos intelligentia sumus" -- vis-a-vis AI definition
 
 ## TODOs
 
+  * add a node in ERKG for baseline `owl:Thing`
+
   * fix Part 6:
      - implement semantic random walk: nothing back from the shortest paths?
 
