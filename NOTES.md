@@ -2,10 +2,8 @@ Motto: "nos intelligentia sumus" -- vis-a-vis AI definition
 
 ## TODOs
 
-  * why isn't the NER `NOUN.dementia` getting promoted into the ERKG
-
   * fix Part 6:
-     - implement semantic random walk, and later
+     - implement semantic random walk: nothing back from the shortest paths?
 
   * fix Part 5:
      - also update `count` and `rank` for ER and TAXO nodes in the ERKG

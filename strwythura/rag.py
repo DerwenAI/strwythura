@@ -258,8 +258,6 @@ by leveraging the ERKG and entity embeddings.
             chunk_nodes,
             ner_mh,
             num_perm = num_perm,
-            lsh_top_k_question = self.work.config["rag"]["lsh_top_k_question"],
-            lsh_top_k_lemma = self.work.config["rag"]["lsh_top_k_lemma"],
         )
 
         # purely for debugging
@@ -276,6 +274,13 @@ by leveraging the ERKG and entity embeddings.
             w2v_min_dist = self.work.config["rag"]["w2v_min_dist"],
         )
 
+        # extract a subgraph constructed from the shortest paths
+        # between anchor nodes
+        subgraph: set[ str ] = set(list(self.extract_question_subgraph()))
+
+        if debug:
+            ic(subgraph)
+
 
     def find_rag_chunks (
         self,
@@ -283,7 +288,7 @@ by leveraging the ERKG and entity embeddings.
         *,
         max_chunks: int = 11,
         num_perm: int = 128,
-        debug: bool = True, # False
+        debug: bool = False,
         ) -> dict[ str, float ]:
         """
 Search the vector store for text chunks in the neighborhood of the
@@ -334,7 +339,7 @@ which are returned as a dictionary.
         question: str,
         *,
         num_perm: int = 128,
-        debug: bool = True, # False
+        debug: bool = False,
         ) -> list[ MinHash ]:
         """
 Search the entity store for direct matches from NER
@@ -398,14 +403,15 @@ Search the entity store for direct matches from NER
         ner_mh: list[ MinHash ],
         *,
         num_perm: int = 128,
-        lsh_top_k_question: int = 3,
-        lsh_top_k_lemma: int = 3,
-        debug: bool = True, # False
+        debug: bool = False,
         ) -> None:
         """
 Use a _locality-sensitive hash_ (LSH) to filter the entity nodes
 linked to chunks, to augment the set of anchor nodes.
         """
+        lsh_top_k_question: int = self.work.config["rag"]["lsh_top_k_question"]
+        lsh_top_k_lemma: int = self.work.config["rag"]["lsh_top_k_lemma"]
+
         # index a MinHash LSH Forest of lemmatized terms among
         # the entity nodes linked to chunks
         forest: MinHashLSHForest = MinHashLSHForest(
@@ -414,9 +420,6 @@ linked to chunks, to augment the set of anchor nodes.
 
         for node_id, metric in chunk_nodes.items():
             hit: dict = self.work.ctx.erkg.nodes[node_id]
-
-            if debug:
-                ic(node_id, metric, hit)
 
             if "lemma" in hit:
                 mh_hit: MinHash = MinHash(num_perm = num_perm)
@@ -467,10 +470,8 @@ anchor nodes as the starting points.
                         str(ent.uid),
                         topn = w2v_top_k,
                     ):
-                        ic(uid, type(uid), distance)
-
                         if distance <= w2v_min_dist:
-                            neigh_iri: str = decoder(int(uid)).get_iri()
+                            neigh_iri: str = decoder[int(uid)].get_iri()
 
                             if debug:
                                 ic(neigh_iri, distance)
@@ -486,4 +487,69 @@ anchor nodes as the starting points.
             neighbor: dict = self.work.ctx.erkg.nodes[neigh_iri]
 
             if "method" in neighbor and EntitySource(neighbor["method"]) <= EntitySource.NER:
+                ic("ADD", neigh_iri)
+
                 self.anchor_nodes.add(neigh_iri)
+
+
+    def extract_question_subgraph (
+        self,
+        *,
+        debug: bool = True, # False
+        ) -> typing.Iterator[ str ]:
+        """
+Extract a subgraph, then run a _centrality_ algorithm to rerank the
+most-referenced entities in the subgraph.
+        """
+        walks: set[ str ] = set(list(self.semantic_random_walk()))
+
+        if debug:
+            ic(walks)
+
+        subgraph: nx.MultiDiGraph = self.work.ctx.erkg.subgraph(
+            self.anchor_nodes.union(walks)
+        )
+
+        rank_iter: dict = nx.pagerank(
+            subgraph,
+            self.work.config["tr"]["tr_alpha"],
+        ).items()
+
+        for node_id, rank in sorted(rank_iter, key = lambda x: x[1], reverse = True):
+            if debug:
+                hit: dict = self.work.ctx.erkg.nodes[node_id]
+                ic("tr", node_id, rank, hit)
+
+            yield node_id
+
+
+    def semantic_random_walk (
+        self,
+        *,
+        debug: bool = True, # False
+        ) -> typing.Iterator[ str ]:
+        """
+Generate pairwise shortest paths among the nodes from semantic
+expansion, to define a subgraph.
+
+In other words, this emulates a _semantic random walk_.
+        """
+        for pair in itertools.combinations(self.anchor_nodes, 2):
+            if debug:
+                ic(pair)
+
+            try:
+                for path in nx.all_shortest_paths(self.work.ctx.erkg, pair[0], pair[1]):
+                    if debug:
+                        ic(path)
+
+                    for node_id in path:
+                        if node_id not in pair:
+                            if debug:
+                                hit: dict = self.work.ctx.erkg.nodes[node_id]
+                                ic("walk", node_id, hit)
+
+                            yield node_id
+            except nx.NetworkXNoPath:
+                # ignore attempts when the source node is unreachable
+                pass

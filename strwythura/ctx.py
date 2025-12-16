@@ -526,7 +526,7 @@ property graph: for the entities extracted from NER.
                         "lemma": ent.lemma_key,
                         "method": ent.span.source.value,
                     },
-                    stop = False,
+                    update = True,
                 )
 
                 # add a ERKG edge to link to the SKOS:concept class
@@ -707,6 +707,7 @@ dictionary.
         kind: NodeKind,
         *,
         attrs: dict = {},
+        update: bool = False,
         stop: bool = True,
         debug: bool = False,
         ) -> dict | None:
@@ -719,8 +720,16 @@ identifier, and a `NodeKind` value.
 Optional properties: specified as key/value pairs in the `attrs`
 dictionary.
         """
+        pre_exist: bool = False
+
+        # override conflicting settings
+        if update:
+            stop = False
+
         # test whether the node IRI already exists in the ERKG?
         if self.erkg.has_node(iri):
+            pre_exist = True
+
             calframe: list = inspect.getouterframes(inspect.currentframe(), 2)
             caller: str = calframe[1][3]
             prev_attrs: dict = self.erkg.nodes[iri]
@@ -732,21 +741,25 @@ dictionary.
             if stop:
                 # if requested for debugging, stop the application
                 sys.exit(-1)
-            else:
+            elif not update:
                 # return the pre-existing node data and do not update
                 return prev_attrs
 
         # add a node into the ERKG
-        if debug:
-            ic("ADD NODE", iri, kind.value, attrs)
+        if not pre_exist:
+            if debug:
+                ic("ADD NODE", iri, kind.value, attrs)
 
-        self.erkg.add_node(
-            iri,
-            kind = kind.value,
-        )
+            self.erkg.add_node(
+                iri,
+                kind = kind.value,
+            )
+        else:
+            attrs["kind"] = kind.value
 
         # set the optional node attributes, if any
-        if len(attrs) > 0:
+        if (update or not pre_exist) and len(attrs) > 0:
+
             nx.set_node_attributes(
                 self.erkg,
                 { iri: attrs },
