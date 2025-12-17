@@ -11,6 +11,8 @@ Downstream there may be several patterns of usage, such as graph
 analytics, dashboards, GraphRAG, question/answer chat bots, agents,
 memory, tools, planners, and so on.
 
+![](./docs/assets/logo.png)
+
 The steps in this tutorial **unbundle** the process which might
 otherwise be attempted in monolithic "black box" approach.
 We'll examine how to use 
