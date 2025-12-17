@@ -435,18 +435,18 @@ numpy = {version = ">=1.19.0,<3.0.0", markers = "python_version >= \"3.9\""}
 
 [[package]]
 name = "boto3"
-version = "1.42.10"
+version = "1.42.11"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3-1.42.10-py3-none-any.whl", hash = "sha256:70720926eab4306a724414286480ec4efa301f3e67e5a53ad4b62f6eb6dbd5b4"},
-    {file = "boto3-1.42.10.tar.gz", hash = "sha256:8b7a1eb83ab7f0c89bb449ccac400eeca6f4ba6e33ba312e2281c6d864602bc3"},
+    {file = "boto3-1.42.11-py3-none-any.whl", hash = "sha256:54939f7fc1b2777771c2a66ecc77025b2af86e567b5cf68d30dc3838205f0a4a"},
+    {file = "boto3-1.42.11.tar.gz", hash = "sha256:2537d9462b70f4432385202709d1c8aa2291f802cfd8588d33334112116c554a"},
 ]
 
 [package.dependencies]
-botocore = ">=1.42.10,<1.43.0"
+botocore = ">=1.42.11,<1.43.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.16.0,<0.17.0"
 
@@ -455,14 +455,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "boto3-stubs"
-version = "1.42.10"
-description = "Type annotations for boto3 1.42.10 generated with mypy-boto3-builder 8.12.0"
+version = "1.42.11"
+description = "Type annotations for boto3 1.42.11 generated with mypy-boto3-builder 8.12.0"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3_stubs-1.42.10-py3-none-any.whl", hash = "sha256:311374a6699f6757e2c302c4b520a2254f8a52d7d5f3de9998608fe77e210213"},
-    {file = "boto3_stubs-1.42.10.tar.gz", hash = "sha256:5f0f6d0b3c30c84fb3d1a2fc3fcbaeb2b7bf19329bdea9f6287cbd0eefd33a07"},
+    {file = "boto3_stubs-1.42.11-py3-none-any.whl", hash = "sha256:2e26f0fb68c619a4c50d2b79848eecea5500297b0ee583e432a9e50db67e7f0a"},
+    {file = "boto3_stubs-1.42.11.tar.gz", hash = "sha256:9dbec00184f701b9fbbf2f3554ab96b5cd8bd1854bf7599d1917c659d488f864"},
 ]
 
 [package.dependencies]
@@ -524,7 +524,7 @@ bedrock-data-automation-runtime = ["mypy-boto3-bedrock-data-automation-runtime (
 bedrock-runtime = ["mypy-boto3-bedrock-runtime (>=1.42.0,<1.43.0)"]
 billing = ["mypy-boto3-billing (>=1.42.0,<1.43.0)"]
 billingconductor = ["mypy-boto3-billingconductor (>=1.42.0,<1.43.0)"]
-boto3 = ["boto3 (==1.42.10)"]
+boto3 = ["boto3 (==1.42.11)"]
 braket = ["mypy-boto3-braket (>=1.42.0,<1.43.0)"]
 budgets = ["mypy-boto3-budgets (>=1.42.0,<1.43.0)"]
 ce = ["mypy-boto3-ce (>=1.42.0,<1.43.0)"]
@@ -893,14 +893,14 @@ xray = ["mypy-boto3-xray (>=1.42.0,<1.43.0)"]
 
 [[package]]
 name = "botocore"
-version = "1.42.10"
+version = "1.42.11"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore-1.42.10-py3-none-any.whl", hash = "sha256:41eaa73694c0f9e5e281d81f18325f1181d332dce21ea47f58426250b31889fe"},
-    {file = "botocore-1.42.10.tar.gz", hash = "sha256:84312c37ddc34cd0cce25436f26370af1edb9e1b1944359ee15350239537cdaa"},
+    {file = "botocore-1.42.11-py3-none-any.whl", hash = "sha256:73b0796870f16ccd44729c767ade20e8ed62b31b3aa2be07b35377338dcf6d7c"},
+    {file = "botocore-1.42.11.tar.gz", hash = "sha256:4c5278b9e0f6217f428aade811d409e321782bd14f0a202ff95a298d841be1f7"},
 ]
 
 [package.dependencies]
@@ -913,14 +913,14 @@ crt = ["awscrt (==0.29.2)"]
 
 [[package]]
 name = "botocore-stubs"
-version = "1.42.10"
+version = "1.42.11"
 description = "Type annotations and code completion for botocore"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore_stubs-1.42.10-py3-none-any.whl", hash = "sha256:2512c3931042f73d473f33c5228040636b419e3cd7ec3be94de6d8e0d240a00a"},
-    {file = "botocore_stubs-1.42.10.tar.gz", hash = "sha256:e86fcb0d6755559b714481316854d19a6b4b993023607da47d56a0c75d4f9387"},
+    {file = "botocore_stubs-1.42.11-py3-none-any.whl", hash = "sha256:788ecde81894f149bf210286f82ff3e49b97ce736a2ecb89f210be3f0374d35e"},
+    {file = "botocore_stubs-1.42.11.tar.gz", hash = "sha256:c2bac920d8c302e15e6bec9593daeaf04777714f8309fe052fd24cf28eb85a76"},
 ]
 
 [package.dependencies]
@@ -4359,14 +4359,14 @@ voice-helpers = ["numpy (>=2.0.2)", "sounddevice (>=0.5.1)"]
 
 [[package]]
 name = "opik"
-version = "1.9.51"
+version = "1.9.53"
 description = "Comet tool for logging and evaluating LLM traces"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "opik-1.9.51-py3-none-any.whl", hash = "sha256:d023575ce02b52de5d415fd175f149ac0113c4979f9cfb0b9294db7e48f706f1"},
-    {file = "opik-1.9.51.tar.gz", hash = "sha256:619ff567f9395637df47d73a8acbd2f40f0560598de66e342ba3864d06a2cc9f"},
+    {file = "opik-1.9.53-py3-none-any.whl", hash = "sha256:62ae1494538dfe0b0891bf1022be0df19e92a110492a5e431dd12517104ef42e"},
+    {file = "opik-1.9.53.tar.gz", hash = "sha256:e19c9e8c96473b54bbbe4f2a388e1d0cddbbe2318c0c7163976355310f62011b"},
 ]
 
 [package.dependencies]

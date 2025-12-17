@@ -43,7 +43,7 @@ dependencies = [
     "arrowspace (>=0.13.3,<0.14.0)",
     "numpy (>=1.17,<3.0.0)",
     "gensim (>=4.3.3,<5.0.0)",
-    "lancedb (==0.25.3)",
+    "lancedb (>=0.26)",
     "lance-namespace (==0.0.20)",
     "polars (>=1.32.3,<2.0.0)",
 

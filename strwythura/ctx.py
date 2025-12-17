@@ -16,7 +16,8 @@ import sys
 import typing
 
 from icecream import ic
-from lancedb.embeddings import get_registry, transformers
+from lancedb.embeddings import get_registry
+from lancedb.embeddings.sentence_transformers import SentenceTransformerEmbeddings
 from lancedb.pydantic import LanceModel, Vector
 from rdflib import Namespace
 from rdflib.namespace import RDF
@@ -33,13 +34,8 @@ from .ent import EntityStore
 from .lex import LexicalGraph
 
 
-# NB: `LanceDB` requires the embedding model to be hard-coded
-# at compile time -- would be better to have as a configuration
-# parameter which could be changed at run time.
-EMBED_MODEL: str = "BAAI/bge-small-en-v1.5"
-
-EMBED_FUNC: transformers.TransformersEmbeddingFunction = \
-    get_registry().get("huggingface").create(name = EMBED_MODEL)
+EMBED_FUNC: SentenceTransformerEmbeddings = \
+    get_registry().get("sentence-transformers").create()
 
 
 class TextChunk (LanceModel):

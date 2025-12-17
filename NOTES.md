@@ -2,24 +2,27 @@ Motto: "nos intelligentia sumus" -- vis-a-vis AI definition
 
 ## TODOs
 
-  * add a node in ERKG for baseline `owl:Thing`
+  * run mypy, pylint
+
+  * refactor ERKG to its own module
+
+  * enable `Opik`
+
+  * found in QA NER, not from taxonomy: `NOUN.science`, `NOUN.hospital`
+{"span": {"loc": [-1, -1], "text": "", "span": [], "label": null, "source": "Domain_Taxonomy", "iri": null}, "lemma_key": "NOUN.science", "uid": 9, "inst": [], "count
+": 1, "rank": 0.0}
+
+  * Streamlit dashboard view of `rag.py`
 
   * fix Part 6:
-     - implement semantic random walk: nothing back from the shortest paths?
+     - semantic random walk: nothing back from the shortest paths?
+     - need to visualize subgraph
 
   * fix Part 5:
      - also update `count` and `rank` for ER and TAXO nodes in the ERKG
      - fix the logic in `ctx.py: promote_er_nodes()`
 
-  * refactor ERKG to its own module
-
-  * Streamlit dashboard view of `rag.py`
-
   * filter the `strw:co_occurs_with` relations based on quantiles
-
-  * fix `n3()` prefix resolution for `lex.py`, etc.
-
-  * enable `Opik`
 
   * add edges for `strw:compound_elem_of`
 
