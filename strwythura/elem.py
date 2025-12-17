@@ -83,7 +83,7 @@ the constructed knowledge graph.
 Construct an IRI based on the `lemma_key` value.
         """
         if self.span.source == EntitySource.ER:
-            return self.span.iri
+            return self.span.iri  # type: ignore
 
         stub: str = self.lemma_key.replace(" ", "_")
         return f"{STRW_PREFIX}lemma_{stub}"

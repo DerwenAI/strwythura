@@ -288,6 +288,6 @@ De-serialize assets from the previous steps.
             pathlib.Path(self.config["nlp"]["lex_path"]),
         )
 
-        self.ctx.load_erkg(
+        self.ctx.load_graph(
             pathlib.Path(self.config["erkg"]["erkg_path"]),
         )

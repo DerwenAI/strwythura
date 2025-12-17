@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Builds assets for constructing a KG, then running GraphRAG downstream.
+Run an enhanced GraphRAG based on ERKG and entity embedding, using DSPy.
 
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
@@ -264,9 +264,9 @@ by leveraging the ERKG and entity embeddings.
         if debug:
             ic(self.rag_chunks)
 
-            for node_id in self.anchor_nodes:
-                anchor_node: dict = self.work.ctx.erkg.nodes[node_id]
-                ic(anchor_node)
+            for iri in self.anchor_nodes:
+                anchor: dict = self.work.ctx.get_node(iri)
+                ic(anchor)
 
         # perform a semantic expansion using entity embeddings
         self.perform_semantic_expansion(
@@ -430,8 +430,8 @@ linked to chunks, to augment the set of anchor nodes.
         )
 
         # add lemma keys for entity nodes linked to chunks
-        for node_id, metric in chunk_nodes.items():
-            hit: dict = self.work.ctx.erkg.nodes[node_id]
+        for iri, metric in chunk_nodes.items():
+            hit: dict = self.work.ctx.get_node(iri)
 
             if "lemma" in hit:
                 mh_hit: MinHash = MinHash(num_perm = num_perm)
@@ -439,7 +439,7 @@ linked to chunks, to augment the set of anchor nodes.
                 for lemma in hit["lemma"].split(" "):
                     mh_hit.update(lemma.encode("utf-8"))
 
-                forest.add(node_id, mh_hit)
+                forest.add(iri, mh_hit)
 
         # add lemma keys for entity resolution results
         for lemma_key, ent in self.work.ctx.ent_store.entities.items():
@@ -486,16 +486,16 @@ anchor nodes as the starting points.
         decoder: dict[ int, Entity ] = self.work.ctx.ent_store.get_decoder()
         neighbors: dict[ str, float ] = {}
 
-        for node_id in self.anchor_nodes:
+        for iri in self.anchor_nodes:
             try:
-                anchor_node: dict = self.work.ctx.erkg.nodes[node_id]
+                anchor: dict = self.work.ctx.get_node(iri)
 
-                if "lemma" in anchor_node:
-                    lemma_key: str = anchor_node["lemma"]
+                if "lemma" in anchor:
+                    lemma_key: str = anchor["lemma"]
                     ent: Entity = self.work.ctx.ent_store.entities[lemma_key]
 
                     if debug:
-                        ic(node_id, lemma_key)
+                        ic(iri, lemma_key)
 
                     for uid, distance in self.work.ctx.ent_store.w2v_model.wv.most_similar(
                         str(ent.uid),
@@ -511,16 +511,17 @@ anchor nodes as the starting points.
 
             except KeyError as ex:
                 # TODO: using logging to trace these embedding errors?
-                print("w2v_model.wv.most_similar:", node_id)
+                print("w2v_model.wv.most_similar:", iri)
                 ic(ex)
 
         for neigh_iri, distance in sorted(neighbors.items(), key = lambda x: x[1]):
-            neighbor: dict = self.work.ctx.erkg.nodes[neigh_iri]
+            neigh_hit: dict = self.work.ctx.get_node(neigh_iri)
 
-            if "method" in neighbor and EntitySource(neighbor["method"]) <= EntitySource.NER:
-                ic("ADD", neigh_iri, neighbor)
-
+            if "method" in neigh_hit and EntitySource(neigh_hit["method"]) <= EntitySource.NER:
                 self.anchor_nodes.add(neigh_iri)
+
+                if debug:
+                    ic("ADD", neigh_iri, neigh_hit)
 
 
     def extract_question_subgraph (
@@ -547,12 +548,12 @@ most-referenced entities in the subgraph.
             self.work.config["tr"]["tr_alpha"],
         ).items()
 
-        for node_id, rank in sorted(rank_iter, key = lambda x: x[1], reverse = True):
+        for iri, rank in sorted(rank_iter, key = lambda x: x[1], reverse = True):
             if debug:
-                hit: dict = self.work.ctx.erkg.nodes[node_id]
-                ic("tr", node_id, rank, hit)
+                hit: dict = self.work.ctx.get_node(iri)
+                ic("tr", iri, rank, hit)
 
-            yield node_id
+            yield iri
 
 
     def semantic_random_walk (
@@ -575,13 +576,13 @@ In other words, this emulates a _semantic random walk_.
                     if debug:
                         ic(path)
 
-                    for node_id in path:
-                        if node_id not in pair:
+                    for iri in path:
+                        if iri not in pair:
                             if debug:
-                                hit: dict = self.work.ctx.erkg.nodes[node_id]
-                                ic("walk", node_id, hit)
+                                hit: dict = self.work.ctx.get_node(iri)
+                                ic("walk", iri, hit)
 
-                            yield node_id
+                            yield iri
             except nx.NetworkXNoPath:
                 # ignore attempts when the source node is unreachable
                 pass
@@ -595,18 +596,18 @@ In other words, this emulates a _semantic random walk_.
         """
 Find the neighboring chunks for each anchor node.
         """
-        for node_id in self.anchor_nodes:
+        for iri in self.anchor_nodes:
             if debug:
-                ic(node_id)
+                ic(iri)
 
-            for neighbor in self.work.ctx.erkg.neighbors(node_id):
-                hit: dict = self.work.ctx.erkg.nodes[neighbor]
+            for neigh_iri in self.work.ctx.erkg.neighbors(iri):
+                neigh_hit: dict = self.work.ctx.get_node(neigh_iri)
 
-                if hit.get("kind") == NodeKind.CHUNK.value:
-                    chunk_id: int = int(neighbor.replace("strw:chunk_", ""))
+                if neigh_hit.get("kind") == NodeKind.CHUNK.value:
+                    chunk_id: int = TextChunk.get_uid(neigh_iri)
 
                     if debug:
-                        ic(neighbor, hit, chunk_id)
+                        ic(neigh_iri, neigh_hit, chunk_id)
 
                     yield chunk_id
 

@@ -55,7 +55,7 @@ if __name__ == "__main__":
         pathlib.Path(work.config["ent"]["store_path"]),
     )
 
-    work.ctx.save_erkg(
+    work.ctx.save_graph(
         pathlib.Path(work.config["erkg"]["erkg_path"]),
     )
 

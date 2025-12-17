@@ -5,6 +5,10 @@ Motto: "nos intelligentia sumus" -- vis-a-vis AI definition
   * run mypy, pylint
 
   * refactor ERKG to its own module
+	erkg.in_edges()
+	erkg.subgraph()
+	erkg.neighbors(iri)
+	for path in nx.all_shortest_paths(self.work.ctx.erkg, pair[0], pair[1])
 
   * enable `Opik`
 

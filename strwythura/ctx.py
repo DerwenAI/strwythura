@@ -46,7 +46,7 @@ Represents one chunk of text from a document.
     url: str
     sent_id: int
     text: str = EMBED_FUNC.SourceField()
-    vector: Vector(EMBED_FUNC.ndims()) = EMBED_FUNC.VectorField(default = None)
+    vector: Vector(EMBED_FUNC.ndims()) = EMBED_FUNC.VectorField(default = None)  # type: ignore
 
     @classmethod
     def get_iri (
@@ -57,6 +57,18 @@ Represents one chunk of text from a document.
 Construct an IRI based on the chunk `uid` value.
         """
         return f"{STRW_PREFIX}chunk_{uid}"
+
+
+    @classmethod
+    def get_uid (
+        cls,
+        iri: int,
+        ) -> str:
+        """
+Extract the `uid` value based on a chunk IRI.
+        """
+        stub: str = f"{STRW_PREFIX}chunk_"
+        return int(iri.replace(stub, ""))
 
 
 class DomainContext:
@@ -767,7 +779,17 @@ dictionary.
         return None
 
 
-    def load_erkg (
+    def get_node (
+        self,
+        iri: str,
+        ) -> dict:
+        """
+Accessor method to get the properties of an ERKG node.
+        """
+        return self.erkg.nodes[iri]
+
+
+    def load_graph (
         self,
         erkg_path: pathlib.Path,
         ) -> None:
@@ -782,7 +804,7 @@ _node-link_ data format.
             )
 
 
-    def save_erkg (
+    def save_graph (
         self,
         erkg_path: pathlib.Path,
         ) -> None:

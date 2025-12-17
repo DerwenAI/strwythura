@@ -125,6 +125,6 @@ A simple web page content scraper, which returns a list of text paragraphs.
         )
 
         return [
-            self.scrub_text(para.text.strip())
+            self.scrub_text(para.text.strip())  # type: ignore
             for para in soup.find_all("p")
         ]

@@ -21,6 +21,15 @@ Which of the following scenarios is most likely to occur:
   - the financial bubble, caused by "AI Hype" deception, finally bursts
 
 
+What is the most likely source for previews of upcoming AI technology components:
+
+  - lectures by Peter Thiel, Sam Altman, and other experts
+  - product releases from OpenAI, Anthropic, etc.
+  - articles published by Andreessen Horowitz (a16z)
+  - new papers on arXiv
+  - peer-reviewed published research at optimization labs
+
+
 It is grammatically correct to say:
 
   - "according to the AIs"
