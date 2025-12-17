@@ -219,8 +219,6 @@ of priority:
         # consolidate the noun chunks with named entities,
         # producing a list of spans
         span_list: list[ NounSpan ] = []
-        nck_idx: int = 0
-        ner_idx: int = 0        
 
         todo: tuple | None = None
 
@@ -302,8 +300,6 @@ of priority:
 
         # consolidate the span list with tokens, producing a full list of parsed items
         full_list: list[ NounSpan ] = []
-        span_idx: int = 0        
-        tok_idx: int = 0
 
         while len(span_list) > 0 and len(tok_list) > 0:
             span: NounSpan = span_list[0]
@@ -327,8 +323,7 @@ of priority:
         full_list.extend(tok_list)
         full_list.sort(key = lambda span: span.loc)
 
-        for item in full_list:
-            yield item
+        yield from full_list
 
 
     def parse_para (

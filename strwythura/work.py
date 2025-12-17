@@ -18,7 +18,7 @@ from sz_semantics import Thesaurus  # type: ignore
 import networkx as nx
 
 from .ctx import DomainContext, TextChunk
-from .elem import Entity, NodeKind, STRW_PREFIX
+from .elem import Entity
 from .ent import EntityStore
 from .lex import LexicalGraph
 from .nlp import Parser
@@ -39,7 +39,7 @@ Manage multiple workflow phases.
 Constructor.
         """
         # configuration
-        logger: logging.Logger = logging.getLogger(__name__)
+        logger: logging.Logger = logging.getLogger(__name__)  # pylint: disable=W0612
         logging.basicConfig(level = logging.WARNING) # DEBUG
 
         # disable noisy logging
@@ -219,8 +219,6 @@ For each of the given URLs:
 
     def distill_knowledge_graph (
         self,
-        lex_path: pathlib.Path,
-        erkg_path: pathlib.Path,
         ) -> None:
         """
 Finalize construction and serialization of the knowledge graph after

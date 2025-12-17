@@ -14,7 +14,6 @@ from icecream import ic
 import networkx as nx
 import numpy as np
 import pandas as pd
-import polars as pl
 
 from .elem import Entity, STRW_PREFIX
 from .opt import calc_quantile_bins, stripe_column, root_mean_square

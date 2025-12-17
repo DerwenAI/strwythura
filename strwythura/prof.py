@@ -10,7 +10,7 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 import pyinstrument
 
 
-class Profiler:
+class Profiler:  # pylint: disable=R0903
     """
 Use statistical call stack sampling to augment LLM observability.
     """

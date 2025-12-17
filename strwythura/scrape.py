@@ -13,7 +13,6 @@ import unicodedata
 from bs4 import BeautifulSoup
 import requests
 import requests_cache
-import spacy
 
 
 class Scraper:

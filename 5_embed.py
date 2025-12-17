@@ -52,10 +52,7 @@ if __name__ == "__main__":
     work.load_parser()
 
     # distill graph elements from the lexical graph into the ERKG
-    work.distill_knowledge_graph(
-        pathlib.Path(work.config["nlp"]["lex_path"]),
-        pathlib.Path(work.config["erkg"]["erkg_path"]),
-    )
+    work.distill_knowledge_graph()
 
     # serialize the intermediate results
     work.ctx.lex.save_graph(

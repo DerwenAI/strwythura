@@ -10,7 +10,9 @@ authors = [
 ]
 
 readme = "README.md"
-license = { text = "MIT" }
+
+license = "MIT"
+license-files = [ "LICENSE" ]
 
 requires-python = ">=3.11,<3.12"
 
@@ -44,7 +46,7 @@ dependencies = [
     "numpy (>=1.17,<3.0.0)",
     "gensim (>=4.3.3,<5.0.0)",
     "lancedb (>=0.26)",
-    "lance-namespace (==0.0.20)",
+    "lance-namespace (>=0.0.20)",
     "polars (>=1.32.3,<2.0.0)",
 
     # graph representation/validation

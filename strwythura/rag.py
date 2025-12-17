@@ -19,7 +19,6 @@ from opik.integrations.dspy.callback import OpikCallback
 import dspy  # type: ignore
 import networkx as nx
 import opik
-import polars as pl
 import spacy
 
 from .ctx import TextChunk
@@ -27,12 +26,12 @@ from .elem import Entity, EntitySource, NodeKind, STRW_PREFIX
 from .work import Workflow
 
 
-class DSPy_RAG (dspy.Module):
+class DSPy_RAG (dspy.Module):  # pylint: disable=C0103
     """
 DSPy implementation of a RAG signature.
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=W0231
         self,
         config: dict,
         project_name: str,
@@ -57,7 +56,7 @@ Constructor.
                 cache = False,
             )
         else:
-            OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")  # type: ignore
+            OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")  # type: ignore  # pylint: disable=C0103
 
             if OPENAI_API_KEY is None:
                 raise ValueError(
@@ -189,7 +188,7 @@ Loop to answer questions.
 
         except EOFError:
             print("")
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=W0718
             ic(ex)
             traceback.print_exc()
         finally:
@@ -208,7 +207,7 @@ Run one question/answer cycle.
         self.rag.context = chunks
         response: dspy.primitives.prediction.Prediction = self.rag(question)
 
-        if False: # disable for now; too verbose
+        if False: # disable for now; too verbose  # pylint: disable=W0125
             dspy.inspect_history()
 
         return response
@@ -236,7 +235,6 @@ by leveraging the ERKG and entity embeddings.
         chunk_nodes: dict[ str, float ] = self.find_rag_chunks(
             question,
             max_chunks = max_chunks,
-            num_perm = num_perm,
         )
 
         if disable_graph:
@@ -276,12 +274,13 @@ by leveraging the ERKG and entity embeddings.
 
         # extract a subgraph constructed from the shortest paths
         # between anchor nodes
-        subgraph: set[ str ] = set(list(self.extract_question_subgraph()))
+        # TODO: if this variable isn't used, let's refactor it out
+        subgraph: set[ str ] = set(list(self.extract_question_subgraph()))  # pylint: disable=W0612
 
         # add the chunks for each anchor node
         for chunk_id in self.find_chunk_neighbors():
             if chunk_id not in self.rag_chunks:
-                # impute to median distance 
+                # impute to median distance
                 self.rag_chunks[chunk_id] = 0.5
 
         # retrieve text for the combined list of chunks
@@ -293,7 +292,6 @@ by leveraging the ERKG and entity embeddings.
         question: str,
         *,
         max_chunks: int = 11,
-        num_perm: int = 128,
         debug: bool = False,
         ) -> dict[ str, float ]:
         """
@@ -431,7 +429,7 @@ linked to chunks, to augment the set of anchor nodes.
         )
 
         # add lemma keys for entity nodes linked to chunks
-        for iri, metric in chunk_nodes.items():
+        for iri, _ in chunk_nodes.items():
             hit: dict = self.work.ctx.get_node(iri)
 
             if "lemma" in hit:
@@ -452,7 +450,7 @@ linked to chunks, to augment the set of anchor nodes.
 
                 ent_iri: str = ent.get_iri()
 
-                if not forest.__contains__(ent_iri):
+                if not ent_iri in forest:
                     forest.add(ent_iri, mh_hit)
 
         forest.index()
@@ -622,7 +620,7 @@ Find the neighboring chunks for each anchor node.
 Retrieve text for the combined list of chunks.
         """
         # TODO: should this be sorted, i.e., as a _reranking_ function?
-        chunk_ids: str = ", ".join([ str(c_id) for c_id in self.rag_chunks.keys() ])
+        chunk_ids: str = ", ".join([ str(c_id) for c_id in self.rag_chunks.keys() ])  # pylint: disable=C0201
 
         if debug:
             ic(chunk_ids)

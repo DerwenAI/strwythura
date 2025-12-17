@@ -435,18 +435,18 @@ numpy = {version = ">=1.19.0,<3.0.0", markers = "python_version >= \"3.9\""}
 
 [[package]]
 name = "boto3"
-version = "1.42.11"
+version = "1.42.12"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3-1.42.11-py3-none-any.whl", hash = "sha256:54939f7fc1b2777771c2a66ecc77025b2af86e567b5cf68d30dc3838205f0a4a"},
-    {file = "boto3-1.42.11.tar.gz", hash = "sha256:2537d9462b70f4432385202709d1c8aa2291f802cfd8588d33334112116c554a"},
+    {file = "boto3-1.42.12-py3-none-any.whl", hash = "sha256:8112e1beb5978bb455ea4b41a9ef26fc408f6340d8ff69ef93dded4f80fd53e9"},
+    {file = "boto3-1.42.12.tar.gz", hash = "sha256:649b134d25b278c24fcc8b3f94519de3884283b7848dc32f42b0ffdd9d19ce99"},
 ]
 
 [package.dependencies]
-botocore = ">=1.42.11,<1.43.0"
+botocore = ">=1.42.12,<1.43.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.16.0,<0.17.0"
 
@@ -455,14 +455,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "boto3-stubs"
-version = "1.42.11"
-description = "Type annotations for boto3 1.42.11 generated with mypy-boto3-builder 8.12.0"
+version = "1.42.12"
+description = "Type annotations for boto3 1.42.12 generated with mypy-boto3-builder 8.12.0"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3_stubs-1.42.11-py3-none-any.whl", hash = "sha256:2e26f0fb68c619a4c50d2b79848eecea5500297b0ee583e432a9e50db67e7f0a"},
-    {file = "boto3_stubs-1.42.11.tar.gz", hash = "sha256:9dbec00184f701b9fbbf2f3554ab96b5cd8bd1854bf7599d1917c659d488f864"},
+    {file = "boto3_stubs-1.42.12-py3-none-any.whl", hash = "sha256:f69f12c884519a62a6e6d7f296932d4cdc14f47ea987b1eb7b226337f1127d13"},
+    {file = "boto3_stubs-1.42.12.tar.gz", hash = "sha256:18a9a970fd9d8867558f091608f2d9944d6f55143d23cb11785f1c143d91aa54"},
 ]
 
 [package.dependencies]
@@ -524,7 +524,7 @@ bedrock-data-automation-runtime = ["mypy-boto3-bedrock-data-automation-runtime (
 bedrock-runtime = ["mypy-boto3-bedrock-runtime (>=1.42.0,<1.43.0)"]
 billing = ["mypy-boto3-billing (>=1.42.0,<1.43.0)"]
 billingconductor = ["mypy-boto3-billingconductor (>=1.42.0,<1.43.0)"]
-boto3 = ["boto3 (==1.42.11)"]
+boto3 = ["boto3 (==1.42.12)"]
 braket = ["mypy-boto3-braket (>=1.42.0,<1.43.0)"]
 budgets = ["mypy-boto3-budgets (>=1.42.0,<1.43.0)"]
 ce = ["mypy-boto3-ce (>=1.42.0,<1.43.0)"]
@@ -893,14 +893,14 @@ xray = ["mypy-boto3-xray (>=1.42.0,<1.43.0)"]
 
 [[package]]
 name = "botocore"
-version = "1.42.11"
+version = "1.42.12"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore-1.42.11-py3-none-any.whl", hash = "sha256:73b0796870f16ccd44729c767ade20e8ed62b31b3aa2be07b35377338dcf6d7c"},
-    {file = "botocore-1.42.11.tar.gz", hash = "sha256:4c5278b9e0f6217f428aade811d409e321782bd14f0a202ff95a298d841be1f7"},
+    {file = "botocore-1.42.12-py3-none-any.whl", hash = "sha256:4f163880350f6d831857ce5d023875b7c6534be862e5affd9fcf82b8d1ab3537"},
+    {file = "botocore-1.42.12.tar.gz", hash = "sha256:1f9f63c3d6bb1f768519da30d6018706443c5d8af5472274d183a4945f3d81f8"},
 ]
 
 [package.dependencies]
@@ -913,14 +913,14 @@ crt = ["awscrt (==0.29.2)"]
 
 [[package]]
 name = "botocore-stubs"
-version = "1.42.11"
+version = "1.42.12"
 description = "Type annotations and code completion for botocore"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore_stubs-1.42.11-py3-none-any.whl", hash = "sha256:788ecde81894f149bf210286f82ff3e49b97ce736a2ecb89f210be3f0374d35e"},
-    {file = "botocore_stubs-1.42.11.tar.gz", hash = "sha256:c2bac920d8c302e15e6bec9593daeaf04777714f8309fe052fd24cf28eb85a76"},
+    {file = "botocore_stubs-1.42.12-py3-none-any.whl", hash = "sha256:7353c5c41478cc41a70beb9545cc0a5e487fe75b5b322ed5802ce0c177e49dac"},
+    {file = "botocore_stubs-1.42.12.tar.gz", hash = "sha256:0eaac8852441794f14bdb823b0b0dc1c7220cf024e506031d5e0d2c4855e277f"},
 ]
 
 [package.dependencies]
@@ -2940,27 +2940,18 @@ files = [
 
 [[package]]
 name = "lance-namespace"
-version = "0.0.20"
-description = "Python client for Lance Namespace API"
+version = "0.3.2"
+description = "Lance Namespace interface and plugin registry"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "lance_namespace-0.0.20-py3-none-any.whl", hash = "sha256:9a06c9d8756ba711895f430cc0a3b809c1c71d86b92063e2f34ad73e635f3a50"},
-    {file = "lance_namespace-0.0.20.tar.gz", hash = "sha256:d031168e5784392f8cdf174721a0878fcb12f06049643eafebfd7bcbece66742"},
+    {file = "lance_namespace-0.3.2-py3-none-any.whl", hash = "sha256:794249bec15fb6e34d2b8d9f9698f11ae191179eccd9cd879743d8fb3c666ca0"},
+    {file = "lance_namespace-0.3.2.tar.gz", hash = "sha256:51eb30f8a9f073bba15d1824460bf6e9fa7f867e224e73ee64520ed254f0c140"},
 ]
 
 [package.dependencies]
-lance-namespace-urllib3-client = "*"
-pyarrow = ">=14.0.0"
-pylance = ">=0.18.0"
-typing-extensions = ">=4.0.0"
-
-[package.extras]
-dir = ["opendal"]
-glue = ["boto3 (>=1.24.0)", "botocore (>=1.27.0)"]
-hive2 = ["hive-metastore-client (>=1.0.9)", "thrift (>=0.13.0)"]
-test = ["pytest (>=7.0.0)", "pytest-cov (>=4.0.0)"]
+lance-namespace-urllib3-client = "0.3.2"
 
 [[package]]
 name = "lance-namespace-urllib3-client"
@@ -2982,24 +2973,23 @@ urllib3 = ">=1.25.3,<3.0.0"
 
 [[package]]
 name = "lancedb"
-version = "0.25.3"
+version = "0.26.0"
 description = "lancedb"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "lancedb-0.25.3-cp39-abi3-macosx_10_15_x86_64.whl", hash = "sha256:1cfa4dd97b33ca8f73288aa4b1baaddc9545ce0d3c8e5d06fba8feb77f42363f"},
-    {file = "lancedb-0.25.3-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:8a7bfe0cb2146f6e78e9f376673ed2f906b93dab84df97dad2ba9fa52f97e152"},
-    {file = "lancedb-0.25.3-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:25a395d07d31da1e13e2631fd9911b15e6d4fb903d34358cea0bd450006364e3"},
-    {file = "lancedb-0.25.3-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:500beac161f73e3e6826a711efb1d24397d892d07dfdce2c9fb1da73f8de506c"},
-    {file = "lancedb-0.25.3-cp39-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:2d0fce4187582e48b69430d204665e164002f1b49b03e67747ca8ec2c3083481"},
-    {file = "lancedb-0.25.3-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:3035665fb8e4aaff8dff2602747cc77aeba6bc39f1a95345abc3275c97a044cb"},
-    {file = "lancedb-0.25.3-cp39-abi3-win_amd64.whl", hash = "sha256:8c153d976bec79358d328e4c8a287a7b9c918b35b3912fff6864ced6b2a15943"},
+    {file = "lancedb-0.26.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:3a0d435fff1392f056c173f695f71d495c691c555daa9802c056ea23f6a3900e"},
+    {file = "lancedb-0.26.0-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a2206320fd0f33c01e264960afd768987646133cf152c4d3a8b7faf81b3017bf"},
+    {file = "lancedb-0.26.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7ca0322cb4b62d526748f6f29e5b43cce4251c7f693e111897eb1f77e7f1ec2b"},
+    {file = "lancedb-0.26.0-cp39-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:7f2b8d69a647265b8753576b501354333c3edfd47d12ec9f47e665e8574c92fe"},
+    {file = "lancedb-0.26.0-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:8e5cc334686a389cf2f28d1c239d13a205098ed98f3914226d3966858e58b957"},
+    {file = "lancedb-0.26.0-cp39-abi3-win_amd64.whl", hash = "sha256:2fc9b48a11f526de87388002eb3838329db7279241eefb3166c1c6c3b194a3cf"},
 ]
 
 [package.dependencies]
 deprecation = "*"
-lance-namespace = ">=0.0.16"
+lance-namespace = ">=0.3.2"
 numpy = "*"
 overrides = {version = ">=0.7", markers = "python_full_version < \"3.12.0\""}
 packaging = "*"
@@ -3013,9 +3003,9 @@ clip = ["open-clip-torch", "pillow", "torch"]
 dev = ["pre-commit", "pyright", "ruff", "typing-extensions (>=4.0.0) ; python_full_version < \"3.11.0\""]
 docs = ["mkdocs", "mkdocs-jupyter", "mkdocs-material", "mkdocstrings-python"]
 embeddings = ["awscli (>=1.29.57)", "boto3 (>=1.28.57)", "botocore (>=1.31.57)", "cohere", "colpali-engine (>=0.3.10)", "google-generativeai", "huggingface-hub", "ibm-watsonx-ai (>=1.1.2) ; python_full_version >= \"3.10.0\"", "instructorembedding", "ollama (>=0.3.0)", "open-clip-torch", "openai (>=1.6.1)", "pillow", "requests (>=2.31.0)", "sentence-transformers", "sentencepiece", "torch"]
-pylance = ["pylance (>=0.25)"]
+pylance = ["pylance (>=1.0.0b14)"]
 siglip = ["pillow", "sentencepiece", "torch", "transformers (>=4.41.0)"]
-tests = ["aiohttp", "boto3", "datafusion", "duckdb", "pandas (>=1.4)", "polars (>=0.19,<=1.3.0)", "pyarrow-stubs", "pylance (>=0.25)", "pytest", "pytest-asyncio", "pytest-mock", "pytz", "requests", "tantivy"]
+tests = ["aiohttp", "boto3", "datafusion", "duckdb", "pandas (>=1.4)", "polars (>=0.19,<=1.3.0)", "pyarrow-stubs", "pylance (>=1.0.0b14)", "pytest", "pytest-asyncio", "pytest-mock", "pytz", "requests", "tantivy"]
 
 [[package]]
 name = "librt"
@@ -5586,34 +5576,6 @@ docs = ["furo (==2024.7.18)", "myst-parser (==3.0.1)", "sphinx (==7.4.7)", "sphi
 examples = ["django", "litestar", "numpy"]
 test = ["cffi (>=1.17.0)", "flaky", "greenlet (>=3)", "ipython", "pytest", "pytest-asyncio (==0.23.8)", "trio"]
 types = ["typing_extensions"]
-
-[[package]]
-name = "pylance"
-version = "0.39.0"
-description = "python wrapper for Lance columnar format"
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = [
-    {file = "pylance-0.39.0-cp39-abi3-macosx_10_15_x86_64.whl", hash = "sha256:faa6fbf45c345e430f4be75da86071fdab56550e94e657a749b7407b4add3a8f"},
-    {file = "pylance-0.39.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:99b9fe4d884964ad679323bc99c1d3f0ec65266dbc13cb35c358d21cd22c18d7"},
-    {file = "pylance-0.39.0-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:d84e013acb6af5b2b8bda8357f6f963138ab348261cccb7f5a67d6c07a5314db"},
-    {file = "pylance-0.39.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fc28f23ea894ded1e343c1b16bac0c78d87a7484cc1837c56035532b34d9fd2b"},
-    {file = "pylance-0.39.0-cp39-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:800da785463141648e24334e238201771a1227541323de4d4ebad78d234a3739"},
-    {file = "pylance-0.39.0-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:56a3e7252d958ad6191e104f0c4d804b6dd9956addf066b77a6b876b78c2aa39"},
-    {file = "pylance-0.39.0-cp39-abi3-win_amd64.whl", hash = "sha256:2a0547c36b9796993367fbbce423cc161af99f66bf58bd181b0d4a48af640c50"},
-]
-
-[package.dependencies]
-lance-namespace = ">=0.0.20"
-numpy = ">=1.22"
-pyarrow = ">=14"
-
-[package.extras]
-benchmarks = ["pytest-benchmark"]
-dev = ["pyright", "ruff (==0.4.1)"]
-tests = ["boto3", "datafusion (>=50.1)", "datasets", "duckdb", "ml-dtypes", "pandas", "pillow", "polars[pandas,pyarrow]", "psutil", "pytest", "tensorflow ; sys_platform == \"linux\"", "tqdm"]
-torch = ["torch"]
 
 [[package]]
 name = "pylint"
@@ -8286,4 +8248,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.12"
-content-hash = "cb1c048c3bf12a0f54f32b6f1bd6dd02c5a71f128d64bc7022e6086716dff160"
+content-hash = "2088e04df93428ed4933f1e225c542e75e488254a75c94ff2df8f5cbd5f25064"

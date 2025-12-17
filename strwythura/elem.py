@@ -95,4 +95,4 @@ def de_token_span (
     """
 Convert from a `spaCy` token span to a list of strings.
     """
-    return list(map(lambda x: str(x), span))
+    return list(map(str, span))

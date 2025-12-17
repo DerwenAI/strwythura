@@ -11,9 +11,8 @@ from collections import OrderedDict
 import json
 import pathlib
 
-from arrowspace import ArrowSpaceBuilder, GraphLaplacian  # type: ignore
+from arrowspace import ArrowSpaceBuilder, GraphLaplacian  # type: ignore  # pylint: disable=E0611
 from icecream import ic
-from pydantic import model_validator
 import gensim  # type: ignore
 import numpy as np
 
@@ -183,7 +182,7 @@ Serialize the entity embedding vectors to a text file.
         """
         with vec_path.open("w", encoding = "utf-8") as fp:
             for vec in self.w2v_vectors:
-                vec_rep: str = ",".join(map(lambda x: str(x), vec))
+                vec_rep: str = ",".join(map(str, vec))
 
                 # filter null vectors
                 if len(vec_rep) > 0:

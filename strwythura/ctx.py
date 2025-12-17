@@ -7,7 +7,7 @@ Manage the domain context.
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
-from collections import Counter, defaultdict, OrderedDict
+from collections import Counter, defaultdict
 import inspect
 import itertools
 import json
@@ -19,7 +19,7 @@ from icecream import ic
 from lancedb.embeddings import get_registry  # type: ignore
 from lancedb.embeddings.sentence_transformers import SentenceTransformerEmbeddings  # type: ignore
 from lancedb.pydantic import LanceModel, Vector  # type: ignore
-from rdflib import Namespace
+from rdflib import Namespace  # pylint: disable=W0611
 from rdflib.namespace import RDF
 from rdflib.plugins.sparql.processor import SPARQLResult
 from sz_semantics import Thesaurus  # type: ignore
@@ -308,7 +308,7 @@ WHERE {
 
             # add the text and its embedding for the `SKOS:definition`
             # as a chunk in the vector store
-            chunk_id: int = self.add_chunk(
+            chunk_id: int = self.add_chunk(  # pylint: disable=W0612
                 concept_iri,
                 self.TAXO_SENT_ID, # zero sentence reserved for taxonomy concepts
                 text,
@@ -401,7 +401,7 @@ WHERE {
             ## each ER needs to become a distinct entity
             if len(label) < 1:
                 # create a ERKG node, though without an entity definition
-                uid: int = self.ent_store.increment_uid()
+                #uid: int = self.ent_store.increment_uid()
                 lemma_key: str = ""
                 label = ent_iri
 
@@ -517,7 +517,7 @@ WHERE {
     def promote_ner_nodes (
         self,
         *,
-        debug: bool = False,
+        debug: bool = False,  # pylint: disable=W0613
         ) -> None:
         """
 Reform selected RDF triples in `RDFlib` to be represented in a `NetworkX`
@@ -556,7 +556,7 @@ property graph: for the entities extracted from NER.
     def link_entity_chunks (
         self,
         *,
-        debug: bool = False,
+        debug: bool = False,  # pylint: disable=W0613
         ) -> None:
         """
 Cross-link entities with the chunks in which they appear.
@@ -587,7 +587,7 @@ Cross-link entities with the chunks in which they appear.
 Connect entities which co-occur within the same sentence.
         """
         inst_dict: dict[ int, dict[ int, list[ int ]]] = defaultdict(lambda: defaultdict(list))
-        counter: Counter = Counter() 
+        counter: Counter = Counter()
 
         # partition entity co-occurrence by `( chunk_id, sent_id, ent.uid, )`
         for ent in self.ent_store.entities.values():
@@ -599,8 +599,8 @@ Connect entities which co-occur within the same sentence.
             ic(inst_dict)
 
         # tally the pairwise co-occurrence of entities
-        for chunk_id, sent_dict in sorted(inst_dict.items()):
-            for sent_id, ent_list in sorted(sent_dict.items()):
+        for _, sent_dict in sorted(inst_dict.items()):
+            for _, ent_list in sorted(sent_dict.items()):
                 for pair in itertools.combinations(ent_list, 2):  # type: ignore
                     pair = tuple(sorted(pair))  # type: ignore
                     counter[pair] += 1
@@ -620,7 +620,7 @@ Connect entities which co-occur within the same sentence.
         for pair, count in counter.items():
             tally[pair[0]].append(( pair, count, ))
 
-        for elem, pairs_list in tally.items():
+        for _, pairs_list in tally.items():
             partition: Counter = Counter(dict(pairs_list))
             total: float = float(partition.total())
 
@@ -643,7 +643,7 @@ Connect entities which co-occur within the same sentence.
     ######################################################################
     ## manage the knowledge graph
 
-    def add_edge (
+    def add_edge (  # pylint: disable=W0102
         self,
         src_iri: str,
         rel_iri: str,
@@ -712,7 +712,7 @@ dictionary.
         return None
 
 
-    def add_node (
+    def add_node (  # pylint: disable=W0102
         self,
         iri: str,
         kind: NodeKind,
