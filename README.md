@@ -11,11 +11,13 @@ Downstream there may be several patterns of usage, such as graph
 analytics, dashboards, GraphRAG, question/answer chat bots, agents,
 memory, tools, planners, and so on.
 
-<img
+<p
+ style="text-align: center;"
+><img
  src="./docs/assets/logo.png"
  alt="Strwythura logo"
- width="300"
-/>
+ width="231"
+/></p>
 
 The steps in this tutorial **unbundle** the process which might
 otherwise be attempted in monolithic "black box" approach.
