@@ -101,14 +101,14 @@ in a sentence.
 
     def run_textrank (
         self,
-        ) -> pl.DataFrame:
+        ) -> pd.DataFrame:
         """
 Run eigenvector centrality (i.e., _Personalized PageRank_) to rank the
 entities using an adapted `TextRank` algorithm implementation based 
 on `NetworkX` and `Polars`.
         """
         # build a dataframe of node ranks and counts
-        df_rank: pd.DataFrame = pd.DataFrame.from_dict([
+        df_rank: pd.DataFrame = pd.DataFrame.from_dict([  # type: ignore
             {
                 "node_id": node_id,
                 "weight": rank,

@@ -16,14 +16,14 @@ import sys
 import typing
 
 from icecream import ic
-from lancedb.embeddings import get_registry
-from lancedb.embeddings.sentence_transformers import SentenceTransformerEmbeddings
-from lancedb.pydantic import LanceModel, Vector
+from lancedb.embeddings import get_registry  # type: ignore
+from lancedb.embeddings.sentence_transformers import SentenceTransformerEmbeddings  # type: ignore
+from lancedb.pydantic import LanceModel, Vector  # type: ignore
 from rdflib import Namespace
 from rdflib.namespace import RDF
 from rdflib.plugins.sparql.processor import SPARQLResult
-from sz_semantics import Thesaurus
-import lancedb
+from sz_semantics import Thesaurus  # type: ignore
+import lancedb  # type: ignore
 import networkx as nx
 import polars as pl
 import spacy
@@ -62,8 +62,8 @@ Construct an IRI based on the chunk `uid` value.
     @classmethod
     def get_uid (
         cls,
-        iri: int,
-        ) -> str:
+        iri: str,
+        ) -> int:
         """
 Extract the `uid` value based on a chunk IRI.
         """
@@ -137,10 +137,10 @@ overwriting any previous data if indicated.
             )
 
             df_chunks: pl.DataFrame = self.chunk_table.search().select([ "uid" ]).to_polars()
-            uids: list[ int ] = [ uid for uid in df_chunks.iter_rows() ]
+            uids: list[ int ] = [ int(row[0]) for row in df_chunks.iter_rows() ]  # type: ignore
 
             if len(uids) > 0:
-                self.start_chunk_id = max(uids)[0] + 1
+                self.start_chunk_id = max(uids) + 1
             else:
                 self.start_chunk_id = 0
 
@@ -162,7 +162,7 @@ Add a chunk into both the vector store and the ERKG.
         )
 
         ## add to the vector store
-        self.chunk_table.add([ chunk ])
+        self.chunk_table.add([ chunk ])  # type: ignore
         self.start_chunk_id += 1
 
         # add node to the ERKG
@@ -185,7 +185,7 @@ Add a chunk into both the vector store and the ERKG.
         """
 Iterator for TextChunk metadata from the `LanceDB` table.
         """
-        for uid, url in self.chunk_table.search().select([ "uid", "url" ]).to_polars().iter_rows():
+        for uid, url in self.chunk_table.search().select([ "uid", "url" ]).to_polars().iter_rows():  # type: ignore
             yield uid, url
 
 
@@ -214,8 +214,8 @@ WHERE {
         qres: SPARQLResult = self.thesaurus.rdf_graph.query(query)
 
         return {
-            label.toPython(): self.thesaurus.n3(concept_iri)
-            for concept_iri, label in qres
+            row[1].toPython(): self.thesaurus.n3(row[0])  # type: ignore
+            for row in qres
         }
 
 
@@ -241,9 +241,9 @@ WHERE {
         qres: SPARQLResult = self.thesaurus.rdf_graph.query(query)
 
         for row in qres:
-            rec_iri: str = self.thesaurus.n3(row[0])
-            rec_key: str = row[1].toPython().strip()
-            data_src: str = self.thesaurus.n3(row[2])
+            rec_iri: str = self.thesaurus.n3(row[0])  # type: ignore
+            rec_key: str = row[1].toPython().strip()  # type: ignore
+            data_src: str = self.thesaurus.n3(row[2])  # type: ignore
 
             if debug:
                 ic(rec_iri, rec_key, data_src)
@@ -283,9 +283,9 @@ WHERE {
 
         # iterate through the SPARQL query results
         for i, row in enumerate(qres):
-            concept_iri: str = self.thesaurus.n3(row[0])
-            text: str = row[1].toPython()
-            lemma_key: str = row[2].toPython()
+            concept_iri: str = self.thesaurus.n3(row[0])  # type: ignore
+            text: str = row[1].toPython()  # type: ignore
+            lemma_key: str = row[2].toPython()  # type: ignore
 
             if debug:
                 ic(i, concept_iri, text, lemma_key)
@@ -301,7 +301,7 @@ WHERE {
                 lemma_key = lemma_key,
             )
 
-            found_ent: Entity = self.ent_store.encode_entity(
+            found_ent: Entity = self.ent_store.encode_entity(  # type: ignore
                 ent,
                 create = True,
             )
@@ -346,9 +346,9 @@ WHERE {
 
         # iterate through the SPARQL query results
         for row in qres:
-            ent_iri: str = self.thesaurus.n3(row[0])
-            sem_rel: str = self.thesaurus.n3(row[1])
-            rel_iri: str = self.thesaurus.n3(row[2])
+            ent_iri: str = self.thesaurus.n3(row[0])  # type: ignore
+            sem_rel: str = self.thesaurus.n3(row[1])  # type: ignore
+            rel_iri: str = self.thesaurus.n3(row[2])  # type: ignore
 
             if debug:
                 ic(ent_iri, sem_rel, rel_iri)
@@ -365,7 +365,7 @@ WHERE {
 
     def promote_er_nodes (
         self,
-        parser: "Parser",
+        parser: "Parser",  # type: ignore
         *,
         debug: bool = False,
         ) -> None:
@@ -389,9 +389,9 @@ WHERE {
         qres: SPARQLResult = self.thesaurus.rdf_graph.query(query)
 
         for row in qres:
-            ent_iri: str = self.thesaurus.n3(row[0])
-            concept_iri: str = self.thesaurus.n3(row[1])
-            label: str = row[2].toPython().strip()
+            ent_iri: str = self.thesaurus.n3(row[0])  # type: ignore
+            concept_iri: str = self.thesaurus.n3(row[1])  # type: ignore
+            label: str = row[2].toPython().strip()  # type: ignore
             rank: float = 0.0
 
             if debug:
@@ -415,14 +415,14 @@ WHERE {
                     span = NounSpan(
                         loc = ( 0, len(span) - 1, ),
                         text = label,
-                        span = span,
+                        span = span,  # type: ignore
                         source = EntitySource.ER,
                         iri = ent_iri,
                     ),
                     lemma_key = lemma_key,
                 )
 
-                found_ent: Entity = self.ent_store.encode_entity(
+                found_ent: Entity = self.ent_store.encode_entity(  # type: ignore
                     ent,
                     create = True,
                 )
@@ -478,14 +478,14 @@ WHERE {
         qres: SPARQLResult = self.thesaurus.rdf_graph.query(query)
 
         for row in qres:
-            ent_iri: str = self.thesaurus.n3(row[0])
-            rel_iri: str = self.thesaurus.n3(row[1])
+            ent_iri: str = self.thesaurus.n3(row[0])  # type: ignore
+            rel_iri: str = self.thesaurus.n3(row[1])  # type: ignore
 
-            sem_rel: str = self.thesaurus.n3(row[2])
+            sem_rel: str = self.thesaurus.n3(row[2])  # type: ignore
             prob: float = 1.0
 
-            match_key: str = row[3].toPython().strip()
-            match_level: int = row[4].toPython()
+            match_key: str = row[3].toPython().strip()  # type: ignore
+            match_level: int = row[4].toPython()  # type: ignore
 
             match match_level:
                 case 11:
@@ -586,7 +586,7 @@ Cross-link entities with the chunks in which they appear.
         """
 Connect entities which co-occur within the same sentence.
         """
-        inst_dict: dict[ int, dict[ int, int ]] = defaultdict(lambda: defaultdict(list))
+        inst_dict: dict[ int, dict[ int, list[ int ]]] = defaultdict(lambda: defaultdict(list))
         counter: Counter = Counter() 
 
         # partition entity co-occurrence by `( chunk_id, sent_id, ent.uid, )`
@@ -601,11 +601,11 @@ Connect entities which co-occur within the same sentence.
         # tally the pairwise co-occurrence of entities
         for chunk_id, sent_dict in sorted(inst_dict.items()):
             for sent_id, ent_list in sorted(sent_dict.items()):
-                for pair in itertools.combinations(ent_list, 2):
-                    pair: tuple = tuple(sorted(pair))
+                for pair in itertools.combinations(ent_list, 2):  # type: ignore
+                    pair = tuple(sorted(pair))  # type: ignore
                     counter[pair] += 1
 
-                    pair = tuple(sorted(pair, reverse = True))
+                    pair = tuple(sorted(pair, reverse = True))  # type: ignore
                     counter[pair] += 1
 
         if debug:

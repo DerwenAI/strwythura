@@ -11,10 +11,10 @@ from collections import OrderedDict
 import json
 import pathlib
 
-from arrowspace import ArrowSpaceBuilder, GraphLaplacian
+from arrowspace import ArrowSpaceBuilder, GraphLaplacian  # type: ignore
 from icecream import ic
 from pydantic import model_validator
-import gensim
+import gensim  # type: ignore
 import numpy as np
 
 from .elem import Entity, \
@@ -118,7 +118,7 @@ Return the entity which is stored.
 De-serialize the entity definitions from a JSONL file, first clearing
 any previous definitions.
         """
-        self.entities: OrderedDict = OrderedDict()
+        self.entities = OrderedDict()
 
         with store_path.open("r", encoding = "utf-8") as fp:
             for line in fp:
@@ -127,7 +127,7 @@ any previous definitions.
                 )
 
                 self.entities[ent.lemma_key] = ent
-                self.max_uid = max(self.max_uid, ent.uid + 1)
+                self.max_uid = max(self.max_uid, ent.uid + 1)  # type: ignore
 
         ic(self.max_uid, len(self.entities))
 
@@ -240,7 +240,7 @@ format.
 Serialize the entity embeddings model to a file in `gensim.Word2Vec`
 format.
         """
-        self.w2v_model.save(w2v_path.as_posix())
+        self.w2v_model.save(w2v_path.as_posix())  # type: ignore
 
 
     def build_aspace (
@@ -288,7 +288,7 @@ then compare with `gensim` similarity measures.
         # search comparable items
         # defaults: k = nitems, alpha = 0.9, beta = 0.1
         for query_uid in [ ent.uid for ent in self.entities.values() ]:
-            query: np.array = np.array(
+            query: np.ndarray = np.array(
                 embed_vecs[query_uid],
                 dtype = np.float64,
             )

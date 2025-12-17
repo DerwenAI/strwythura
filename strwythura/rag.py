@@ -13,10 +13,10 @@ import time
 import traceback
 import typing
 
-from datasketch import MinHashLSHForest, MinHash
+from datasketch import MinHashLSHForest, MinHash  # type: ignore
 from icecream import ic
 from opik.integrations.dspy.callback import OpikCallback
-import dspy
+import dspy  # type: ignore
 import networkx as nx
 import opik
 import polars as pl
@@ -57,7 +57,7 @@ Constructor.
                 cache = False,
             )
         else:
-            OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")
+            OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")  # type: ignore
 
             if OPENAI_API_KEY is None:
                 raise ValueError(
@@ -281,7 +281,8 @@ by leveraging the ERKG and entity embeddings.
         # add the chunks for each anchor node
         for chunk_id in self.find_chunk_neighbors():
             if chunk_id not in self.rag_chunks:
-                self.rag_chunks[chunk_id] = 0.5 # impute to median distance 
+                # impute to median distance 
+                self.rag_chunks[chunk_id] = 0.5
 
         # retrieve text for the combined list of chunks
         return self.get_chunks_text()
@@ -302,7 +303,7 @@ Search the vector store for text chunks in the neighborhood of the
 Then find graph nodes for entities linked to the selected chunks,
 which are returned as a dictionary.
         """
-        chunk_list: list[ dict ] = self.work.ctx.chunk_table.search(
+        chunk_list: list[ dict ] = self.work.ctx.chunk_table.search(  # type: ignore
             question
         ).select(
             [ "uid", "_distance" ]
@@ -323,7 +324,7 @@ which are returned as a dictionary.
 
             self.rag_chunks[chunk_id] = distance
 
-            for node_id, _, keys, weight in self.work.ctx.erkg.in_edges(
+            for node_id, _, keys, weight in self.work.ctx.erkg.in_edges(  # type: ignore
                 nbunch = chunk_iri,
                 data = "weight",
                 keys = True,
@@ -350,16 +351,16 @@ which are returned as a dictionary.
 Search the entity store for direct matches from NER
         """
         lem_seq: list[ str ] = []
-        doc: spacy.tokens.doc.Doc = self.work.parser.ner_pipe(question)
+        doc: spacy.tokens.doc.Doc = self.work.parser.ner_pipe(question)  # type: ignore
 
         lemma_todo: set[ str ] = {
-            self.work.parser.tokenize_lemma(span)
+            self.work.parser.tokenize_lemma(span)  # type: ignore
             for span in doc.ents
         }
 
         for sent in doc.sents:
-            for item in self.work.parser.transform_sentence(sent):
-                lemma_key: str = self.work.parser.tokenize_lemma(item.span)
+            for item in self.work.parser.transform_sentence(sent):  # type: ignore
+                lemma_key: str = self.work.parser.tokenize_lemma(item.span)  # type: ignore
                 lem_seq.append(lemma_key)
 
                 if debug:
@@ -367,8 +368,8 @@ Search the entity store for direct matches from NER
 
                 # try to find known entities directly
                 # NB: this only works for single-word phrases
-                if item.label in [ "ADP", "NOUN" ] and lemma_key not in self.work.parser.STOP_WORDS:
-                    found_ent: Entity = self.work.ctx.ent_store.encode_entity(
+                if item.label in [ "ADP", "NOUN" ] and lemma_key not in self.work.parser.STOP_WORDS:  # type: ignore
+                    found_ent: Entity = self.work.ctx.ent_store.encode_entity(  # type: ignore
                         Entity(span = item, lemma_key = lemma_key)
                     )
 
@@ -444,7 +445,7 @@ linked to chunks, to augment the set of anchor nodes.
         # add lemma keys for entity resolution results
         for lemma_key, ent in self.work.ctx.ent_store.entities.items():
             if ent.span.source == EntitySource.ER:
-                mh_hit: MinHash = MinHash(num_perm = num_perm)
+                mh_hit = MinHash(num_perm = num_perm)
 
                 for lemma in lemma_key.split(" "):
                     mh_hit.update(lemma.encode("utf-8"))
@@ -497,7 +498,7 @@ anchor nodes as the starting points.
                     if debug:
                         ic(iri, lemma_key)
 
-                    for uid, distance in self.work.ctx.ent_store.w2v_model.wv.most_similar(
+                    for uid, distance in self.work.ctx.ent_store.w2v_model.wv.most_similar(  # type: ignore
                         str(ent.uid),
                         topn = w2v_top_k,
                     ):
@@ -539,21 +540,21 @@ most-referenced entities in the subgraph.
         if debug:
             ic(walks)
 
-        subgraph: nx.MultiDiGraph = self.work.ctx.erkg.subgraph(
+        subgraph: nx.Graph = self.work.ctx.erkg.subgraph(
             self.anchor_nodes.union(walks)
         )
 
-        rank_iter: dict = nx.pagerank(
+        rank_iter: dict[ str, float ] = nx.pagerank(  # type: ignore
             subgraph,
             self.work.config["tr"]["tr_alpha"],
         ).items()
 
-        for iri, rank in sorted(rank_iter, key = lambda x: x[1], reverse = True):
+        for iri, rank in sorted(rank_iter, key = lambda x: x[1], reverse = True):  # type: ignore
             if debug:
-                hit: dict = self.work.ctx.get_node(iri)
-                ic("tr", iri, rank, hit)
+                hit: dict = self.work.ctx.get_node(iri)  # type: ignore
+                ic("tr", iri, rank, hit)  # type: ignore
 
-            yield iri
+            yield iri  # type: ignore
 
 
     def semantic_random_walk (
@@ -592,7 +593,7 @@ In other words, this emulates a _semantic random walk_.
         self,
         *,
         debug: bool = False,
-        ) -> typing.Iterator[ str ]:
+        ) -> typing.Iterator[ int ]:
         """
 Find the neighboring chunks for each anchor node.
         """
@@ -626,7 +627,7 @@ Retrieve text for the combined list of chunks.
         if debug:
             ic(chunk_ids)
 
-        chunks: list[ str ] = self.work.ctx.chunk_table.search().where(
+        chunks: list[ str ] = self.work.ctx.chunk_table.search().where(  # type: ignore
             f"uid IN ({chunk_ids})"
         ).select(
             [ "text" ]

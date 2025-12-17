@@ -14,7 +14,7 @@ import tomllib
 import typing
 
 from icecream import ic
-from sz_semantics import Thesaurus
+from sz_semantics import Thesaurus  # type: ignore
 import networkx as nx
 
 from .ctx import DomainContext, TextChunk
@@ -202,7 +202,7 @@ For each of the given URLs:
 
                 # parse each paragraph
                 for para in chunks:
-                    num_sent: int = self.parser.parse_para(
+                    num_sent: int = self.parser.parse_para(  # type: ignore
                         chunk.uid,
                         para,
                         debug = debug,

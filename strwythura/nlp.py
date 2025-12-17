@@ -179,7 +179,7 @@ of priority:
             NounSpan(
                 loc = ( nck.start, nck.end - 1, ),
                 text = nck.text,
-                span = nck,
+                span = nck,  # type: ignore
                 source = EntitySource.NC,
                 iri = self.BASE_CONCEPT,
             )
@@ -194,7 +194,7 @@ of priority:
             NounSpan(
                 loc = ( ner.start, ner.end - 1, ),
                 text = ner.text,
-                span = ner,
+                span = ner,  # type: ignore
                 label = ner.label_,
                 source = EntitySource.NER,
                 iri = self.label_map[ner.label_],
@@ -387,7 +387,7 @@ using `EntityStore`
                     lemma_key = lemma_key,
                 )
 
-                found_ent: Entity = self.ctx.ent_store.encode_entity(
+                found_ent: Entity = self.ctx.ent_store.encode_entity(  # type: ignore
                     ent,
                     create = True,
                 )

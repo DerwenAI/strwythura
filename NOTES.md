@@ -2,7 +2,7 @@ Motto: "nos intelligentia sumus" -- vis-a-vis AI definition
 
 ## TODOs
 
-  * run mypy, pylint
+  * run pylint
 
   * refactor ERKG to its own module
 	erkg.in_edges()
