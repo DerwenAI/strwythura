@@ -11,13 +11,12 @@ Downstream there may be several patterns of usage, such as graph
 analytics, dashboards, GraphRAG, question/answer chat bots, agents,
 memory, tools, planners, and so on.
 
-<p
- style="text-align: center;"
-><img
+<img
  src="./docs/assets/logo.png"
  alt="Strwythura logo"
  width="231"
-/></p>
+ style="display: block; margin-left: auto; margin-right: auto; width: 30%;"
+/>
 
 The steps in this tutorial **unbundle** the process which might
 otherwise be attempted in monolithic "black box" approach.
@@ -431,8 +430,8 @@ workflow steps, and also enhance some components:
   <summary>Acronyms</summary>
 &nbsp;
 
-| abbrev.      | definition  |
-| ------------ | ------------ |
+| acronym    | definition |
+| ---------- | ---------- |
 | AI | artificial intelligence |
 | ER | entity resolution |
 | ERKG | entity resolved knowledge graph |
@@ -446,6 +445,7 @@ workflow steps, and also enhance some components:
 | NLP | natural language processing |
 | RAG | retrieval augmented generation |
 | RDF | resource description framework |
+| RE | relation extraction |
 | RL | reinforcement learning |
 
 </details>
