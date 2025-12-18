@@ -11,8 +11,8 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 import json
 import pathlib
 
+from sz_semantics import SzClient  # type: ignore
 from strwythura import Profiler, Workflow
-from sz_semantics import SzClient
 
 
 if __name__ == "__main__":

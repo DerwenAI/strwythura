@@ -37,7 +37,7 @@ if __name__ == "__main__":
         pathlib.Path(work.config["ent"]["store_path"]),
     )
 
-    work.ctx.load_graph(
+    work.ctx.erkg.load_graph(
         pathlib.Path(work.config["erkg"]["erkg_path"]),
     )
 
@@ -66,7 +66,7 @@ if __name__ == "__main__":
         pathlib.Path(work.config["nlp"]["lex_path"]),
     )
 
-    work.ctx.save_graph(
+    work.ctx.erkg.save_graph(
         pathlib.Path(work.config["erkg"]["erkg_path"]),
     )
 

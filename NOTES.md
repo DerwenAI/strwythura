@@ -1,16 +1,12 @@
 ## TODOs
 
-  * refactor ERKG to its own module
-	erkg.in_edges()
-	erkg.subgraph()
-	erkg.neighbors(iri)
-	for path in nx.all_shortest_paths(self.work.ctx.erkg, pair[0], pair[1])
-
   * enable `Opik`
 
   * found in QA NER, not from taxonomy: `NOUN.science`, `NOUN.hospital`
 {"span": {"loc": [-1, -1], "text": "", "span": [], "label": null, "source": "Domain_Taxonomy", "iri": null}, "lemma_key": "NOUN.science", "uid": 9, "inst": [], "count
 ": 1, "rank": 0.0}
+     - add Taxonomy lemmas
+
 
   * Streamlit dashboard view of `rag.py`
 

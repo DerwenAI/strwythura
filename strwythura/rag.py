@@ -263,7 +263,7 @@ by leveraging the ERKG and entity embeddings.
             ic(self.rag_chunks)
 
             for iri in self.anchor_nodes:
-                anchor: dict = self.work.ctx.get_node(iri)
+                anchor: dict = self.work.ctx.erkg.get_node(iri)
                 ic(anchor)
 
         # perform a semantic expansion using entity embeddings
@@ -322,18 +322,14 @@ which are returned as a dictionary.
 
             self.rag_chunks[chunk_id] = distance
 
-            for node_id, _, keys, weight in self.work.ctx.erkg.in_edges(  # type: ignore
-                nbunch = chunk_iri,
-                data = "weight",
-                keys = True,
-            ):
+            for ent_iri, keys, val in self.work.ctx.erkg.inbound_edges(chunk_iri, attr = "weight"):  # type: ignore
                 if sem_rel in keys:
-                    metric: float = round(weight * distance, 4)
+                    metric: float = round(val * distance, 4)
 
-                    if node_id not in chunk_nodes:
-                        chunk_nodes[node_id] = metric
+                    if ent_iri not in chunk_nodes:
+                        chunk_nodes[ent_iri] = metric
                     else:
-                        chunk_nodes[node_id] = max(chunk_nodes[node_id], metric)
+                        chunk_nodes[ent_iri] = max(chunk_nodes[ent_iri], metric)
 
         return chunk_nodes
 
@@ -430,7 +426,7 @@ linked to chunks, to augment the set of anchor nodes.
 
         # add lemma keys for entity nodes linked to chunks
         for iri, _ in chunk_nodes.items():
-            hit: dict = self.work.ctx.get_node(iri)
+            hit: dict = self.work.ctx.erkg.get_node(iri)
 
             if "lemma" in hit:
                 mh_hit: MinHash = MinHash(num_perm = num_perm)
@@ -460,12 +456,12 @@ linked to chunks, to augment the set of anchor nodes.
         lsh_top_k_question: int = self.work.config["rag"]["lsh_top_k_question"]
         lsh_top_k_lemma: int = self.work.config["rag"]["lsh_top_k_lemma"]
 
-        for node_id in forest.query(ner_mh[0], lsh_top_k_question):
-            self.anchor_nodes.add(node_id)
+        for iri in forest.query(ner_mh[0], lsh_top_k_question):
+            self.anchor_nodes.add(iri)
 
         for mh_item in ner_mh[1:]:
-            for node_id in forest.query(mh_item, lsh_top_k_lemma):
-                self.anchor_nodes.add(node_id)
+            for iri in forest.query(mh_item, lsh_top_k_lemma):
+                self.anchor_nodes.add(iri)
 
         if debug:
             ic(self.anchor_nodes)
@@ -487,7 +483,7 @@ anchor nodes as the starting points.
 
         for iri in self.anchor_nodes:
             try:
-                anchor: dict = self.work.ctx.get_node(iri)
+                anchor: dict = self.work.ctx.erkg.get_node(iri)
 
                 if "lemma" in anchor:
                     lemma_key: str = anchor["lemma"]
@@ -514,7 +510,7 @@ anchor nodes as the starting points.
                 ic(ex)
 
         for neigh_iri, distance in sorted(neighbors.items(), key = lambda x: x[1]):
-            neigh_hit: dict = self.work.ctx.get_node(neigh_iri)
+            neigh_hit: dict = self.work.ctx.erkg.get_node(neigh_iri)
 
             if "method" in neigh_hit and EntitySource(neigh_hit["method"]) <= EntitySource.NER:
                 self.anchor_nodes.add(neigh_iri)
@@ -549,7 +545,7 @@ most-referenced entities in the subgraph.
 
         for iri, rank in sorted(rank_iter, key = lambda x: x[1], reverse = True):  # type: ignore
             if debug:
-                hit: dict = self.work.ctx.get_node(iri)  # type: ignore
+                hit: dict = self.work.ctx.erkg.get_node(iri)  # type: ignore
                 ic("tr", iri, rank, hit)  # type: ignore
 
             yield iri  # type: ignore
@@ -571,14 +567,14 @@ In other words, this emulates a _semantic random walk_.
                 ic(pair)
 
             try:
-                for path in nx.all_shortest_paths(self.work.ctx.erkg, pair[0], pair[1]):
+                for path in self.work.ctx.erkg.shortest_paths(pair[0], pair[1]):
                     if debug:
                         ic(path)
 
                     for iri in path:
                         if iri not in pair:
                             if debug:
-                                hit: dict = self.work.ctx.get_node(iri)
+                                hit: dict = self.work.ctx.erkg.get_node(iri)
                                 ic("walk", iri, hit)
 
                             yield iri
@@ -600,7 +596,7 @@ Find the neighboring chunks for each anchor node.
                 ic(iri)
 
             for neigh_iri in self.work.ctx.erkg.neighbors(iri):
-                neigh_hit: dict = self.work.ctx.get_node(neigh_iri)
+                neigh_hit: dict = self.work.ctx.erkg.get_node(neigh_iri)
 
                 if neigh_hit.get("kind") == NodeKind.CHUNK.value:
                     chunk_id: int = TextChunk.get_uid(neigh_iri)

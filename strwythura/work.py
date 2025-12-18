@@ -20,6 +20,7 @@ import networkx as nx
 from .ctx import DomainContext, TextChunk
 from .elem import Entity
 from .ent import EntityStore
+from .erkg import KnowledgeGraph
 from .lex import LexicalGraph
 from .nlp import Parser
 from .scrape import Scraper
@@ -62,6 +63,7 @@ Constructor.
             self.thesaurus,
             EntityStore(self.config),
             LexicalGraph(self.config),
+            KnowledgeGraph(self.config),
         )
 
         self.parser: Parser | None = None
@@ -286,6 +288,6 @@ De-serialize assets from the previous steps.
             pathlib.Path(self.config["nlp"]["lex_path"]),
         )
 
-        self.ctx.load_graph(
+        self.ctx.erkg.load_graph(
             pathlib.Path(self.config["erkg"]["erkg_path"]),
         )

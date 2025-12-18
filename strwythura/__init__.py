@@ -15,6 +15,8 @@ from .elem import Entity, EntityInstance, EntitySource, NodeKind, NounSpan, \
 
 from .ent import EntityStore
 
+from .erkg import KnowledgeGraph
+
 from .lex import LexicalGraph
 
 from .nlp import Parser

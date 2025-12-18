@@ -44,7 +44,7 @@ if __name__ == "__main__":
         pathlib.Path(work.config["nlp"]["lex_path"]),
     )
 
-    work.ctx.load_graph(
+    work.ctx.erkg.load_graph(
         pathlib.Path(work.config["erkg"]["erkg_path"]),
     )
 
@@ -59,7 +59,7 @@ if __name__ == "__main__":
         pathlib.Path(work.config["nlp"]["lex_path"]),
     )
 
-    work.ctx.save_graph(
+    work.ctx.erkg.save_graph(
         pathlib.Path(work.config["erkg"]["erkg_path"]),
     )
 
@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
     # TODO: build an `ArrowSpace` computed signal graph and lambdas
     # then compare top-K results with `gensim`
-    if False:
+    if False:  # pylint: disable=W0125
         aspace, gl = work.ctx.ent_store.build_aspace(
             work.ctx.ent_store.w2v_model,
         )

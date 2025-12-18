@@ -8,11 +8,7 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
 from collections import Counter, defaultdict
-import inspect
 import itertools
-import json
-import pathlib
-import sys
 import typing
 
 from icecream import ic
@@ -24,13 +20,13 @@ from rdflib.namespace import RDF
 from rdflib.plugins.sparql.processor import SPARQLResult
 from sz_semantics import Thesaurus  # type: ignore
 import lancedb  # type: ignore
-import networkx as nx
 import polars as pl
 import spacy
 
 from .elem import Entity, EntitySource, NodeKind, NounSpan, \
     STRW_PREFIX
 from .ent import EntityStore
+from .erkg import KnowledgeGraph
 from .lex import LexicalGraph
 
 
@@ -85,6 +81,7 @@ vocabulary, taxonomy, thesaurus, and ontology.
         thesaurus: Thesaurus,
         ent_store: EntityStore,
         lex: LexicalGraph,
+        erkg: KnowledgeGraph,
         ) -> None:
         """
 Constructor.
@@ -98,9 +95,8 @@ Constructor.
         # intermediate parsing outcomes
         self.lex: LexicalGraph = lex
 
-        # the constructed knowledge graph in `NetworkX`
-        # each edge has: `src_id`, `dst_id`, `key` (relation), `prob`
-        self.erkg: nx.MultiDiGraph = nx.MultiDiGraph()
+        # the constructed ERKG knowledge graph in `NetworkX`
+        self.erkg: KnowledgeGraph = erkg
 
         # the vector store in `LanceDB`
         self.lancedb_conn: lancedb.db.LanceDBConnection = lancedb.connect(
@@ -166,7 +162,7 @@ Add a chunk into both the vector store and the ERKG.
         self.start_chunk_id += 1
 
         # add node to the ERKG
-        self.add_node(
+        self.erkg.add_node(
             TextChunk.get_iri(chunk.uid),
             NodeKind.CHUNK,
             attrs = {
@@ -249,7 +245,7 @@ WHERE {
                 ic(rec_iri, rec_key, data_src)
 
             # add node to the ERKG
-            self.add_node(
+            self.erkg.add_node(
                 rec_iri,
                 NodeKind.DATAREC,
                 attrs = {
@@ -315,7 +311,7 @@ WHERE {
             )
 
             # add node to the ERKG
-            self.add_node(
+            self.erkg.add_node(
                 concept_iri,
                 NodeKind.TAXONOMY,
                 attrs = {
@@ -354,7 +350,7 @@ WHERE {
                 ic(ent_iri, sem_rel, rel_iri)
 
             # add a ERKG edge for the related entities
-            self.add_edge(
+            self.erkg.add_edge(
                 ent_iri,
                 sem_rel,
                 rel_iri,
@@ -430,7 +426,7 @@ WHERE {
                 rank = found_ent.rank
 
             # add node to the ERKG
-            self.add_node(
+            self.erkg.add_node(
                 ent_iri,
                 NodeKind.ENTITY,
                 attrs = {
@@ -443,7 +439,7 @@ WHERE {
             )
 
             # add a ERKG edge to link to the SKOS:concept class
-            self.add_edge(
+            self.erkg.add_edge(
 	        ent_iri,
                 self.thesaurus.n3(RDF.type),
                 concept_iri,
@@ -501,7 +497,7 @@ WHERE {
                 ic(ent_iri, rel_iri, sem_rel, match_key, match_level)
 
             # add a ERKG edge for ent => ent | rec relations
-            self.add_edge(
+            self.erkg.add_edge(
 	        ent_iri,
                 sem_rel,
                 rel_iri,
@@ -527,7 +523,7 @@ property graph: for the entities extracted from NER.
         for ent in self.ent_store.entities.values():
             if ent.span.source >= EntitySource.NER:
                 # add node to the ERKG
-                self.add_node(
+                self.erkg.add_node(
                     ent.get_iri(),
                     NodeKind.ENTITY,
                     attrs = {
@@ -541,7 +537,7 @@ property graph: for the entities extracted from NER.
                 )
 
                 # add a ERKG edge to link to the SKOS:concept class
-                self.add_edge(
+                self.erkg.add_edge(
 	            ent.get_iri(),
                     self.thesaurus.n3(RDF.type),
                     ent.span.iri,
@@ -565,7 +561,7 @@ Cross-link entities with the chunks in which they appear.
 
         for ent in self.ent_store.entities.values():
             for ent_inst in ent.inst:
-                self.add_edge(
+                self.erkg.add_edge(
                     ent.get_iri(),
                     sem_rel,
                     TextChunk.get_iri(ent_inst.chunk_id),
@@ -631,197 +627,10 @@ Connect entities which co-occur within the same sentence.
                     ic(pair, count, prob)
 
                 # add relation into the ERKG
-                self.add_edge(
+                self.erkg.add_edge(
                     decoder[pair[0]].get_iri(),
                     sem_rel,
                     decoder[pair[1]].get_iri(),
                     prob = prob,
                     update = True,
                 )
-
-
-    ######################################################################
-    ## manage the knowledge graph
-
-    def add_edge (  # pylint: disable=W0102
-        self,
-        src_iri: str,
-        rel_iri: str,
-        dst_iri: str,
-        prob = 0.0,
-        *,
-        attrs: dict = {},
-        update: bool = False,
-        stop: bool = True,
-        debug: bool = False,
-        ) -> dict | None:
-        """
-Add an edge into the ERKG with required and optional properties.
-
-Required properties: each edge must have an IRI as its `MultiGraph`
-unique key, and a `prob` probability value.
-
-Optional properties: specified as key/value pairs in the `attrs`
-dictionary.
-        """
-        edge: tuple = ( src_iri, dst_iri, rel_iri, )
-        pre_exist: bool = False
-
-        # override conflicting settings
-        if update:
-            stop = False
-
-        # test whether the edge IRI already exists in the ERKG?
-        if self.erkg.has_edge(*edge):
-            pre_exist = True
-
-            calframe: list = inspect.getouterframes(inspect.currentframe(), 2)
-            caller: str = calframe[1][3]
-            prev_attrs: dict = self.erkg.edges[*edge]
-
-            if debug | stop:
-                print(f"dupe: {caller} {edge} {prob} {attrs}")
-                print("PRE-EXISTING EDGE", prev_attrs)
-
-            if stop:
-                # if requested for debugging, stop the application
-                sys.exit(-1)
-            elif not update:
-                # return the pre-existing edge data and do not update
-                return prev_attrs
-
-        # add an edge into the ERKG
-        if not pre_exist:
-            if debug:
-                ic("ADD EDGE", edge, prob, attrs)
-
-            self.erkg.add_edge(
-	        src_iri,
-                dst_iri,
-	        key = rel_iri,
-	        prob = prob,
-            )
-
-        # set the optional edge attributes, if any
-        if (update or not pre_exist) and len(attrs) > 0:
-            nx.set_edge_attributes(
-                self.erkg,
-                { edge: attrs },
-            )
-
-        return None
-
-
-    def add_node (  # pylint: disable=W0102
-        self,
-        iri: str,
-        kind: NodeKind,
-        *,
-        attrs: dict = {},
-        update: bool = False,
-        stop: bool = True,
-        debug: bool = False,
-        ) -> dict | None:
-        """
-Add a node into the ERKG with required and optional properties.
-
-Required properties: each node must have an IRI as its unique
-identifier, and a `NodeKind` value.
-
-Optional properties: specified as key/value pairs in the `attrs`
-dictionary.
-        """
-        pre_exist: bool = False
-
-        # override conflicting settings
-        if update:
-            stop = False
-
-        # test whether the node IRI already exists in the ERKG?
-        if self.erkg.has_node(iri):
-            pre_exist = True
-
-            calframe: list = inspect.getouterframes(inspect.currentframe(), 2)
-            caller: str = calframe[1][3]
-            prev_attrs: dict = self.erkg.nodes[iri]
-
-            if debug | stop:
-                print(f"dupe: {caller} {iri} {kind}")
-                print("PRE-EXISTING NODE", prev_attrs)
-
-            if stop:
-                # if requested for debugging, stop the application
-                sys.exit(-1)
-            elif not update:
-                # return the pre-existing node data and do not update
-                return prev_attrs
-
-        # add a node into the ERKG
-        if not pre_exist:
-            if debug:
-                ic("ADD NODE", iri, kind.value, attrs)
-
-            self.erkg.add_node(
-                iri,
-                kind = kind.value,
-            )
-        else:
-            attrs["kind"] = kind.value
-
-        # set the optional node attributes, if any
-        if (update or not pre_exist) and len(attrs) > 0:
-
-            nx.set_node_attributes(
-                self.erkg,
-                { iri: attrs },
-            )
-
-        return None
-
-
-    def get_node (
-        self,
-        iri: str,
-        ) -> dict:
-        """
-Accessor method to get the properties of an ERKG node.
-        """
-        return self.erkg.nodes[iri]
-
-
-    def load_graph (
-        self,
-        erkg_path: pathlib.Path,
-        ) -> None:
-        """
-De-serialize a constructed KG from a JSON file represented in the
-_node-link_ data format.
-        """
-        with erkg_path.open("r", encoding = "utf-8") as fp:
-            self.erkg = nx.node_link_graph(
-                json.load(fp),
-                edges = "edges",
-            )
-
-
-    def save_graph (
-        self,
-        erkg_path: pathlib.Path,
-        ) -> None:
-        """
-Serialize the constructed KG as a JSON file represented in the
-_node-link_ data format.
-
-Aternatively this could be stored in a graph database.
-        """
-        with erkg_path.open("w", encoding = "utf-8") as fp:
-            fp.write(
-                json.dumps(
-                    nx.node_link_data(
-                        self.erkg,
-                        edges = "edges",
-                    ),
-                    indent = 2,
-                    sort_keys = True,
-                )
-            )
