@@ -19,9 +19,6 @@ import networkx as nx
 
 from .ctx import DomainContext, TextChunk
 from .elem import Entity
-from .ent import EntityStore
-from .erkg import KnowledgeGraph
-from .lex import LexicalGraph
 from .nlp import Parser
 from .scrape import Scraper
 
@@ -61,9 +58,6 @@ Constructor.
             self.config["ctx"]["domain_class"],
             self.config,
             self.thesaurus,
-            EntityStore(self.config),
-            LexicalGraph(self.config),
-            KnowledgeGraph(self.config),
         )
 
         self.parser: Parser | None = None

@@ -1,5 +1,8 @@
 ## TODOs
 
+  * impl. formative assessment -- quiz in HTML
+     - prototype in Jinja2 + JavaScript
+
   * enable `Opik`
 
   * found in QA NER, not from taxonomy: `NOUN.science`, `NOUN.hospital`
@@ -7,12 +10,19 @@
 ": 1, "rank": 0.0}
      - add Taxonomy lemmas
 
+  * reintroduce `PyVis` visualization
 
   * Streamlit dashboard view of `rag.py`
 
+  * gensim => ArrowSpace embeddings for entities
+     - hire Lorenzo to replace `Gensim` with `ArrowSpace` (after Dec 22 seminar)
+     - alteratively, use `sentence_transformer` in lieu of Gensim?
+	https://www.sbert.net/docs/sentence_transformer/usage/usage.html
+  
   * fix Part 6:
      - semantic random walk: nothing back from the shortest paths?
      - need to visualize subgraph
+     - perform a real random walk, based on a model
 
   * fix Part 5:
      - also update `count` and `rank` for ER and TAXO nodes in the ERKG
@@ -22,14 +32,14 @@
 
   * add edges for `strw:compound_elem_of`
 
-  * build an HITL interface for accept/reject/override LLM suggestions on lex nodes w/o NER
+  * impl Part 4:
+     - build an HITL interface for accept/reject/override LLM suggestions on lex nodes w/o NER
+     - operate on the serialized files (offline)
      - `FastAPI` webapp, using `DSPy` suggestion
-     - operate on the serialized files (offline) during Part 4
      - use autocompletion to guide selections based on domain context
      - actions:
          + NounChunk -> Lemma, or Synonym
 	 + ParsedNoun -> Lemma, or Synonym     
-
 
   * formalize the description about the reranker process
      - https://www.lancedb.com/docs/reranking/custom-reranker/
@@ -45,7 +55,6 @@
      - can we use `LanceDB` FTS w/o cloud?
      - https://lancedb.com/docs/search/full-text-search/
 
-
   * eval `GrandCypher` atop `NetworkX`
      - can this impl Text2Cypher efficiently?
 
@@ -55,12 +64,6 @@
 
   * use `deepeval` to score the GraphRAG responses
      - https://docs.google.com/presentation/d/1vDogMddS_T-oXFBdhogo653r8H2sGrSD/edit?slide=id.g78dc4dcc24882d5d_0#slide=id.g78dc4dcc24882d5d_0
-
-  * gensim => ArrowSpace embeddings for entities
-     - alteratively, use `sentence_transformer` in lieu of Gensim?
-
-  * add a text => lemma embedding model
-     - https://www.sbert.net/docs/sentence_transformer/usage/usage.html
 
   * replace RE by leveraging DSPy <https://arxiv.org/html/2502.09956v1>
 
@@ -76,27 +79,7 @@
   Q: why does `tracemalloc` cause `RDFlib` to block?
 
 
-
-## RE prompts:
-
-  * strw:member_of
-        https://www.w3.org/TR/vocab-org/#org:memberOf
-
-    - "which doctors are associated with which institutions?"
-    - "which people are members of which organizations?"
-
-  * strw:author_of
-        http://purl.org/dc/elements/1.1/creator
-
-    - "which experts commented on the study?"
-    - "which people authored the study?"
-  
-  * strw:associated_with
-
-    - "which food additives are associated with which conditions?"
-
-  - "Organize these associations into a cause-effect style table (Behavior → Associated Condition) for clarity"
-  - "Given the BEHAVIOR "eating a healthy diet", in the following text which conditions is that behavior associated?"
+----------------------------------------------------------------------
 
 
 ## Structured Data
@@ -124,7 +107,28 @@ For example, Senzing ER could help resolve:
 It's guaranteed that trying to resolve the author list here would
 produce an utter mess of false identifications.
 
-----------------------------------------------------------------------
+
+## RE prompts:
+
+  * strw:member_of
+        https://www.w3.org/TR/vocab-org/#org:memberOf
+
+    - "which doctors are associated with which institutions?"
+    - "which people are members of which organizations?"
+
+  * strw:author_of
+        http://purl.org/dc/elements/1.1/creator
+
+    - "which experts commented on the study?"
+    - "which people authored the study?"
+  
+  * strw:associated_with
+
+    - "which food additives are associated with which conditions?"
+
+  - "Organize these associations into a cause-effect style table (Behavior → Associated Condition) for clarity"
+  - "Given the BEHAVIOR "eating a healthy diet", in the following text which conditions is that behavior associated?"
+
 
 
 ## Semantics

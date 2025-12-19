@@ -79,9 +79,6 @@ vocabulary, taxonomy, thesaurus, and ontology.
         self,
         config: dict,
         thesaurus: Thesaurus,
-        ent_store: EntityStore,
-        lex: LexicalGraph,
-        erkg: KnowledgeGraph,
         ) -> None:
         """
 Constructor.
@@ -90,13 +87,13 @@ Constructor.
 
         # entities and semantic layer
         self.thesaurus: Thesaurus = thesaurus
-        self.ent_store: EntityStore = ent_store
+        self.ent_store: EntityStore = EntityStore(self.config)
 
         # intermediate parsing outcomes
-        self.lex: LexicalGraph = lex
+        self.lex: LexicalGraph = LexicalGraph(self.config)
 
         # the constructed ERKG knowledge graph in `NetworkX`
-        self.erkg: KnowledgeGraph = erkg
+        self.erkg: KnowledgeGraph = KnowledgeGraph(self.config)
 
         # the vector store in `LanceDB`
         self.lancedb_conn: lancedb.db.LanceDBConnection = lancedb.connect(
