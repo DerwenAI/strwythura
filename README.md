@@ -8,8 +8,8 @@
 This tutorial is about using _entity embeddings_ in graphs, combining
 _structured data sources_ and _unstructured content sources_.
 Downstream there may be several patterns of usage, such as graph
-analytics, dashboards, GraphRAG, question/answer chat bots, agents,
-memory, tools, planners, and so on.
+analytics, dashboards, GraphRAG for question/answer chat bots, agent
+workflows, memory, tools, planners, and so on.
 
 <img
  src="./docs/assets/logo.png"
@@ -18,14 +18,14 @@ memory, tools, planners, and so on.
  style="display: block; margin-left: auto; margin-right: auto; width: 30%;"
 />
 
-The steps in this tutorial **unbundle** the process which might
-otherwise be attempted in monolithic "black box" approach.
-We'll examine how to use 
+The steps in this tutorial **unbundle** the process which otherwise
+is often shown in monolithic "black box" approaches.
+We will explore how to use 
 [_entity resolution_](https://senzing.com/what-is-entity-resolution/)
 within an _ontology pipeline_ to construct an _entity-resolved
 knowledge graph_ (ERKG) using domain context to blend the structured
 data and unstructured content.
-Then we will leverage _entity embeddings_ and _graph algorithms_ to
+Then we'll leverage _entity embeddings_ and _graph algorithms_ to
 augment _context engineering_, producing an enhanced _GraphRAG_
 approach for a _question and answer_ chat bot.
 
@@ -508,13 +508,14 @@ packages which this tutorial uses:
   * <https://github.com/senzing-garage/serve-grpc>
   * <https://github.com/Placekey/placekey-py>
   * <https://github.com/RDFLib/rdflib>
-  * <https://lancedb.com/>
   * <https://www.crummy.com/software/BeautifulSoup/>
   * <https://requests.readthedocs.io/>
   * <https://requests-cache.readthedocs.io/>
   * <https://spacy.io/>
   * <https://github.com/urchade/GLiNER>
   * <https://ekzhu.com/datasketch/>
+  * <https://lancedb.com/>
+  * <https://github.com/huggingface/sentence-transformers/>
   * <https://github.com/pydantic/pydantic>
   * <https://networkx.org/>
   * <https://pola.rs/>

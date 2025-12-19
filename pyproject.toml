@@ -14,7 +14,7 @@ readme = "README.md"
 license = "MIT"
 license-files = [ "LICENSE" ]
 
-requires-python = ">=3.11,<3.12"
+requires-python = ">=3.11,<3.14"
 
 dependencies = [
     # entity resolution
@@ -71,6 +71,8 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
     "License :: OSI Approved :: MIT License",
     "Development Status :: 5 - Production/Stable",
