@@ -1,12 +1,17 @@
 const yay_emoji = [
-    "\u{1F601}",
     "\u{1F44F}",
+    "\u{1F601}",
+    "\u{1F60A}",
+    "\u{1F913}",
+    "\u{1F920}",
 ];
 
 const sad_emoji = [
-    "\u{1F626}",
     "\u{1F61F}",
+    "\u{1F626}",
     "\u{1F62D}",
+    "\u{1F922}",
+    "\u{1F92E}",
 ];
 
 
@@ -58,7 +63,11 @@ async function score_quiz () {
 			    };
 
 
-			    const grade = [ Math.round(score / num_questions * 100.0).toString(), " / 100", ]
+			    const grade = [
+				Math.round(score / num_questions * 100.0).toString(),
+				" / 100",
+			    ]
+
 			    result.innerHTML = grade.join("");
 
 			    // annotate the answer or decoy
@@ -66,11 +75,26 @@ async function score_quiz () {
 			    var cite = "";
 
 			    if (decoy[input.id].cite) {
-				const link = [ "&nbsp;&nbsp;<a", ' target="_blank"', ' href="', decoy[input.id].cite, '">(ref)</a>', ];
+				const link = [
+				    "&nbsp;&nbsp;<a",
+				    ' target="_blank" href="',
+				    decoy[input.id].cite,
+				    '">(ref)</a>',
+				];
+
 				cite = link.join("");
 			    };
 
-			    const para = [ "<p><span style='font-size:2em;'>", emoji, "</span> <strong>", decoy[input.id].info, "</strong>", cite, "</p>", ];
+			    const para = [
+				"<p><span style='font-size:2em;'>",
+				emoji,
+				"</span> <strong>",
+				decoy[input.id].info,
+				"</strong>",
+				cite,
+				"</p>",
+			    ];
+
 			    multi.innerHTML = para.join("");
 			}
 		    );
