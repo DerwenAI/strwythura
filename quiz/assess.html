@@ -13,10 +13,10 @@ input[type="radio"] {
   <p><em>{{ quiz.intro }}</em></p>
 <hr/>
 
-<form
-  id="multi_guess"
->
 {% for q in quiz.questions %}
+<form
+  id="multi_guess_{{loop.index}}"
+ >
   <h2>{{ q.question }}</h2>
 
   {% for choice in q.choices %}
@@ -26,6 +26,8 @@ input[type="radio"] {
   {% endfor %}
 
   <div id="{{ q.name }}">&nbsp;</div>
+</form>
+
 {% endfor %}
 
 <hr
@@ -40,7 +42,6 @@ input[type="radio"] {
 &nbsp;
 <strong><span id="result"></span></strong>
 </p>
-</form>
 
 <br/>
 <hr/>

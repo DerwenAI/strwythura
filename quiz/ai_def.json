@@ -1,7 +1,41 @@
 {
     "title": "Popular notions about AI",
-    "intro": "Ready to study about AI? Let's check what you already know in general about the subject.",
+    "intro": "Ready to study about AI? Let's check what you already understand, related to this tutorial.",
     "questions": [
+	{
+	    "question": "Who is an author of the <em>Essential GraphRAG</em> book?",
+	    "name": "essential_graphrag_author",
+	    "choices": [
+		{
+		    "text": "Oskar Hane",
+		    "id": "hane",
+		    "info": "one of the co-authors",
+		    "cite": "https://www.manning.com/books/essential-graphrag",
+		    "correct": true
+		},
+		{
+		    "text": "Tomaž Bratanič",
+		    "id": "bratanic",
+		    "info": "one of the co-authors",
+		    "cite": "https://www.manning.com/books/essential-graphrag",
+		    "correct": true
+		},
+		{
+		    "text": "Ilya Sutskever",
+		    "id": "sutskever",
+		    "info": "you missed",
+		    "cite": null,
+		    "correct": false
+		},
+		{
+		    "text": "Chip Huyen",
+		    "id": "huyen",
+		    "info": "in a another universe, perhaps ... but you missed",
+		    "cite": null,
+		    "correct": false
+		}
+	    ]
+	},
 	{
 	    "question": "Which organization was the first to publish about GraphRAG?",
 	    "name": "graphrag_primary_source",

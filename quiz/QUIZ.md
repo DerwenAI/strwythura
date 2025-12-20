@@ -1,7 +1,27 @@
 
+
+The term "semantics" as it's used in AI practices means:
+
+  - a formal notion of meaning which could be characterized as the part that is common to all other accounts of meaning, and can be captured in mechanical inference rules
+	https://www.w3.org/TR/2004/REC-rdf-mt-20040210/
+  - any use of similarity measures based on embedding models with vector databases
+  - a realm of non-physical, eternal and immutable entities, known as the "Forms" or "Ideas" which are the ultimate objects of knowledge and understanding
+	https://www.thephilroom.com/blog/2025/05/05/ontology/
+  - what different sorts of meanings expressions of a given language have, and which expressions have which meanings
+
+
+RDF originated for use in:
+
+  - agentic access to web page content, based on the LISP language
+	http://www.objs.com/workshops/ws9801/papers/paper056.html
+  - a special-purpose language for running unit tests at Neo4j
+  - formal specifications use at Facebook for data governance
+  - a Google research project for implementing the first Knowledge Graph
+
+
 The intelligence of an individual:
 
-  - can be measured and quantified reliably, for example using Myers-Briggs and other contemporary tests
+  - can be measured and quantified reliably, for example using Myers-Briggs and other contemporary psychological instruments
   - depends mostly on inherited genetics
   - is a socially defined phenomenon, which does not exist within an artifact
 
@@ -9,28 +29,18 @@ The intelligence of an individual:
 Artificial Intelligence is defined as:
 
   - an intelligent service on the Internet, such as popular chat bots: ChatGPT, Claude, Gemini, Perplexity, etc.
-  - a benchmark standard, determined by an advisory board from Google, Microsoft, Meta, and other leading firms
+  - a benchmark standard, established by an advisory board from Google, Microsoft, Meta, and other leading firms
   - a practice, where people and machines collaborate to enhance capabilities
 
 
-Which firm was the first to publish about GraphRAG:
+Essential concepts of generative AI, AI agents, and agentic memory were described and implemented with working code in the:
 
-  - NebulaGraph, working with LlamaIndex <https://www.nebula-graph.io/posts/graph-RAG> (2023-09-06)
-  - OpenAI <https://cookbook.openai.com/examples/rag_with_graph_db> (2023-12-08)
-  - Microsoft <https://www.microsoft.com/en-us/research/blog/graphrag-unlocking-llm-discovery-on-narrative-private-data/> (2024-02-13)
-  - Neo4j <https://neo4j.com/blog/genai/what-is-graphrag/> (2024-12-05)
-  - Zymergy (this is a magazine about homebrew beer)
-
-
-The essential concepts of generative AI, AI agents, and agentic memory were first described and implemented with working code in:
-
-  - 1970s
-  - 2020s
-  - 2010s
-  - 2000s
-  - 1990s
   - 1980s
-  - 1960s
+	Barbara Hayes-Roth, et al.
+	http://www-ksl.stanford.edu/people/bhr/
+  - 2000s
+  - 2020s
+
 
 Which of the following scenarios is most likely to occur:
 
@@ -55,3 +65,12 @@ It is grammatically correct to say:
   - "according to the AIs"
   - "the AI was thinking, then it said something"
 
+
+Entity resolution is defined as:
+
+  - matches based on string similarity, e.g., Levenshtein distance, among properties of nodes within a knowledge graph
+	https://neo4j.com/videos/neo4j-live-entity-resolution-and-deduplication-with-neo4j-and-genai/
+  - the process of determining when real-world entities are the same, despite differences in how they are described or inconsistencies in how data was entered
+	https://senzing.com/what-is-entity-resolution/
+  - linking pairs of records in isolation and enforcing business rules to combine the pairs and obtain multi-record matches
+	https://www.census.gov/topics/research/stat-research/expertise/record-linkage.html

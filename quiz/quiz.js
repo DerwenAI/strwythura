@@ -22,57 +22,60 @@ async function hash_digest (message) {
 
 
 async function score_quiz () {
-    const form = document.getElementById("multi_guess")
-    var score = 0;
+    for (var i = 0; i < document.forms.length; i++) {
+	const form = document.forms[i];
+	var score = 0;
 
-    const result = document.getElementById("result");
-    result.innerHTML = "";
+	const result = document.getElementById("result");
+	result.innerHTML = "";
 
-    Array.from(form.elements).forEach((input) => {
-        if (input.type == "radio") {
-	    const multi = document.getElementById(input.name);
-	    // clear any previous annotations
-	    input.labels[0].style.color = "black";
-	    input.labels[0].style.fontWeight = "normal";
-	    multi.innerHTML = "";
+	Array.from(form.elements).forEach((input) => {
+            if (input.type == "radio") {
+		const multi = document.getElementById(input.name);
 
-	    if (input.checked) {
-    		const message = input.name.concat(input.id);
+		// clear any previous annotations
+		input.labels[0].style.color = "black";
+		input.labels[0].style.fontWeight = "normal";
+		multi.innerHTML = "";
 
-		hash_digest(message).then(
-		    (hash) => {
-			var emoji = "";
+    		if (input.checked) {
+    		    const message = input.name.concat(input.id);
 
-			if (answer_key.includes(hash)) {
-			    const idx = Math.floor(Math.random() * yay_emoji.length);
-			    emoji = yay_emoji[idx];
-			    input.labels[0].style.fontWeight = "bold";
+		    hash_digest(message).then(
+			(hash) => {
+			    var emoji = "";
 
-			    score += 1;
-			} else {
-			    const idx = Math.floor(Math.random() * sad_emoji.length);
-			    emoji = sad_emoji[idx];
-			    input.labels[0].style.color = "red";
-			};
+			    if (answer_key.includes(hash)) {
+				const idx = Math.floor(Math.random() * yay_emoji.length);
+				emoji = yay_emoji[idx];
+				input.labels[0].style.fontWeight = "bold";
+
+				score += 1;
+			    } else {
+				const idx = Math.floor(Math.random() * sad_emoji.length);
+				emoji = sad_emoji[idx];
+				input.labels[0].style.color = "red";
+			    };
 
 
-			const grade = [ Math.round(score / num_questions * 100.0).toString(), " / 100", ]
-			result.innerHTML = grade.join("");
+			    const grade = [ Math.round(score / num_questions * 100.0).toString(), " / 100", ]
+			    result.innerHTML = grade.join("");
 
-			// annotate the answer or decoy
-			const decoy = decoys.get(input.name);
-			var cite = "";
+			    // annotate the answer or decoy
+			    const decoy = decoys.get(input.name);
+			    var cite = "";
 
-			if (decoy[input.id].cite) {
-			    const link = [ "&nbsp;&nbsp;<a", ' target="_blank"', ' href="', decoy[input.id].cite, '">(ref)</a>', ];
-			    cite = link.join("");
-			};
+			    if (decoy[input.id].cite) {
+				const link = [ "&nbsp;&nbsp;<a", ' target="_blank"', ' href="', decoy[input.id].cite, '">(ref)</a>', ];
+				cite = link.join("");
+			    };
 
-			const para = [ "<p><span style='font-size:2em;'>", emoji, "</span> <strong>", decoy[input.id].info, "</strong>", cite, "</p>", ];
-			multi.innerHTML = para.join("");
-		    }
-		);
-	    };
-        };
-    });
+			    const para = [ "<p><span style='font-size:2em;'>", emoji, "</span> <strong>", decoy[input.id].info, "</strong>", cite, "</p>", ];
+			    multi.innerHTML = para.join("");
+			}
+		    );
+		};
+            };
+	});
+    };
 }
