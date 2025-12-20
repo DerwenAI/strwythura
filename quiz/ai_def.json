@@ -3,6 +3,33 @@
     "intro": "Ready to study about AI? Let's check what you already understand, related to this tutorial.",
     "questions": [
 	{
+	    "question": "In the <em>K-Prize</em> ($1M for an AI app which closes 90% of new GitHub issues) the top of leaderboard as of Round 1 (2025):",
+	    "name": "k_prize",
+	    "choices": [
+		{
+		    "text": "Correctly answers 7.5% of the questions on the test.",
+		    "id": "7.5",
+		    "info": "So far, so good.",
+		    "cite": "https://techcrunch.com/2025/07/23/a-new-ai-coding-challenge-just-published-its-first-results-and-they-arent-pretty/",
+		    "correct": true
+		},
+		{
+		    "text": "Correctly answers 57% of the questions on the test.",
+		    "id": "57",
+		    "info": "Way, waaaaaaay off.",
+		    "cite": "https://www.kaggle.com/competitions/konwinski-prize/leaderboard",
+		    "correct": false
+		},
+		{
+		    "text": "Correctly answers 75% of the questions on the test.",
+		    "id": "75",
+		    "info": "An order of magnitude of wrongness.",
+		    "cite": "https://www.kaggle.com/competitions/konwinski-prize/leaderboard",
+		    "correct": false
+		}
+	    ]
+	},
+	{
 	    "question": "Entity resolution is defined as:",
 	    "name": "entity_resolution",
 	    "choices": [
@@ -193,7 +220,7 @@
 	    ]
 	},
 	{
-	    "question": "The term 'semantics' as it get used in AI practices means:",
+	    "question": "The term <em>semantics</em> as it get used in AI practices means:",
 	    "name": "semantics",
 	    "choices": [
 		{
