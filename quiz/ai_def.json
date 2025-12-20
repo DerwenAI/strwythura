@@ -1,0 +1,48 @@
+{
+    "title": "Popular notions about AI",
+    "intro": "Ready to study about AI? Let's check what you already know in general about the subject.",
+    "questions": [
+	{
+	    "question": "Which organization was the first to publish about GraphRAG?",
+	    "name": "graphrag_primary_source",
+	    "choices": [
+		{
+		    "text": "NebulaGraph",
+		    "id": "nebula",
+		    "info": "NebulaGraph published an online demo, working with LlamaIndex, on 2023-09-06.",
+		    "cite": "https://www.nebula-graph.io/posts/graph-RAG",
+		    "correct": true
+		},
+		{
+		    "text": "OpenAI",
+		    "id": "openai",
+		    "info": "They published a few months after the first instance, on 2023-12-08.",
+		    "cite": "https://cookbook.openai.com/examples/rag_with_graph_db",
+		    "correct": false
+		},
+		{
+		    "text": "Microsoft",
+		    "id": "msft",
+		    "info": "Microsoft didn't publish about it until the following year, on 2024-02-13.",
+		    "cite": "https://www.microsoft.com/en-us/research/blog/graphrag-unlocking-llm-discovery-on-narrative-private-data/",
+		    "correct": false
+		},
+		{
+		    "text": "Neo4j",
+		    "id": "neo4j",
+		    "info": "Neo4j published about GraphRAG the next year, collaborating with LlamaIndex, LangChain, etc.",
+		    "cite": "https://neo4j.com/blog/genai/what-is-graphrag/",
+		    "correct": false
+		},
+		{
+		    "text": "Zymurgy",
+		    "id": "zymurgy",
+		    "info": "This is a magazine about homebrew beer.",
+		    "cite": "https://homebrewersassociation.org/magazine/zymurgy-online/",
+		    "correct": false
+		}
+	    ]
+	}
+    ]
+}
+

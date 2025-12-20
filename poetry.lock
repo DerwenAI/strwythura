@@ -4611,8 +4611,8 @@ files = [
 
 [package.dependencies]
 numpy = [
-    {version = ">=1.23.2", markers = "python_version == \"3.11\""},
     {version = ">=1.26.0", markers = "python_version >= \"3.12\""},
+    {version = ">=1.23.2", markers = "python_version == \"3.11\""},
 ]
 python-dateutil = ">=2.8.2"
 pytz = ">=2020.1"
@@ -5597,8 +5597,8 @@ files = [
 astroid = ">=3.3.8,<=3.4.0.dev0"
 colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
 dill = [
-    {version = ">=0.3.6", markers = "python_version >= \"3.11\""},
     {version = ">=0.3.7", markers = "python_version >= \"3.12\""},
+    {version = ">=0.3.6", markers = "python_version == \"3.11\""},
 ]
 isort = ">=4.2.5,<5.13 || >5.13,<7"
 mccabe = ">=0.6,<0.8"
@@ -5657,8 +5657,8 @@ importlib-metadata = {version = ">6", markers = "python_version < \"3.12\""}
 owlrl = ">=7.1.2,<8"
 packaging = ">=21.3"
 prettytable = [
-    {version = ">=3.5.0", markers = "python_version < \"3.12\""},
     {version = ">=3.7.0", markers = "python_version >= \"3.12\""},
+    {version = ">=3.5.0", markers = "python_version < \"3.12\""},
 ]
 rdflib = {version = ">=7.1.1,<7.1.2 || >7.1.2,<8.0", extras = ["html"]}
 
@@ -8259,4 +8259,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "8d570ba5e56aabf1dffaf0476d2d71b4e8352fafd86c2c9422211ae30b1efb68"
+content-hash = "89ec21a35d5e092a3e444bb32b74fe9cd7e41e10cf7a11f0a53b7e51afb99ffa"
