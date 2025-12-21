@@ -7,6 +7,7 @@ import hashlib
 import json
 import pathlib
 import random
+import uuid
 
 from icecream import ic
 import jinja2
@@ -34,6 +35,11 @@ if __name__ == "__main__":
 
     for question in dat["questions"]:
         for choice in question["choices"]:
+            # randomize; if <radio/> elements in different <form/>
+            # have the same ID, then the DOM in many browsers will
+            # lose its mind
+            choice["id"] += f"_{uuid.uuid4().hex}"
+
             if choice["correct"]:
                 message: str = question["name"] + choice["id"]
                 hash_digest: str = hashlib.sha256(message.encode()).hexdigest()

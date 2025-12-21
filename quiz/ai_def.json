@@ -3,6 +3,40 @@
     "intro": "Ready to study about AI? Let's check what you already understand, related to this tutorial.",
     "questions": [
 	{
+	    "question": "What is the most likely source for previews of upcoming AI technology components:",
+	    "name": "ai_preview",
+	    "choices": [
+		{
+		    "text": "Peer-reviewed research by graduate students working at optimization labs.",
+		    "id": "nesy",
+		    "info": "Seriously, this is one of the most underappreciated technology conferences.",
+		    "cite": "https://nesy-ai.org/",
+		    "correct": true
+		},
+		{
+		    "text": "TED talks by Peter Thiel, Sam Altman, and other experts.",
+		    "id": "ted_talks",
+		    "info": "One of these things is not like the other one, not like the other one, ...",
+		    "cite": "https://www.burningshore.com/p/christians-accelerate",
+		    "correct": false
+		},
+		{
+		    "text": "The most recent product releases from OpenAI, Anthropic, Perplexity, etc.",
+		    "id": "tech_bros",
+		    "info": "🎶 Do you know the way to Arizona Bay? 🎵",
+		    "cite": "https://citizensreunited.substack.com/p/empire-of-ai-with-karen-hao-and-carole?ref=dispatch.the-citizens.com",
+		    "correct": false
+		},
+		{
+		    "text": "Editorials published by lead investors at Andreessen Horowitz (a16z).",
+		    "id": "a16z",
+		    "info": "Somethin' somethin' techno-utopian AI immortality for billionaires, somethin' somethin' eugenics.",
+		    "cite": "https://www.usefulidiotspodcast.com/p/dystopia-now-why-tech-bros-want-a",
+		    "correct": false
+		}
+	    ]
+	},
+	{
 	    "question": "In the <em>K-Prize</em> ($1M for an AI app which closes 90% of new GitHub issues) the top of leaderboard as of Round 1 (2025):",
 	    "name": "k_prize",
 	    "choices": [
@@ -68,7 +102,7 @@
 		    "correct": false
 		},
 		{
-		    "text": "Depends mostly on inherited genetics.",
+		    "text": "Depends largely on inherited genetics.",
 		    "id": "second_order_eugenics",
 		    "info": "If you are experiencing a mental health crisis or are thinking about harming yourself or others, contact a crisis helpline.",
 		    "cite": "https://www.truthdig.com/articles/the-acronym-behind-our-wildest-ai-dreams-and-nightmares/",

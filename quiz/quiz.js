@@ -14,6 +14,19 @@ const sad_emoji = [
     "\u{1F92E}",
 ];
 
+var yay_emoji_idx = 0;
+var sad_emoji_idx = 0;
+
+function next_yay () {
+    yay_emoji_idx = (yay_emoji_idx + 1) % yay_emoji.length;
+    return yay_emoji[yay_emoji_idx];
+};
+
+function next_sad () {
+    sad_emoji_idx = (sad_emoji_idx + 1) % sad_emoji.length;
+    return sad_emoji[sad_emoji_idx];
+};
+
 
 async function hash_digest (message) {
     const encoder = new TextEncoder();
@@ -51,14 +64,12 @@ async function score_quiz () {
 			    var emoji = "";
 
 			    if (answer_key.includes(hash)) {
-				const idx = Math.floor(Math.random() * yay_emoji.length);
-				emoji = yay_emoji[idx];
+				emoji = next_yay();
 				input.labels[0].style.fontWeight = "bold";
 
 				score += 1;
 			    } else {
-				const idx = Math.floor(Math.random() * sad_emoji.length);
-				emoji = sad_emoji[idx];
+				emoji = next_sad();
 				input.labels[0].style.color = "red";
 			    };
 
