@@ -1,8 +1,5 @@
 ## TODOs
 
-  * impl. formative assessment -- quiz in HTML
-     - prototype in Jinja2 + JavaScript
-
   * enable `Opik`
 
   * found in QA NER, not from taxonomy: `NOUN.science`, `NOUN.hospital`
