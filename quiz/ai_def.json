@@ -16,14 +16,14 @@
 		{
 		    "text": "'According to the AI, ...'",
 		    "id": "article",
-		    "info": "You missed.",
+		    "info": "AI is a practice, not a thing.",
 		    "cite": null,
 		    "correct": false
 		},
 		{
 		    "text": "'...the AI was thinking, then it said something ...'",
 		    "id": "pronoun",
-		    "info": "You missed.",
+		    "info": "AI is a practice, not a thing.",
 		    "cite": null,
 		    "correct": false
 		}
@@ -36,7 +36,7 @@
 		{
 		    "text": "... which were used to identify life-saving medicines during the COVID-19 pandemic were trained on laptops.",
 		    "id": "az_dimmu",
-		    "info": "Pharma is a vertical with some of the more sophisticated uses cases for AI applications.",
+		    "info": "Pharma, as a vertical, has some of the more sophisticated uses cases for AI applications.",
 		    "cite": "https://home.mlops.community/public/videos/knowledge-graphs-in-biomedicine-dimitrios-athanasakis-ai-in-production-2025-2025-03-26",
 		    "correct": true
 		},
@@ -63,21 +63,21 @@
 		{
 		    "text": "The financial bubble caused by 'AI Hype' deceptions finally bursts.",
 		    "id": "bubble_bursts",
-		    "info": "tick, tick, tick, ...",
+		    "info": "tick, tock, tick, tock, ...",
 		    "cite": "https://seekingalpha.com/article/4829296-ai-bubble-circular-funding-intense-competitive-rivalry",
 		    "correct": true
 		},
 		{
-		    "text": "The emergence of superintelligence -- which changes everything.",
+		    "text": "An emergence of superintelligence -- which changes everything.",
 		    "id": "supergenius",
 		    "info": "Allow me to introduce myself, my name is MUD.",
 		    "cite": "https://nextbillionseconds.com/2024/03/22/vale-vernor-vinge-creator-of-a-technological-singularity-our-interview-from-2019/",
 		    "correct": false
 		},
 		{
-		    "text": "Models become large enough to achieve <em>artificial general intelligence</em> (AGI).",
+		    "text": "Models become large enough to achieve 'artificial general intelligence' (AGI).",
 		    "id": "eygeeai",
-		    "info": "Don't hold your breath.",
+		    "info": "YOU are bullshit, or a complete fool, and probably both.",
 		    "cite": "https://ainowinstitute.org/publications/research/1-1-the-agi-mythology-the-argument-to-end-all-arguments#h-who-benefits-from-agi-discourse",
 		    "correct": false
 		},
@@ -91,20 +91,20 @@
 	    ]
 	},
 	{
-	    "question": "What is the most likely source for previews of upcoming AI technology components?",
+	    "question": "Which is the most likely source for previews of upcoming AI technology components?",
 	    "name": "ai_preview",
 	    "choices": [
 		{
 		    "text": "Peer-reviewed research by graduate students working at optimization labs.",
 		    "id": "nesy",
-		    "info": "Seriously, this is one of the most underappreciated technology conferences.",
+		    "info": "Serious greenfield: NeSy is historically one of the most underappreciated technology conferences.",
 		    "cite": "https://nesy-ai.org/",
 		    "correct": true
 		},
 		{
 		    "text": "TED talks by Peter Thiel, Sam Altman, and other experts.",
 		    "id": "ted_talks",
-		    "info": "One of these things is not like the other one, not like the other one, ...",
+		    "info": "Fool you twice, shame on you.",
 		    "cite": "https://www.burningshore.com/p/christians-accelerate",
 		    "correct": false
 		},
@@ -116,9 +116,9 @@
 		    "correct": false
 		},
 		{
-		    "text": "Editorials published by lead investors at Andreessen Horowitz (a16z).",
+		    "text": "Editorials published by lead VC partners at Andreessen Horowitz (a16z).",
 		    "id": "a16z",
-		    "info": "Somethin' somethin' techno-utopian AI immortality for billionaires, somethin' somethin' eugenics.",
+		    "info": "Somethin' somethin' techno-utopian AI immortality for billionaires, somethin' somethin' eugenics. Fuck off.",
 		    "cite": "https://www.usefulidiotspodcast.com/p/dystopia-now-why-tech-bros-want-a",
 		    "correct": false
 		}
@@ -131,7 +131,7 @@
 		{
 		    "text": "Correctly answers 7.5% of the questions on the test.",
 		    "id": "7.5",
-		    "info": "So far, so good.",
+		    "info": "TL;DR: Microsoft/GitHub, et al., show underwhelming results when asked to prove absurdly hyped claims.",
 		    "cite": "https://techcrunch.com/2025/07/23/a-new-ai-coding-challenge-just-published-its-first-results-and-they-arent-pretty/",
 		    "correct": true
 		},
@@ -145,7 +145,7 @@
 		{
 		    "text": "Correctly answers 75% of the questions on the test.",
 		    "id": "75",
-		    "info": "An order of magnitude of wrongness.",
+		    "info": "Yeah sure, if you're into an order of magnitude of wrongness.",
 		    "cite": "https://www.kaggle.com/competitions/konwinski-prize/leaderboard",
 		    "correct": false
 		}
@@ -158,7 +158,7 @@
 		{
 		    "text": "The process of determining when real-world entities are the same, despite differences in how they are described or inconsistencies in how data was entered.",
 		    "id": "senzing",
-		    "info": "Based on PII data about people, organizations, maritime vessels, etc.",
+		    "info": "Based on evidence from PII data about people, organizations, maritime vessels, etc.",
 		    "cite": "https://senzing.com/what-is-entity-resolution/",
 		    "correct": true
 		},
@@ -172,7 +172,7 @@
 		{
 		    "text": "Linking pairs of records in isolation and enforcing business rules to combine the pairs and obtain multi-record matches.",
 		    "id": "census_bureau",
-		    "info": "At least they reached a con-<em>CENSUS</em> about this.",
+		    "info": "This is a brittle, error-prone approach, but at least they reached a con-CENSUS about this.",
 		    "cite": "https://www.census.gov/topics/research/stat-research/expertise/record-linkage.html",
 		    "correct": false
 		}
@@ -199,7 +199,7 @@
 		{
 		    "text": "Is a socially defined phenomenon, which does not exist within an artifact.",
 		    "id": "socially_defined",
-		    "info": "Love it or leave it.",
+		    "info": "Concensus reality, love it or leave it.",
 		    "cite": "https://www.pangaro.com/glanville/Glanville-SECOND_ORDER_CYBERNETICS.pdf",
 		    "correct": true
 		}
@@ -314,7 +314,7 @@
 		{
 		    "text": "OpenAI",
 		    "id": "openai",
-		    "info": "They published a few months after the first instance, on 2023-12-08.",
+		    "info": "OpenAI published a few months *after* the first instance, on 2023-12-08.",
 		    "cite": "https://cookbook.openai.com/examples/rag_with_graph_db",
 		    "correct": false
 		},
@@ -328,14 +328,14 @@
 		{
 		    "text": "Neo4j",
 		    "id": "neo4j",
-		    "info": "Neo4j published about GraphRAG the next year, collaborating with LlamaIndex, LangChain, etc.",
+		    "info": "Neo4j published about GraphRAG the following year, collaborating with LlamaIndex, LangChain, etc.",
 		    "cite": "https://neo4j.com/blog/genai/what-is-graphrag/",
 		    "correct": false
 		},
 		{
 		    "text": "Zymurgy",
 		    "id": "zymurgy",
-		    "info": "That is a magazine about homebrew beer.",
+		    "info": "Um, yeah no, that is a magazine about homebrew beer.",
 		    "cite": "https://homebrewersassociation.org/magazine/zymurgy-online/",
 		    "correct": false
 		}
@@ -355,21 +355,21 @@
 		{
 		    "text": "A formal notion of meaning which could be characterized as the part that is common to all other accounts of meaning, and can be captured in mechanical inference rules.",
 		    "id": "w3c",
-		    "info": "W3C makes recommendations, not standards.",
+		    "info": "Axiomatic reasoning is orders of magnitude more efficent than alleged 'LLM-based reasoning', and neurosymbolic methods dominate most all of the objective measures",
 		    "cite": "https://www.w3.org/TR/2004/REC-rdf-mt-20040210/",
 		    "correct": true
 		},
 		{
 		    "text": "A realm of non-physical, eternal and immutable entities, known as the 'Forms' or 'Ideas' which are the ultimate objects of knowledge and understanding.",
 		    "id": "platonic",
-		    "info": "Oh how fabulously aristotelean, aka 'mansplaining' ...",
+		    "info": "Oh how fabulously aristotelean, AKA 'mansplaining' ...",
 		    "cite": "https://www.thephilroom.com/blog/2025/05/05/ontology/",
 		    "correct": false
 		},
 		{
 		    "text": "What different sorts of meanings expressions of a given language have, and which expressions have which meanings.",
 		    "id": "linguistics",
-		    "info": "Close, but no partial credit.",
+		    "info": "Close, but that's for linguistics, not for computable semantics.",
 		    "cite": null,
 		    "correct": false
 		}
@@ -382,7 +382,7 @@
 		{
 		    "text": "1980s",
 		    "id": "gen_ai_bb1",
-		    "info": "Generative approaches were often called <em>frame-based reasoning</em> and agentic memory was often called <em>blackboard architecture</em>, see Barbara Hayes-Roth, et al.",
+		    "info": "Generative approaches were called <em>frame-based reasoning</em> and agentic memory was called <em>blackboard architecture</em>, see Barbara Hayes-Roth, et al.",
 		    "cite": "http://www-ksl.stanford.edu/people/bhr/",
 		    "correct": true
 		},

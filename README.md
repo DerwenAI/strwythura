@@ -11,6 +11,13 @@ Downstream there may be several patterns of usage, such as graph
 analytics, dashboards, GraphRAG for question/answer chat bots, agent
 workflows, memory, tools, planners, and so on.
 
+Before going any further, take this brief quiz to assess your current
+understanding about AI practices related to this tutorial:
+<https://derwen.ai/quiz/ai_def>
+
+If you score quite low on this quiz, you've probably read (and
+believed) far too many tech company press releases.
+
 <img
  src="./docs/assets/logo.png"
  alt="Strwythura logo"
