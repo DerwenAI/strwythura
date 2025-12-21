@@ -3,7 +3,95 @@
     "intro": "Ready to study about AI? Let's check what you already understand, related to this tutorial.",
     "questions": [
 	{
-	    "question": "What is the most likely source for previews of upcoming AI technology components:",
+	    "question": "It is grammatically correct to say:",
+	    "name": "pronouns_articles",
+	    "choices": [
+		{
+		    "text": "None of the other choices here.",
+		    "id": "none",
+		    "info": "AI is a practice, not an individual or thing, therefore the term has no pronouns or articles in correct usage.",
+		    "cite": "https://blog.derwen.ai/future-of-ai-guest-discussion-late-2025-33f7fb81f92d",
+		    "correct": true
+		},
+		{
+		    "text": "'According to the AI, ...'",
+		    "id": "article",
+		    "info": "You missed.",
+		    "cite": null,
+		    "correct": false
+		},
+		{
+		    "text": "'...the AI was thinking, then it said something ...'",
+		    "id": "pronoun",
+		    "info": "You missed.",
+		    "cite": null,
+		    "correct": false
+		}
+	    ]
+	},
+	{
+	    "question": "Large Language Models (LLMs) ...",
+	    "name": "llm_trivia",
+	    "choices": [
+		{
+		    "text": "... which were used to identify life-saving medicines during the COVID-19 pandemic were trained on laptops.",
+		    "id": "az_dimmu",
+		    "info": "Pharma is a vertical with some of the more sophisticated uses cases for AI applications.",
+		    "cite": "https://home.mlops.community/public/videos/knowledge-graphs-in-biomedicine-dimitrios-athanasakis-ai-in-production-2025-2025-03-26",
+		    "correct": true
+		},
+		{
+		    "text": "... were invented by NVIDIA and require the use of GPU clusters in large data centers.",
+		    "id": "moonshine",
+		    "info": "Hey, so you were asking about that beachfront property in Arizona?",
+		    "cite": "https://huggingface.co/UsefulSensors/moonshine-tiny",
+		    "correct": false
+		},
+		{
+		    "text": "... in AI labs at Google Research achieved consciousness in 2024.",
+		    "id": "unconsciousness",
+		    "info": "Seriously, you believed that garbage?",
+		    "cite": "https://home.mlops.community/public/videos/machine-consciousness-get-real-ron-chrisley-ai-in-production-2025-2025-03-26",
+		    "correct": false
+		}
+	    ]
+	},
+	{
+	    "question": "Which of the following scenarios is most likely to occur?",
+	    "name": "agi_nopefulness",
+	    "choices": [
+		{
+		    "text": "The financial bubble caused by 'AI Hype' deceptions finally bursts.",
+		    "id": "bubble_bursts",
+		    "info": "tick, tick, tick, ...",
+		    "cite": "https://seekingalpha.com/article/4829296-ai-bubble-circular-funding-intense-competitive-rivalry",
+		    "correct": true
+		},
+		{
+		    "text": "The emergence of superintelligence -- which changes everything.",
+		    "id": "supergenius",
+		    "info": "Allow me to introduce myself, my name is MUD.",
+		    "cite": "https://nextbillionseconds.com/2024/03/22/vale-vernor-vinge-creator-of-a-technological-singularity-our-interview-from-2019/",
+		    "correct": false
+		},
+		{
+		    "text": "Models become large enough to achieve <em>artificial general intelligence</em> (AGI).",
+		    "id": "eygeeai",
+		    "info": "Don't hold your breath.",
+		    "cite": "https://ainowinstitute.org/publications/research/1-1-the-agi-mythology-the-argument-to-end-all-arguments#h-who-benefits-from-agi-discourse",
+		    "correct": false
+		},
+		{
+		    "text": "Billionaire tech bros from Silicon Valley establish a new utopia on Mars.",
+		    "id": "mars",
+		    "info": "This is what happens when tech billionaires get really baked while watching vampire movies.",
+		    "cite": "https://arstechnica.com/culture/2025/04/youre-not-going-to-mars-and-you-wont-live-forever-exploding-silicon-valleys-ideology/",
+		    "correct": false
+		}
+	    ]
+	},
+	{
+	    "question": "What is the most likely source for previews of upcoming AI technology components?",
 	    "name": "ai_preview",
 	    "choices": [
 		{
@@ -102,7 +190,7 @@
 		    "correct": false
 		},
 		{
-		    "text": "Depends largely on inherited genetics.",
+		    "text": "Depends largely on inherited paternal genetics.",
 		    "id": "second_order_eugenics",
 		    "info": "If you are experiencing a mental health crisis or are thinking about harming yourself or others, contact a crisis helpline.",
 		    "cite": "https://www.truthdig.com/articles/the-acronym-behind-our-wildest-ai-dreams-and-nightmares/",
@@ -143,7 +231,7 @@
 		    "correct": false
 		},
 		{
-		    "text": "Agentic access to web page content, using syntax based on the LISP language",
+		    "text": "Agentic access to web page content, using syntax based on the LISP language.",
 		    "id": "ora_lassila",
 		    "info": "Per direct conversations with the primary author.",
 		    "cite": "http://www.objs.com/workshops/ws9801/papers/paper056.html",
@@ -258,7 +346,7 @@
 	    "name": "semantics",
 	    "choices": [
 		{
-		    "text": "Use of vector similarity measures based on embedding models with vector databases.",
+		    "text": "Any use of vector similarity measures based on embedding models with vector databases.",
 		    "id": "vectordb",
 		    "info": "At least get us some coffee before you start in again with your nonsense.",
 		    "cite": "https://effinbirds.threadless.com/accessories/sticker/white",
