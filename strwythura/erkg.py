@@ -9,6 +9,7 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 
 import inspect
 import json
+import math
 import pathlib
 import sys
 import typing
@@ -16,7 +17,7 @@ import typing
 from icecream import ic
 import networkx as nx
 
-from .elem import NodeKind
+from .elem import EntitySource, NodeKind
 
 
 class KnowledgeGraph:
@@ -274,3 +275,44 @@ Returns a subgraph view from the given node IRIs.
 Compute all shortest simple paths in the graph.
         """
         return nx.all_shortest_paths(self.graph, src_iri, dst_iri)
+
+
+    ######################################################################
+    ## interactive visualization
+
+    def vis_nodes (
+        self,
+        num_docs: int,
+        ) -> typing.Iterator[ tuple[ int, dict, ] ]:
+        """
+Iterator for the visualization attributes of nodes.
+        """
+        filter_lex: set[ str ] = set([ EntitySource.NC.value, EntitySource.LEX.value ])
+
+        for iri, attrs in self.graph.nodes(data = True):
+            attr: dict = {}
+
+            if attrs.get("kind") == NodeKind.ENTITY.value and attrs.get("label") not in filter_lex:
+                attr["color"] = "hsla(65, 46%, 58%, 0.80)"
+                attr["size"] = round(20 * math.log(1.0 + math.sqrt(float(attrs.get("count"))) / num_docs))
+                attr["label"] = attrs.get("text")  # type: ignore
+                attr["title"] = attrs.get("key")  # type: ignore
+            elif attrs.get("kind") == NodeKind.TAXONOMY.value:
+                attr["color"] = "hsla(306, 45%, 57%, 0.95)"
+                attr["size"] = 5
+                attr["label"] = attrs.get("label")  # type: ignore
+                attr["title"] = attrs.get("iri")  # type: ignore
+            else:
+                continue
+
+            yield iri, attr
+
+
+    def vis_edges (
+        self,
+        ) -> typing.Iterator[ tuple[ int, int, str, ] ]:
+        """
+Iterator for the visualization attributes of edges.
+        """
+        for src_iri, dst_iri, key in self.graph.edges(keys = True):
+            yield src_iri, dst_iri, key

@@ -7,7 +7,6 @@ thesaurus_path = "data/thesaurus.ttl"
 [erkg]
 
 erkg_path = "data/erkg.json"
-html_path = "data/erkg.html"
 
 [ctx]
 
@@ -48,6 +47,7 @@ cache_path = "data/url_cache"
 
 [vis]
 
+html_path = "data/erkg.html"
 html_height = "900px"
 html_width = "100%"
 

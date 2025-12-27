@@ -29,4 +29,6 @@ from .rag import GraphRAG
 
 from .scrape import Scraper
 
+from .vis import VisHTML
+
 from .work import Workflow

@@ -3,6 +3,7 @@ data/ent.json
 data/ent.vec
 data/ent.w2v
 data/er.json
+data/erkg.html
 data/erkg.json
 data/lancedb/
 data/lex.json

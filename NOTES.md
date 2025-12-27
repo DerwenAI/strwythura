@@ -1,13 +1,18 @@
 ## TODOs
 
+ * fix Part 6:
+   - extract the JavaScript data structures which `PyVis` generates
+
+ * why is the former lemma IRI getting used in the serialized ERKG instead of the latter?
+      "id": "strw:lemma_NOUN.doctor"
+      "id": "strw:Doctor"
+
   * enable `Opik`
 
   * found in QA NER, not from taxonomy: `NOUN.science`, `NOUN.hospital`
 {"span": {"loc": [-1, -1], "text": "", "span": [], "label": null, "source": "Domain_Taxonomy", "iri": null}, "lemma_key": "NOUN.science", "uid": 9, "inst": [], "count
 ": 1, "rank": 0.0}
      - add Taxonomy lemmas
-
-  * reintroduce `PyVis` visualization
 
   * Streamlit dashboard view of `rag.py`
 
@@ -16,7 +21,7 @@
      - alteratively, use `sentence_transformer` in lieu of Gensim?
 	https://www.sbert.net/docs/sentence_transformer/usage/usage.html
   
-  * fix Part 6:
+  * fix Part 7:
      - semantic random walk: nothing back from the shortest paths?
      - need to visualize subgraph
      - perform a real random walk, based on a model

@@ -374,9 +374,19 @@ Use `PyVis` to generate an HTML page for interactive visualization of the ERKG.
 </summary>
 &nbsp;
 
-WIP:
+Create an interactive visualization of the constructed ERKG,
+using `PyVis` to generate the `data/erkg.html` file:
 
- - good for debugging
+
+```bash
+poetry run python3 6_vis.py
+```
+
+Then load this this HTML page in your browser and zoom in to inspect
+elements of the graph.
+
+Visualization is good feeback for debugging the ERKG graph at this
+stage, before using it in downstream AI applications.
 
 </details>
 
@@ -516,6 +526,19 @@ this library.
   url = {https://github.com/DerwenAI/strwythura}
 }
 ```
+</details>
+
+
+<details>
+  <summary>Microservices</summary>
+&nbsp;
+
+| TCP port   | microservice | purpose |
+| ---------- | ------------ | ------- |
+| 8261 | gRPC server | Senzing SDK |
+| 11434 | Ollama | LLM orchestration |
+| 5173 | Opik | observability |
+
 </details>
 
 
