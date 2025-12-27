@@ -14,9 +14,8 @@ import pathlib
 import dspy  # type: ignore
 import streamlit as st
 
-from strwythura import GraphRAG, Workflow
-
-STRW_LOGO: str = "docs/assets/logo.png"
+from strwythura import GraphRAG, Workflow, \
+    STRW_LOGO
 
 
 @st.cache_resource
@@ -40,19 +39,19 @@ and instantiate a `GraphRAG` object.
         domain_path.open("r", encoding = "utf-8")
     )
 
-    rag: GraphRAG = GraphRAG(
+    graph_rag: GraphRAG = GraphRAG(  # pylint: disable=W0621
         work,
         domain["name"],
         run_local = run_local,
         use_opik = use_opik,
     )
 
-    return rag
+    return graph_rag
 
 
 @st.fragment
 def run_er_rag (
-    rag: GraphRAG,
+    graph_rag: GraphRAG,  # pylint: disable=W0621
     *,
     debug: bool = False,
     ) -> None:
@@ -72,13 +71,13 @@ Main UI task as a `Streamlit.fragment`
             st.markdown(question)
 
         # enchanced GraphRAG prioritizes and retrieves text chunks
-        chunks: list[ str ] = rag.run_errag(
+        chunks: list[ str ] = graph_rag.run_errag(
             question,
             debug = debug,
         )
 
         # LLM summarizes the text chunks in response to the question
-        response: dspy.primitives.prediction.Prediction = rag.qa_signature(
+        response: dspy.primitives.prediction.Prediction = graph_rag.qa_signature(
             question,
             chunks,
         )
@@ -93,7 +92,7 @@ Main UI task as a `Streamlit.fragment`
             avatar: str | None = None
 
             if message["role"] == "assistant":
-                avatar = STRW_LOGO
+                avatar = STRW_LOGO.as_posix()
 
             with st.chat_message(message["role"], avatar = avatar):
                 st.markdown(message["content"])
@@ -116,9 +115,9 @@ if __name__ == "__main__":
     logger.info("set up, run only once")
 
     # interaction
-    rag: GraphRAG = load_assets(
+    graph_rag: GraphRAG = load_assets(
         pathlib.Path("config.toml"),
         pathlib.Path("domain.json"),
     )
 
-    run_er_rag(rag)
+    run_er_rag(graph_rag)
