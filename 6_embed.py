@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Part 5: distill from the lexical graph to the resulting ERKG, and also
+Part 6: distill from the lexical graph to the resulting ERKG, and also
 build an _entities embeddings_ model.
 
 see copyright/license https://github.com/DerwenAI/strwythura/README.md

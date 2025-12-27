@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Part 6: run enhanced GraphRAG, based on DSPy/Ollama/Opik, using the
+Part 7: run enhanced GraphRAG, based on DSPy/Ollama/Opik, using the
 assets developed in previous step.
 
 see copyright/license https://github.com/DerwenAI/strwythura/README.md

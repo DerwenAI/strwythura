@@ -264,7 +264,7 @@ entity store files.
 </details>
 
 
-## Part 4: Human-in-the-Loop
+## Part 5: Human-in-the-Loop
 
 <details>
 <summary>
@@ -323,7 +323,7 @@ JSONL file, before using these to construct the knowledge graph.
 </details>
 
 
-## Part 5: Entity Embeddings
+## Part 6: Entity Embeddings
 
 <details>
 <summary>
@@ -341,7 +341,7 @@ This step is a form of _distillation_, transforming the relatively
 ERKG.
 
 ```bash
-poetry run python3 5_embed.py
+poetry run python3 6_embed.py
 ```
 
 This step also constructs a separate embedding model for _entity
@@ -364,7 +364,7 @@ training an entity embeddings model based on _spectral indexing_.
 </details>
 
 
-## Part 6: Enhanced GraphRAG
+## Part 7: Enhanced GraphRAG
 
 <details>
 <summary>
@@ -379,7 +379,7 @@ The following Python module implements a question/answer chat bot
 based on `DSPy` and `Ollama`, running the `gemma3:12b` LLM locally:
 
 ```bash
-poetry run python3 6_errag.py
+poetry run python3 7_errag.py
 ```
 
 This approach leverages an enhanced GraphRAG approach which uses
@@ -393,7 +393,7 @@ Use `Opik` to collect evaluations during GraphRAG use.
 </details>
 
 
-## Part 7: Observability and Optimization
+## Part 8: Observability and Optimization
 
 <details>
 <summary>

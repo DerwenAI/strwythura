@@ -211,7 +211,7 @@ For each of the given URLs:
 
 
     ######################################################################
-    ## Part 5
+    ## Part 6
 
     def distill_knowledge_graph (
         self,
@@ -257,7 +257,7 @@ entity linking:
 
 
     ######################################################################
-    ## Part 6
+    ## Part 7
 
     def load_assets (
         self,
