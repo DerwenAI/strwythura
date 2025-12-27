@@ -17,7 +17,7 @@ understood related to the material in this tutorial, and in general
 about AI facts and fantasies: <https://derwen.ai/quiz/ai_def>
 
 <img
- src="./strwthura/resources/logo.png"
+ src="./strwythura/resources/logo.png"
  alt="Strwythura logo"
  width="231"
  style="display: block; margin-left: auto; margin-right: auto; width: 30%;"
