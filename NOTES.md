@@ -1,7 +1,10 @@
 ## TODOs
 
  * fix Part 6:
+   - modify style to make the graph understandable
+   - fix the tooltip info
    - extract the JavaScript data structures which `PyVis` generates
+   - recompose using Jinja2
 
  * why is the former lemma IRI getting used in the serialized ERKG instead of the latter?
       "id": "strw:lemma_NOUN.doctor"
@@ -14,21 +17,19 @@
 ": 1, "rank": 0.0}
      - add Taxonomy lemmas
 
-  * Streamlit dashboard view of `rag.py`
-
   * gensim => ArrowSpace embeddings for entities
      - hire Lorenzo to replace `Gensim` with `ArrowSpace` (after Dec 22 seminar)
      - alteratively, use `sentence_transformer` in lieu of Gensim?
 	https://www.sbert.net/docs/sentence_transformer/usage/usage.html
   
+  * fix Part 5:
+     - also update `count` and `rank` for ER and TAXO nodes in the ERKG
+     - fix the logic in `ctx.py: promote_er_nodes()`
+
   * fix Part 7:
      - semantic random walk: nothing back from the shortest paths?
      - need to visualize subgraph
      - perform a real random walk, based on a model
-
-  * fix Part 5:
-     - also update `count` and `rank` for ER and TAXO nodes in the ERKG
-     - fix the logic in `ctx.py: promote_er_nodes()`
 
   * filter the `strw:co_occurs_with` relations based on quantiles
 

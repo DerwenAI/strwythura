@@ -403,7 +403,8 @@ leverages computable semantics in the ERKG.
 &nbsp;
 
 The following Python module implements a question/answer chat bot
-based on `DSPy` and `Ollama`, running the `gemma3:12b` LLM locally:
+based on `DSPy` and `Ollama`, by default running the `gemma3:12b` LLM
+locally:
 
 ```bash
 poetry run python3 7_errag.py
@@ -412,7 +413,20 @@ poetry run python3 7_errag.py
 This approach leverages an enhanced GraphRAG approach which uses
 `NetworkX` for _semantic expansion_ and _semantic random walks_ for
 more effective _reranking_ of text chunks from `LanceDB`, before these
-get presented to an LLM to summarize as the chat bot responses.
+get presented to an LLM to summarize as chat bot responses.
+
+Since this module shows debugging and performance telemetry, it helps
+illustrate how the chat bot operates.
+
+Then to run the full application as a `Streamlit` app:
+
+```bash
+poetry run streamlit run app.py
+```
+
+Your browser should open a new tab where the question/answer
+interactions scroll, along with other visualizations about the graph
+and vector assets which are getting used.
 
 WIP:  
 Use `Opik` to collect evaluations during GraphRAG use.
@@ -539,11 +553,15 @@ this library.
   <summary>Microservices</summary>
 &nbsp;
 
+Default ports used by the microservices required while this
+application runs:
+
 | TCP port   | microservice | purpose |
 | ---------- | ------------ | ------- |
 | 8261 | gRPC server | Senzing SDK |
 | 11434 | Ollama | LLM orchestration |
 | 5173 | Opik | observability |
+| 8501 | Streamlit | UI |
 
 </details>
 
@@ -573,10 +591,14 @@ source libraries which this tutorial uses:
   * <https://github.com/tuned-org-uk/pyarrowspace>
   * <https://radimrehurek.com/gensim/models/word2vec.html>
   * <https://dspy.ai/>
+  * <https://github.com/pydantic/pydantic>
   * <https://ollama.com/>
-  * <https://huggingface.co/google/gemma-3-12b-it>
+  * <https://www.sbert.net/>
   * <https://github.com/comet-ml/opik>
+  * <https://huggingface.co/google/gemma-3-12b-it>
   * <https://pyvis.readthedocs.io/>
+  * <https://jinja.palletsprojects.com/en/stable/>
+  * <https://streamlit.io/>
   * <https://pyinstrument.readthedocs.io/>
   * <https://github.com/giampaolo/psutil>
   * <https://github.com/gruns/icecream>
