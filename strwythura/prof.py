@@ -7,6 +7,10 @@ A wrapper for the `pyInstrument` statistical call stack profiler.
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
+import os
+
+from psutil._common import bytes2human
+import psutil
 import pyinstrument
 
 
@@ -33,3 +37,6 @@ Analyze and report the performance measures.
         """
         self.profiler.stop()
         self.profiler.print()
+
+        proc: psutil.Process = psutil.Process(os.getpid())
+        print(f"memory used: {bytes2human(proc.memory_info().rss)}")

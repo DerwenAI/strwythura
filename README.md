@@ -12,9 +12,9 @@ analytics, dashboards, GraphRAG for question/answer chat bots, agent
 workflows, memory, tools, planners, and so on.
 
 **Before going any further,**
-take this brief quiz as a quick check about what you've already
-understood related to material in this tutorial and in general about
-AI facts and fantasies: <https://derwen.ai/quiz/ai_def>
+take this brief quiz, which is a quick check about what you've already
+understood related to the material in this tutorial, and in general
+about AI facts and fantasies: <https://derwen.ai/quiz/ai_def>
 
 <img
  src="./docs/assets/logo.png"
@@ -459,31 +459,6 @@ workflow steps, and also enhance some components:
 ---
 
 <details>
-  <summary>Acronyms</summary>
-&nbsp;
-
-| acronym    | definition |
-| ---------- | ---------- |
-| AI | artificial intelligence |
-| ER | entity resolution |
-| ERKG | entity resolved knowledge graph |
-| HITL | human in the loop |
-| IRI | internationalized resource identifier |
-| KG | knowledge graph |
-| LLM | large language model |
-| LSH | locality-sensitive hash |
-| ML | machine learning |
-| NER | named entity recognition |
-| NLP | natural language processing |
-| RAG | retrieval augmented generation |
-| RDF | resource description framework |
-| RE | relation extraction |
-| RL | reinforcement learning |
-
-</details>
-
-
-<details>
   <summary>Etymology</summary>
 &nbsp;
 
@@ -530,6 +505,37 @@ this library.
 
 
 <details>
+  <summary>Acronyms</summary>
+&nbsp;
+
+| acronym    | definition |
+| ---------- | ---------- |
+| AI | artificial intelligence |
+| EL | entity linking |
+| ER | entity resolution |
+| ERKG | entity resolved knowledge graph |
+| HITL | human in the loop |
+| HTML | hypertext markup language |
+| IRI | internationalized resource identifier |
+| KG | knowledge graph |
+| LLM | large language model |
+| LSH | locality-sensitive hash |
+| ML | machine learning |
+| NER | named entity recognition |
+| NLP | natural language processing |
+| RAG | retrieval augmented generation |
+| RDF | resource description framework |
+| RE | relation extraction |
+| RL | reinforcement learning |
+| RPC | remote procedure call |
+| SDK | software development kit |
+| TCP | transmission control protocol |
+| URL | uniform resource locator |
+
+</details>
+
+
+<details>
   <summary>Microservices</summary>
 &nbsp;
 
@@ -546,8 +552,8 @@ this library.
   <summary>Component Libraries</summary>
 &nbsp;
 
-Many thanks to the developer teams and sponsors of so many open source
-packages which this tutorial uses:
+Many thanks to the developer teams and sponsors of the many open
+source libraries which this tutorial uses:
 
   * <https://github.com/senzing-garage/sz-semantics>
   * <https://github.com/senzing-garage/serve-grpc>
@@ -572,6 +578,7 @@ packages which this tutorial uses:
   * <https://github.com/comet-ml/opik>
   * <https://pyvis.readthedocs.io/>
   * <https://pyinstrument.readthedocs.io/>
+  * <https://github.com/giampaolo/psutil>
   * <https://github.com/gruns/icecream>
 
 </details>

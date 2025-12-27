@@ -4611,8 +4611,8 @@ files = [
 
 [package.dependencies]
 numpy = [
-    {version = ">=1.23.2", markers = "python_version == \"3.11\""},
     {version = ">=1.26.0", markers = "python_version >= \"3.12\""},
+    {version = ">=1.23.2", markers = "python_version == \"3.11\""},
 ]
 python-dateutil = ">=2.8.2"
 pytz = ">=2020.1"
@@ -5599,8 +5599,8 @@ files = [
 astroid = ">=3.3.8,<=3.4.0.dev0"
 colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
 dill = [
-    {version = ">=0.3.6", markers = "python_version >= \"3.11\""},
     {version = ">=0.3.7", markers = "python_version >= \"3.12\""},
+    {version = ">=0.3.6", markers = "python_version == \"3.11\""},
 ]
 isort = ">=4.2.5,<5.13 || >5.13,<7"
 mccabe = ">=0.6,<0.8"
@@ -5659,8 +5659,8 @@ importlib-metadata = {version = ">6", markers = "python_version < \"3.12\""}
 owlrl = ">=7.1.2,<8"
 packaging = ">=21.3"
 prettytable = [
-    {version = ">=3.5.0", markers = "python_version < \"3.12\""},
     {version = ">=3.7.0", markers = "python_version >= \"3.12\""},
+    {version = ">=3.5.0", markers = "python_version < \"3.12\""},
 ]
 rdflib = {version = ">=7.1.1,<7.1.2 || >7.1.2,<8.0", extras = ["html"]}
 
@@ -7621,6 +7621,18 @@ files = [
 numpy = ">=1.20"
 
 [[package]]
+name = "types-psutil"
+version = "7.1.3.20251211"
+description = "Typing stubs for psutil"
+optional = false
+python-versions = ">=3.9"
+groups = ["dev"]
+files = [
+    {file = "types_psutil-7.1.3.20251211-py3-none-any.whl", hash = "sha256:369872d955d7d47d77f4832b41e2300f832126e3fa97eb107d2d6a294c23c650"},
+    {file = "types_psutil-7.1.3.20251211.tar.gz", hash = "sha256:2c25f8fd3a1a4aebdffb861b97755c9a2d5d8019dd6ec1a2f2a77ec796652c89"},
+]
+
+[[package]]
 name = "types-pytz"
 version = "2025.2.0.20251108"
 description = "Typing stubs for pytz"
@@ -8261,4 +8273,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "d9bbcfd0b8bc81a63893c4ce805a826602dc416d08f5bc7ca432b674057bea5b"
+content-hash = "c509de102dc51ccbbfd5fa26f4da6a5c9d40bed5046f5b731b06e838464066d7"
