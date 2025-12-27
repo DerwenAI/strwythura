@@ -211,7 +211,7 @@ For each of the given URLs:
 
 
     ######################################################################
-    ## Part 6
+    ## Part 5
 
     def distill_knowledge_graph (
         self,

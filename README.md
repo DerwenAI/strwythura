@@ -323,7 +323,7 @@ JSONL file, before using these to construct the knowledge graph.
 </details>
 
 
-## Part 6: Entity Embeddings
+## Part 5: Entity Embeddings
 
 <details>
 <summary>
@@ -341,7 +341,7 @@ This step is a form of _distillation_, transforming the relatively
 ERKG.
 
 ```bash
-poetry run python3 6_embed.py
+poetry run python3 5_embed.py
 ```
 
 This step also constructs a separate embedding model for _entity
@@ -360,6 +360,23 @@ The generated results:
 WIP:  
 Entity sequence vectors get presented as input to `pyarrowspace` for
 training an entity embeddings model based on _spectral indexing_.
+
+</details>
+
+
+## Part 6: Interactive Visualization
+
+<details>
+<summary>
+
+Use `PyVis` to generate an HTML page for interactive visualization of the ERKG.
+
+</summary>
+&nbsp;
+
+WIP:
+
+ - good for debugging
 
 </details>
 
