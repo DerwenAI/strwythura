@@ -58,44 +58,48 @@ def run_er_rag (
     """
 Main UI task as a `Streamlit.fragment`
     """
-    st.title("Strwythura")
-
     # initialize chat history
-    # display messages from history on app rerun
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # show the question/response pair
+    st.title("Strwythura")
+    st.divider()
+
     if question := st.chat_input("Quoi?"):
-        with st.chat_message("user"):
-            st.markdown(question)
-
-        # enchanced GraphRAG prioritizes and retrieves text chunks
-        chunks: list[ str ] = graph_rag.run_errag(
-            question,
-            debug = debug,
-        )
-
-        # LLM summarizes the text chunks in response to the question
-        response: dspy.primitives.prediction.Prediction = graph_rag.qa_signature(
-            question,
-            chunks,
-        )
-
-        with st.chat_message("assistant", avatar = STRW_LOGO):
-            st.markdown(response.response)
+        col1, col2 = st.columns(2)
 
         # show the chat history
-        st.divider()
+        with col2:
+            for message in st.session_state.messages:
+                avatar: str | None = None
 
-        for message in st.session_state.messages:
-            avatar: str | None = None
+                if message["role"] == "assistant":
+                    avatar = STRW_LOGO.as_posix()
 
-            if message["role"] == "assistant":
-                avatar = STRW_LOGO.as_posix()
+                with st.chat_message(message["role"], avatar = avatar):
+                    st.markdown(message["content"])
 
-            with st.chat_message(message["role"], avatar = avatar):
-                st.markdown(message["content"])
+
+        # show the question/response pair
+        with col1:
+            with st.chat_message("user"):
+                st.markdown(question)
+
+            # enchanced GraphRAG prioritizes and retrieves text chunks
+            chunks: list[ str ] = graph_rag.run_errag(
+                question,
+                debug = debug,
+            )
+
+            # LLM summarizes the text chunks in response to the question
+            response: dspy.primitives.prediction.Prediction = graph_rag.qa_signature(
+                question,
+                chunks,
+            )
+
+            with st.chat_message("assistant", avatar = STRW_LOGO):
+                st.markdown(response.response)
+
 
         # add the question and response to chat history
         st.session_state.messages.append({

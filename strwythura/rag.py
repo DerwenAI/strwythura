@@ -339,7 +339,7 @@ which are returned as a dictionary.
         question: str,
         *,
         num_perm: int = 128,
-        debug: bool = True, # False
+        debug: bool = False, # True
         ) -> list[ MinHash ]:
         """
 Search the entity store for direct matches from NER
