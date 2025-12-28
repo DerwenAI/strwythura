@@ -2,6 +2,7 @@
     "name": "Dementia Study",
     "language": "en",
     "taxonomy": "data/dementia/domain.ttl",
+    "description": "Articles about a +40-year research study which found that replacing processed red meat with healthier foods could help reduce the risk of dementia.",
 
     "sources": {
         "data": {

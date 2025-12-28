@@ -1,5 +1,11 @@
 ## TODOs
 
+  * enable `Opik`
+
+  * use `deepeval` to score the GraphRAG responses
+     - https://docs.google.com/presentation/d/1vDogMddS_T-oXFBdhogo653r8H2sGrSD/edit?slide=id.g78dc4dcc24882d5d_0#slide=id.g78dc4dcc24882d5d_0
+
+
  * fix Part 6:
    - modify style to make the graph understandable
    - fix the tooltip info
@@ -9,8 +15,6 @@
  * why is the former lemma IRI getting used in the serialized ERKG instead of the latter?
       "id": "strw:lemma_NOUN.doctor"
       "id": "strw:Doctor"
-
-  * enable `Opik`
 
   * found in QA NER, not from taxonomy: `NOUN.science`, `NOUN.hospital`
 {"span": {"loc": [-1, -1], "text": "", "span": [], "label": null, "source": "Domain_Taxonomy", "iri": null}, "lemma_key": "NOUN.science", "uid": 9, "inst": [], "count
@@ -25,24 +29,24 @@
   * fix Part 5:
      - also update `count` and `rank` for ER and TAXO nodes in the ERKG
      - fix the logic in `ctx.py: promote_er_nodes()`
+     - filter the `strw:co_occurs_with` relations based on quantiles
+     - add edges for `strw:compound_elem_of`
 
   * fix Part 7:
      - semantic random walk: nothing back from the shortest paths?
      - need to visualize subgraph
      - perform a real random walk, based on a model
-
-  * filter the `strw:co_occurs_with` relations based on quantiles
-
-  * add edges for `strw:compound_elem_of`
+     - refactor the call to `extract_question_subgraph()`
 
   * impl Part 4:
-     - build an HITL interface for accept/reject/override LLM suggestions on lex nodes w/o NER
+     - build a Streamlit UI for accept/reject/override LLM suggestions on lex nodes w/o NER
      - operate on the serialized files (offline)
-     - `FastAPI` webapp, using `DSPy` suggestion
+     - use `DSPy` suggestions
      - use autocompletion to guide selections based on domain context
      - actions:
          + NounChunk -> Lemma, or Synonym
 	 + ParsedNoun -> Lemma, or Synonym     
+
 
   * formalize the description about the reranker process
      - https://www.lancedb.com/docs/reranking/custom-reranker/
@@ -64,9 +68,6 @@
   * build `RDFlib` plugin atop `NetworkX`
      - migrate `kglab.standards` for OWL/RDFS closure and SHACL capabilities
      - SHACL verify: NER nodes in ERKG should always have a `rdf:type` IRI class
-
-  * use `deepeval` to score the GraphRAG responses
-     - https://docs.google.com/presentation/d/1vDogMddS_T-oXFBdhogo653r8H2sGrSD/edit?slide=id.g78dc4dcc24882d5d_0#slide=id.g78dc4dcc24882d5d_0
 
   * replace RE by leveraging DSPy <https://arxiv.org/html/2502.09956v1>
 

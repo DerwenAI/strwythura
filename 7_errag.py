@@ -36,10 +36,11 @@ if __name__ == "__main__":
     )
 
     # leverage the workflow assets for this domain for a use case:
-    # run enhanced GraphRAG in a question/answer chat bot loop
+    # run enhanced GraphRAG for a question/answer chat bot
     rag: GraphRAG = GraphRAG(
         work,
         domain["name"],
+        domain["description"],
         run_local = True,
         use_opik = False,
     )

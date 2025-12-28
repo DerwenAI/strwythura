@@ -45,6 +45,10 @@ Constructor.
         self.config: dict = config
 
         # load the LLM
+        dspy.configure(
+            track_usage = True,
+        )
+
         if run_local:
             self.lm: dspy.LM = dspy.LM(
                 self.config["rag"]["lm_name"],
@@ -127,6 +131,7 @@ to produce a set of _anchor nodes_ in the `NetworkX` ERKG graph.
         self,
         work: Workflow,
         project_name: str,
+        project_description: str,
         *,
         run_local: bool = True,
         use_opik: bool = True,
@@ -140,12 +145,14 @@ Constructor.
             self.work.config,
             project_name,
             run_local = run_local,
-            use_opik = use_opik
+            use_opik = use_opik,
         )
 
         # search assets
+        self.description: str = project_description
         self.anchor_nodes: set[ str ] = set()
         self.rag_chunks: dict[ int, float ] = {}
+        self.subgraph: nx.Graph = nx.Graph()
 
 
     ######################################################################
@@ -171,7 +178,7 @@ Loop to answer questions.
                     break
 
                 # enchanced GraphRAG prioritizes and retrieves text chunks
-                chunks: list[ str ] = self.run_errag(
+                self.run_errag(
                     question,
                     debug = debug,
                 )
@@ -179,11 +186,12 @@ Loop to answer questions.
                 # LLM summarizes the text chunks in response to the question
                 response: dspy.primitives.prediction.Prediction = self.qa_signature(
                     question,
-                    chunks,
+                    self.get_chunks_text(),
                 )
 
                 ic(question)
                 ic(response.response)
+                ic(self.rag)
                 print("-" * 10)
 
         except EOFError:
@@ -222,7 +230,7 @@ Run one question/answer cycle.
         *,
         disable_graph: bool = False,
         debug: bool = True, # False
-        ) -> list[ str ]:
+        ) -> None:
         """
 Run an enchanced GraphRAG to retrieve and prioritize text chunks
 by leveraging the ERKG and entity embeddings.
@@ -282,9 +290,6 @@ by leveraging the ERKG and entity embeddings.
             if chunk_id not in self.rag_chunks:
                 # impute to median distance
                 self.rag_chunks[chunk_id] = 0.5
-
-        # retrieve text for the combined list of chunks
-        return self.get_chunks_text()
 
 
     def find_rag_chunks (
@@ -534,12 +539,12 @@ most-referenced entities in the subgraph.
         if debug:
             ic(walks)
 
-        subgraph: nx.Graph = self.work.ctx.erkg.subgraph(
+        self.subgraph = self.work.ctx.erkg.subgraph(
             self.anchor_nodes.union(walks)
         )
 
         rank_iter: dict[ str, float ] = nx.pagerank(  # type: ignore
-            subgraph,
+            self.subgraph,
             self.work.config["tr"]["tr_alpha"],
         ).items()
 
