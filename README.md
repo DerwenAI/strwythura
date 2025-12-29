@@ -6,10 +6,11 @@
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
 
-This tutorial explains how to construct an *entity-resolved knowledge
-graph* from **structured data sources** and **unstructured content
-sources**, implementing an ontology pipeline, plus context engineering
-for optimizing AI application outcomes within a specific domain. The
+This [tutorial](https://pacoid.medium.com/strwythura–2a8007af3682)
+explains how to construct an *entity-resolved knowledge graph* from
+**structured data sources** and **unstructured content sources**,
+implementing an ontology pipeline, plus context engineering for
+optimizing AI application outcomes within a specific domain. The
 process is enriched by using entity embeddings and graph algorithms to
 develop an enhanced GraphRAG approach, which implements a
 question/answer chat bot about a particular topic.
@@ -28,27 +29,35 @@ and leverage the *domain-specific semantics*, and optimize for the
 downstream AI application outcomes. Think of this as an interactive
 exploration of [*neurosymbolic AI*](https:nesy-ai.org/) in practice.
 
-The code in the tutorial shows how to integrate popular Python
-libraries:
+Code in the tutorial shows how to integrate popular Python libraries:
 `Senzing`, `Placekey`, `LanceDB`, `spaCy`, `GLiNER`, `RDFlib`,
 `NetworkX`, `ArrowSpace`, `DSPy`, `Ollama`, `Opik`, `Streamlit`,
 `yWorks`
 
-The tutorial progresses through several steps in a workflow which
-develops assets to be used downstream. These assets are represented as
-a knowledge graph plus vector embeddings. This approach **unbundles**
-the process which otherwise tends to get presented as monolithic
-"black box" frameworks. In contrast, we'll apply more intentional ways
-of developing the "context" in *context engineering*.
+Progressing through several steps, a workflow develops assets which
+are represented as a knowledge graph plus vector embeddings. This
+approach **unbundles** the process which otherwise tends to get
+presented as monolithic "black box" frameworks. In contrast, we'll
+apply more intentional ways of developing the "context" in *context
+engineering*.
 
 Overall, this explores the underlying concepts and technologies used
 in developing AI applications. Some of these technologies may be new
 to you, or at least you haven't worked with hands-on coding examples
-which integrating them: *entity resolution*, *named entity
-recognition*, *domain context*, *computable semantics*, *ontology
-pipeline*, *entity linking*, *textgraphs*, *human-in-the-loop*,
-*spectral indexing*, *interactive visualization*, *graph analytics*,
-*declarative LLM integration*, *retrieval-augmented generation*,
+which integrating them:
+*entity resolution*,
+*named entity recognition*,
+*domain context*,
+*computable semantics*,
+*ontology pipeline*,
+*entity linking*,
+*textgraphs*,
+*human-in-the-loop*,
+*spectral indexing*,
+*interactive visualization*,
+*graph analytics*,
+*declarative LLM integration*,
+*retrieval-augmented generation*,
 *observability and optimization*.
 
 The end result is a **Streamlit** app which implements an enhanced
@@ -60,9 +69,9 @@ Throughout the tutorial there are links to primary sources, articles,
 videos, open source projects, plus a bibliography of recommended books
 for further study.
 
-Data and content used in this tutorial focuses on a particular domain
+The data and content used in this tutorial focus on a particular domain
 context:
-_+40-year research study which found that replacing processed red meat
+_a +40-year research study which found that replacing processed red meat
 with healthier foods could help reduce the risk of dementia._
 
 Structured data includes details about the researchers and
@@ -81,9 +90,6 @@ license.
 **Before going any further,** take this brief quiz — as quick feedback
 about AI facts and fantasies:
 <https://derwen.ai/quiz/ai_def>
-
-The tutorial is available at:
-<https://pacoid.medium.com/strwythura–2a8007af3682>
 
 ---
 
