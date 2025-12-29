@@ -27,7 +27,7 @@ from .prof import Profiler
 
 from .rag import GraphRAG
 
-from .resources import STRW_LOGO
+from .resources import STRW_LOGO, SZ_LOGO
 
 from .scrape import Scraper
 

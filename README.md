@@ -620,6 +620,7 @@ source libraries which this tutorial uses:
   * <https://pyvis.readthedocs.io/>
   * <https://jinja.palletsprojects.com/en/stable/>
   * <https://streamlit.io/>
+  * <https://matplotlib.org/>
   * <https://pyinstrument.readthedocs.io/>
   * <https://github.com/giampaolo/psutil>
   * <https://github.com/gruns/icecream>

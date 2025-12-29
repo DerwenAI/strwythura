@@ -283,7 +283,10 @@ by leveraging the ERKG and entity embeddings.
         # extract a subgraph constructed from the shortest paths
         # between anchor nodes
         # TODO: if this variable isn't used, let's refactor it out
-        subgraph: set[ str ] = set(list(self.extract_question_subgraph()))  # pylint: disable=W0612
+        try:
+            subgraph: set[ str ] = set(list(self.extract_question_subgraph()))  # pylint: disable=W0612
+        except Exception as ex:  # pylint: disable=W0718
+            ic(ex)
 
         # add the chunks for each anchor node
         for chunk_id in self.find_chunk_neighbors():

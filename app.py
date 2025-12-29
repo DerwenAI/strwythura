@@ -12,18 +12,14 @@ import logging
 import pathlib
 import time
 
+from icecream import ic
 import dspy  # type: ignore
+import matplotlib.pyplot as plt
 import polars as pl
 import streamlit as st
 
 from strwythura import GraphRAG, Workflow, \
-    STRW_LOGO
-
-
-DF_PERF: pl.DataFrame = pl.DataFrame([
-    pl.Series("tokens", [], dtype=pl.Int64),
-    pl.Series("time", [], dtype=pl.Float64),
-])
+    STRW_LOGO, SZ_LOGO
 
 
 @st.cache_resource
@@ -58,20 +54,69 @@ load the assets, and instantiate a `GraphRAG` object.
     return graph_rag
 
 
+@st.fragment
+def eval_buttons (
+    ) -> None:
+    """
+Show like/nope evaluation buttons.
+    """
+    col1_, col2_, col3_ = st.columns([1 , 1, 12])
+
+    with col1_:
+        if did_like := st.button("", icon = ":material/thumb_up:"):
+            eval_like()
+
+    with col2_:
+        if did_nope := st.button("", icon = ":material/thumb_down:"):
+            eval_nope()
+
+    with col3_:
+        pass
+
+
+def eval_like (
+    ) -> None:
+    """
+User clicks a "thumb_up" button.
+    """
+    ic("like")
+
+
+def eval_nope (
+    ) -> None:
+    """
+User clicks a "thumb_down" button.
+    """
+    ic("nope")
+
+
 def show_analytics (
     response: dspy.primitives.prediction.Prediction,
+    df_perf: pl.DataFrame,  # pylint: disable=W0621
     ) -> None:
     """
 Render analytics about the question/response sessions.
     """
-    global DF_PERF
+    if len(df_perf) > 1:
+        fig, ax1 = plt.subplots(1, 1)
+        ax2 = ax1.twinx()
 
-    if len(DF_PERF) > 1:
-        #st.pyplot(fig)
-        st.table(DF_PERF)
+        ax1.plot(df_perf["tokens"], label = "tokens used", color = "green", linestyle = "dashed", marker = "o")
+        ax1.set_ylabel("tokens used", color = "green")
+
+        ax2.plot(df_perf["time"], label = "time (sec)", color = "blue", linestyle = "dotted", marker = "o")
+        ax2.set_ylabel("processing time", color = "blue")
+
+        lines1, labels1 = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax2.legend(lines1 + lines2, labels1 + labels2)
+
+        plt.xticks([])
+        st.pyplot(fig)
+
 
     st.table(pl.DataFrame({
-        "chunk_id": graph_rag.rag_chunks.keys(),
+        "chunk_id": graph_rag.rag_chunks.keys(),  # pylint: disable=E0606
         "distance": graph_rag.rag_chunks.values(),
     }))
 
@@ -82,14 +127,13 @@ Render analytics about the question/response sessions.
 @st.fragment
 def run_er_rag (
     graph_rag: GraphRAG,  # pylint: disable=W0621
+    df_perf: pl.DataFrame,  # pylint: disable=W0621
     *,
     debug: bool = False,
     ) -> None:
     """
 Main UI task as a `Streamlit.fragment`
     """
-    global DF_PERF
-
     # initialize chat history
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -129,19 +173,20 @@ Main UI task as a `Streamlit.fragment`
                 )
 
                 # collect peformance statistics
-                DF_PERF = pl.concat([
-                    pl.DataFrame({
-                        "tokens": list(response.get_lm_usage().values())[0]["total_tokens"],
-                        "time": time.time() - start_time,
-                    }),
-                    DF_PERF,
-                ])
+                df_perf.extend(pl.DataFrame({
+                    "tokens": list(response.get_lm_usage().values())[0]["total_tokens"],
+                    "time": time.time() - start_time,
+                }))
 
             with st.chat_message("assistant", avatar = STRW_LOGO):
                 st.markdown(response.response)
+                eval_buttons()
 
             with st.expander("analytics"):
-                show_analytics(response)
+                show_analytics(
+                    response,
+                    df_perf,
+                )
 
         # add the question and response to chat history
         st.session_state.messages.insert(0, {
@@ -252,6 +297,12 @@ p {
 <br/>
 <hr/>
 <a
+ href="https://senzing.com/graph-power-hour/"
+ target="_blank"
+ style="text-decoration: none;"
+>Graph Power Hour!</a>
+<br/>
+<a
  href="https://senzing.com/"
  target="_blank"
  style="text-decoration: none;"
@@ -259,5 +310,15 @@ p {
 </strong>
         """)
 
+        st.image(SZ_LOGO.as_posix())
+
     # interaction
-    run_er_rag(graph_rag)
+    df_perf: pl.DataFrame = pl.DataFrame([
+        pl.Series("tokens", [], dtype=pl.Int64),
+        pl.Series("time", [], dtype=pl.Float64),
+    ])
+
+    run_er_rag(
+        graph_rag,
+        df_perf,
+    )

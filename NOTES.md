@@ -1,7 +1,7 @@
 ## TODOs
 
  * fix the Streamlit app:
-    - build `matplotlib` charts for each `st.table()` call
+    - send thumb_up/thumb_down evals to Opik
 
  * fix Part 6:
     - modify style to make the graph understandable
