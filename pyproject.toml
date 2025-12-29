@@ -3,7 +3,7 @@
 name = "strwythura"
 version = "2.0.0"
 
-description = "Construct a knowledge graph from unstructured data sources, organized by results from entity resolution, implementing an enhanced GraphRAG approach, and also implementing an ontology pipeline, plus context engineering for optimizing AI application outcomes within a specific domain."
+description = "Construct an entity-resolved knowledge graph from structured data sources and unstructured content sources, implementing an ontology pipeline, plus context engineering for optimizing AI application outcomes within a specific domain."
 
 authors = [
     { name = "Paco Nathan", email = "paco@senzing.com" },
@@ -94,20 +94,25 @@ classifiers = [
 ]
 
 keywords = [
+    "computable semantics",
     "context engineering",
-    "entity linking",
+    "declarative LLM integration",
+    "domain context",
     "entity embedding",
+    "entity linking",
     "entity resolution",
     "graph algorithms",
+    "graph analytics",
     "graphrag",
+    "human-in-the-loop",
     "interactive visualization",
     "knowledge graph",
-    "llm",
     "named entity recognition",
-    "nlp",
-    "ontology",
+    "natural language processing",
+    "observability and optimization",
     "ontology pipeline",
     "relation extraction",
+    "retrieval-augmented generation",
     "semantic expansion",
     "semantic layer",
     "semantic random walk",

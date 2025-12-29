@@ -5,16 +5,14 @@
 ![Repo size](https://img.shields.io/github/repo-size/DerwenAI/strwythura)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
-This tutorial is about using _entity embeddings_ in graphs, combining
-_structured data sources_ and _unstructured content sources_.
-Downstream there may be several patterns of usage, such as graph
-analytics, dashboards, GraphRAG for question/answer chat bots, agent
-workflows, memory, tools, planners, and so on.
 
-**Before going any further,**
-take this brief quiz, which is a quick check about what you've already
-understood related to the material in this tutorial, and in general
-about AI facts and fantasies: <https://derwen.ai/quiz/ai_def>
+This tutorial explains how to construct an *entity-resolved knowledge
+graph* from **structured data sources** and **unstructured content
+sources**, implementing an ontology pipeline, plus context engineering
+for optimizing AI application outcomes within a specific domain. The
+process is enriched by using entity embeddings and graph algorithms to
+develop an enhanced GraphRAG approach, which implements a
+question/answer chat bot about a particular topic.
 
 <img
  src="./strwythura/resources/logo.png"
@@ -23,32 +21,75 @@ about AI facts and fantasies: <https://derwen.ai/quiz/ai_def>
  style="display: block; margin-left: auto; margin-right: auto; width: 30%;"
 />
 
-The steps in this tutorial **unbundle** the process which otherwise
-is often shown in monolithic "black box" approaches.
-We will explore how to use 
-[_entity resolution_](https://senzing.com/what-is-entity-resolution/)
-within an _ontology pipeline_ to construct an _entity-resolved
-knowledge graph_ (ERKG) using domain context to blend the structured
-data and unstructured content.
-Then we'll leverage _entity embeddings_ and _graph algorithms_ to
-augment _context engineering_, producing an enhanced _GraphRAG_
-approach for a _question and answer_ chat bot.
+Downstream there can be multiple patterns of usage, such as graph
+analytics, dashboards, GraphRAG for question/answer chat bots, agents,
+memory, tools, planners, and so on. We will emphasize how to curate
+and leverage the *domain-specific semantics*, and optimize for the
+downstream AI application outcomes. Think of this as an interactive
+exploration of [*neurosymbolic AI*](https:nesy-ai.org/) in practice.
 
-The content used here focuses on a particular domain context: a 40+
-year study about the effects of eating processed red meat on the risks
-of dementia.
-Structured data includes information about the researchers and
-organizations involved, and unstructured content includes articles
-from media coverage of the study.
+The code in the tutorial shows how to integrate popular Python
+libraries:
+`Senzing`, `Placekey`, `LanceDB`, `spaCy`, `GLiNER`, `RDFlib`,
+`NetworkX`, `ArrowSpace`, `DSPy`, `Ollama`, `Opik`, `Streamlit`,
+`yWorks`
 
-While this code is intended as a tutorial not as a library for
-production use cases, other domains can be substituted quite readily.
-Simply change the sources for data and content and provide a different
-_domain taxonomy_.
+The tutorial progresses through several steps in a workflow which
+develops assets to be used downstream. These assets are represented as
+a knowledge graph plus vector embeddings. This approach **unbundles**
+the process which otherwise tends to get presented as monolithic
+"black box" frameworks. In contrast, we'll apply more intentional ways
+of developing the "context" in *context engineering*.
 
-For more details, see:
-<https://pacoid.medium.com/strwythura-2a8007af3682>
+Overall, this explores the underlying concepts and technologies used
+in developing AI applications. Some of these technologies may be new
+to you, or at least you haven't worked with hands-on coding examples
+which integrating them: *entity resolution*, *named entity
+recognition*, *domain context*, *computable semantics*, *ontology
+pipeline*, *entity linking*, *textgraphs*, *human-in-the-loop*,
+*spectral indexing*, *interactive visualization*, *graph analytics*,
+*declarative LLM integration*, *retrieval-augmented generation*,
+*observability and optimization*.
 
+The end result is a **Streamlit** app which implements an enhanced
+GraphRAG for a question/answer chat bot. In terms of MLOps, this app
+runs instrumented in an environment for collecting observations about
+evaluations and other feedback, used for subsequent optimization.
+
+Throughout the tutorial there are links to primary sources, articles,
+videos, open source projects, plus a bibliography of recommended books
+for further study.
+
+Data and content used in this tutorial focuses on a particular domain
+context:
+_+40-year research study which found that replacing processed red meat
+with healthier foods could help reduce the risk of dementia._
+
+Structured data includes details about the researchers and
+organizations involved, while unstructured content includes articles
+from media coverage of the study. Other domains can be substituted:
+simply change the sources for data and content and provide a different
+*domain taxonomy*.
+
+The code is written primarily as a tutorial, although it is also
+packaged as a Python library and can be extended for your use
+cases. The code is published as open source with a business-friendly
+license.
+
+---
+
+**Before going any further,** take this brief quiz — as quick feedback
+about AI facts and fantasies:
+<https://derwen.ai/quiz/ai_def>
+
+The tutorial is available at:
+<https://pacoid.medium.com/strwythura–2a8007af3682>
+
+---
+
+![](./docs/assets/sys_arch.png)
+
+---
 
 ## Getting Started
 
@@ -118,12 +159,6 @@ cd opik
 ```
 
 </details>
-
----
-
-![](./docs/assets/sys_arch.png)
-
----
 
 
 ## Part 1: Entity Resolution
@@ -529,7 +564,7 @@ this library.
 ```bibtex
 @software{strwythura,
   author = {Paco Nathan},
-  title = {{Strwythura: construct a knowledge graph from unstructured data sources, organized by results from entity resolution, implementing an enhanced GraphRAG approach, and also implementing an ontology pipeline plus context engineering for optimizing AI application outcomes within a specific domain}},
+  title = {{Strwythura: construct an entity-resolved knowledge graph from structured data sources and unstructured content sources, implementing an ontology pipeline, plus context engineering for optimizing AI application outcomes within a specific domain}},
   year = 2024,
   publisher = {Senzing},
   doi = {10.5281/zenodo.16934079},
