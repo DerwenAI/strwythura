@@ -35,9 +35,9 @@ if __name__ == "__main__":
         pathlib.Path("domain.json").open("r", encoding = "utf-8")
     )
 
+    # generate HTML for interactive visualization of the ERKG
     num_docs: int = len(domain["sources"]["content"])
 
-    # generate HTML for interactive visualization of the ERKG
     vis: VisHTML = VisHTML()
     vis.set_config(work.config)
 

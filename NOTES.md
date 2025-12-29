@@ -1,16 +1,13 @@
 ## TODOs
 
-  * enable `Opik`
-
-  * use `deepeval` to score the GraphRAG responses
-     - https://docs.google.com/presentation/d/1vDogMddS_T-oXFBdhogo653r8H2sGrSD/edit?slide=id.g78dc4dcc24882d5d_0#slide=id.g78dc4dcc24882d5d_0
-
+ * fix the Streamlit app:
+    - build `matplotlib` charts for each `st.table()` call
 
  * fix Part 6:
-   - modify style to make the graph understandable
-   - fix the tooltip info
-   - extract the JavaScript data structures which `PyVis` generates
-   - recompose using Jinja2
+    - modify style to make the graph understandable
+    - fix the tooltip info
+    - extract the JavaScript data structures which `PyVis` generates
+    - recompose using Jinja2
 
  * why is the former lemma IRI getting used in the serialized ERKG instead of the latter?
       "id": "strw:lemma_NOUN.doctor"
@@ -47,6 +44,9 @@
          + NounChunk -> Lemma, or Synonym
 	 + ParsedNoun -> Lemma, or Synonym     
 
+
+  * use `deepeval` to score the GraphRAG responses
+     - https://docs.google.com/presentation/d/1vDogMddS_T-oXFBdhogo653r8H2sGrSD/edit?slide=id.g78dc4dcc24882d5d_0#slide=id.g78dc4dcc24882d5d_0
 
   * formalize the description about the reranker process
      - https://www.lancedb.com/docs/reranking/custom-reranker/

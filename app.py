@@ -32,7 +32,7 @@ def load_assets (
     domain_path: pathlib.Path,
     *,
     run_local: bool = True,
-    use_opik: bool = False,
+    use_opik: bool = True,
     ) -> GraphRAG:
     """
 Instantiate and configure the workflow manager, load the domain info,

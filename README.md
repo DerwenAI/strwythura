@@ -108,6 +108,15 @@ large language model (LLM) and have it running locally:
 ollama pull gemma3:12b
 ```
 
+Download and run the `opik` server, using a different directory and
+another terminal window:
+
+```bash
+git clone https://github.com/comet-ml/opik.git
+cd opik
+./opik.sh
+```
+
 </details>
 
 ---
@@ -402,6 +411,8 @@ leverages computable semantics in the ERKG.
 </summary>
 &nbsp;
 
+First, make sure the `Opik` server is running in the background.
+
 The following Python module implements a question/answer chat bot
 based on `DSPy` and `Ollama`, by default running the `gemma3:12b` LLM
 locally:
@@ -418,18 +429,16 @@ get presented to an LLM to summarize as chat bot responses.
 Since this module shows debugging and performance telemetry, it helps
 illustrate how the chat bot operates.
 
-Then to run the full application as a `Streamlit` app:
+
+Next, run the full application as a `Streamlit` app:
 
 ```bash
 poetry run streamlit run app.py
 ```
 
-Your browser should open a new tab where the question/answer
-interactions scroll, along with other visualizations about the graph
-and vector assets which are getting used.
-
-WIP:  
-Use `Opik` to collect evaluations during GraphRAG use.
+Your browser should open automatically a new tab with the
+question/answer chat bot, along with other analytics about the LLM
+usage, and the graph and vector assets getting used.
 
 </details>
 
@@ -445,13 +454,25 @@ for <code>DSPy</code> optimization.
 </summary>
 &nbsp;
 
+When running the question/answer chat bot in the prevous step, the
+`Opik` server is recording observations and evaluations about use of
+`DSPy` for LLM integration.
+
+To view the `Opik` dashboard:
+
+  * open browser tab to <http://localhost:5173/>
+  * under the "Observability" heading, click on the "Dementia Study" project
+  * explore the different tabs, dashboards, metrics, etc.
+
+
+WIP:  
 Define _evaluations_ based on
 [_competency questions_](https://tishchungoora.medium.com/ontology-competency-questions-3d213eb08d33)
 used during the development of the domain taxonomy.
 
 WIP:  
-Evaluations get used in an _optimization_ feedback loop, for better
-_prompt synthesis_ by `DSPy` in "Part 6".
+Use the evaluations in an _optimization_ feedback loop, for improved
+_prompt synthesis_ by `DSPy` in "Part 7".
 
 </details>
 
@@ -618,6 +639,9 @@ A: "As you may have noticed, many open source projects published in this GitHub 
 
 Q: "Why aren't you using an LLM to build graphs instead?"  
 A: "We promise to visit you in jail."
+
+Q: "Why don't you use a graph database in this tutorial?"
+A: "It's not needed. `RDFlib` + `NetworkX` handle what's needed, and with `cuGraph` this could scale. Feel free to subclass `ERKG` and change it to support your favorite graph database instead. The code has been written so that change could be done with ~100 lines of Python."
 
 </details>
 

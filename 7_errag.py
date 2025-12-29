@@ -42,7 +42,7 @@ if __name__ == "__main__":
         domain["name"],
         domain["description"],
         run_local = True,
-        use_opik = False,
+        use_opik = True,
     )
 
     rag.question_answer(
