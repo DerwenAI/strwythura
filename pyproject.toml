@@ -94,6 +94,7 @@ classifiers = [
 ]
 
 keywords = [
+    "air-gapped environment",
     "computable semantics",
     "context engineering",
     "declarative LLM integration",

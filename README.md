@@ -9,10 +9,10 @@
 This [tutorial](https://pacoid.medium.com/strwythura–2a8007af3682)
 explains how to construct an *entity-resolved knowledge graph* from
 **structured data sources** and **unstructured content sources**,
-implementing an ontology pipeline, plus context engineering for
+implementing an *ontology pipeline*, plus *context engineering* for
 optimizing AI application outcomes within a specific domain. The
-process is enriched by using entity embeddings and graph algorithms to
-develop an enhanced GraphRAG approach, which implements a
+process is enriched by using *entity embeddings* and *graph algorithms*
+to develop an enhanced GraphRAG approach, which implements a
 question/answer chat bot about a particular topic.
 
 <img
@@ -34,12 +34,16 @@ Code in the tutorial shows how to integrate popular Python libraries:
 `NetworkX`, `ArrowSpace`, `DSPy`, `Ollama`, `Opik`, `Streamlit`,
 `yWorks`
 
+The integration of these components is intended to run locally, and
+could be run within an *air-gapped environment*. However, you can also
+change the configuration to use remote LLM services instead.
+
 Progressing through several steps, a workflow develops assets which
-are represented as a knowledge graph plus vector embeddings. This
-approach **unbundles** the process which otherwise tends to get
+are represented as a *knowledge graph* plus *vector embeddings*.
+This approach **unbundles** the process which otherwise tends to get
 presented as monolithic "black box" frameworks. In contrast, we'll
-apply more intentional ways of developing the "context" in *context
-engineering*.
+apply more intentional ways of developing the "context" in context
+engineering.
 
 Overall, this explores the underlying concepts and technologies used
 in developing AI applications. Some of these technologies may be new
@@ -605,6 +609,7 @@ this library.
 | RL | reinforcement learning |
 | RPC | remote procedure call |
 | SDK | software development kit |
+| SKOS | simple knowledge organization system |
 | TCP | transmission control protocol |
 | URL | uniform resource locator |
 
