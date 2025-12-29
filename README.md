@@ -460,7 +460,7 @@ When running the question/answer chat bot in the prevous step, the
 
 To view the `Opik` dashboard:
 
-  * open browser tab to <http://localhost:5173/>
+  * open a browser tab to <http://localhost:5173/>
   * under the "Observability" heading, click on the "Dementia Study" project
   * explore the different tabs, dashboards, metrics, etc.
 

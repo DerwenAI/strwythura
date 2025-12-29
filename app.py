@@ -165,7 +165,7 @@ if __name__ == "__main__":
         page_title = "Strwythura",
         page_icon = STRW_LOGO.as_posix(),
         layout = "wide",
-        initial_sidebar_state = "collapsed",
+        initial_sidebar_state = st.session_state.get("sidebar_state", "expanded"),
     )
 
     st.html("""
@@ -189,6 +189,8 @@ p {
 </style>
     """)
 
+    st.session_state.sidebar_state = "collapsed"
+
     # load assets
     graph_rag: GraphRAG = load_assets(
         pathlib.Path("config.toml"),
@@ -197,8 +199,65 @@ p {
 
     # render page
     st.header("Strwythura")
-    st.text(graph_rag.description)
+    st.text(f"Domain: {graph_rag.description}")
     st.divider()
+
+    with st.sidebar:
+        st.image(STRW_LOGO.as_posix())
+
+        st.html("""
+<strong>
+<a
+ href="https://pacoid.medium.com/strwythura-2a8007af3682?postPublishedType=repub"
+ target="_blank"
+ style="text-decoration: none;"
+>tutorial</a>
+<br/>
+<a
+ href="https://github.com/DerwenAI/strwythura/"
+ target="_blank"
+ style="text-decoration: none;"
+>code repo</a>
+<br/>
+<a
+ href="http://localhost:5173/"
+ target="_blank"
+ style="text-decoration: none;"
+>Opik dashboard</a>
+<br/>
+<hr/>
+<a
+ href="https://senzing.com/gph-graph-rag-llm-knowledge-graphs/"
+ target="_blank"
+ style="text-decoration: none;"
+>video</a>
+<br/>
+<a
+ href="https://derwen.ai/s/2njz#1"
+ target="_blank"
+ style="text-decoration: none;"
+>slides</a>
+<br/>
+<a
+ href="https://derwen.ai/quiz/ai_def"
+ target="_blank"
+ style="text-decoration: none;"
+>quiz</a>
+<br/>
+<a
+ href="https://doi.org/10.5281/zenodo.17032671"
+ target="_blank"
+ style="text-decoration: none;"
+>citation</a>
+<br/>
+<hr/>
+<a
+ href="https://senzing.com/"
+ target="_blank"
+ style="text-decoration: none;"
+>Senzing home</a>
+</strong>
+        """)
 
     # interaction
     run_er_rag(graph_rag)

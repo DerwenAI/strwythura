@@ -248,7 +248,7 @@ by leveraging the ERKG and entity embeddings.
         if disable_graph:
             # disable the GraphRAG aspects, using RAG-only --
             # for testing and evaluation purposes
-            return self.get_chunks_text()
+            return
 
         # find entities in the neighborhood of the question,
         # identifying the initial set of anchor nodes, plus MinHash
