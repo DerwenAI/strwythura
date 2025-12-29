@@ -2,6 +2,7 @@
 
  * fix the Streamlit app:
     - send thumb_up/thumb_down evals to Opik
+    - iterate on design of the subgraph visualization
 
  * fix Part 6:
     - modify style to make the graph understandable

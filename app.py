@@ -13,6 +13,7 @@ import pathlib
 import time
 
 from icecream import ic
+from yfiles_graphs_for_streamlit import StreamlitGraphWidget
 import dspy  # type: ignore
 import matplotlib.pyplot as plt
 import polars as pl
@@ -92,35 +93,44 @@ User clicks a "thumb_down" button.
 
 def show_analytics (
     response: dspy.primitives.prediction.Prediction,
+    graph_rag: GraphRAG,  # pylint: disable=W0621
     df_perf: pl.DataFrame,  # pylint: disable=W0621
     ) -> None:
     """
 Render analytics about the question/response sessions.
     """
-    if len(df_perf) > 1:
-        fig, ax1 = plt.subplots(1, 1)
-        ax2 = ax1.twinx()
+    # line chart: tokens vs. processing time
+    fig, ax1 = plt.subplots(1, 1)
+    ax2 = ax1.twinx()
 
-        ax1.plot(df_perf["tokens"], label = "tokens used", color = "green", linestyle = "dashed", marker = "o")
-        ax1.set_ylabel("tokens used", color = "green")
+    ax1.plot(df_perf["tokens"], label = "tokens used", color = "green", linestyle = "dashed", marker = "o")
+    ax1.set_ylabel("tokens used", color = "green")
 
-        ax2.plot(df_perf["time"], label = "time (sec)", color = "blue", linestyle = "dotted", marker = "o")
-        ax2.set_ylabel("processing time", color = "blue")
+    ax2.plot(df_perf["time"], label = "time (sec)", color = "blue", linestyle = "dotted", marker = "o")
+    ax2.set_ylabel("processing time", color = "blue")
 
-        lines1, labels1 = ax1.get_legend_handles_labels()
-        lines2, labels2 = ax2.get_legend_handles_labels()
-        ax2.legend(lines1 + lines2, labels1 + labels2)
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax2.legend(lines1 + lines2, labels1 + labels2)
 
-        plt.xticks([])
-        st.pyplot(fig)
+    plt.xticks([])
+    st.pyplot(fig)
 
+    # bar chart: chunk metrics
+    st.bar_chart(
+        pl.DataFrame({
+            "chunk_id": graph_rag.rag_chunks.keys(),  # pylint: disable=E0606
+            "distance": graph_rag.rag_chunks.values(),
+        }),
+        x = "chunk_id",
+        y = "distance",
+    )
 
-    st.table(pl.DataFrame({
-        "chunk_id": graph_rag.rag_chunks.keys(),  # pylint: disable=E0606
-        "distance": graph_rag.rag_chunks.values(),
-    }))
+    # graph: anchor nodes
+    graph: StreamlitGraphWidget = StreamlitGraphWidget.from_graph(graph_rag.subgraph)
+    graph.show()
 
-    st.table(graph_rag.anchor_nodes)
+    # LLM usage from DSPy
     st.write(response.get_lm_usage())
 
 
@@ -185,6 +195,7 @@ Main UI task as a `Streamlit.fragment`
             with st.expander("analytics"):
                 show_analytics(
                     response,
+                    graph_rag,
                     df_perf,
                 )
 
@@ -313,10 +324,10 @@ p {
         st.image(SZ_LOGO.as_posix())
 
     # interaction
-    df_perf: pl.DataFrame = pl.DataFrame([
-        pl.Series("tokens", [], dtype=pl.Int64),
-        pl.Series("time", [], dtype=pl.Float64),
-    ])
+    df_perf: pl.DataFrame = pl.DataFrame({
+        "tokens": 0,
+        "time": 0.0,
+    })
 
     run_er_rag(
         graph_rag,

@@ -621,6 +621,7 @@ source libraries which this tutorial uses:
   * <https://jinja.palletsprojects.com/en/stable/>
   * <https://streamlit.io/>
   * <https://matplotlib.org/>
+  * <https://github.com/yWorks/yfiles-graphs-for-streamlit>
   * <https://pyinstrument.readthedocs.io/>
   * <https://github.com/giampaolo/psutil>
   * <https://github.com/gruns/icecream>
@@ -642,7 +643,7 @@ Q: "Why aren't you using an LLM to build graphs instead?"
 A: "We promise to visit you in jail."
 
 Q: "Why don't you use a graph database in this tutorial?"
-A: "It's not needed. `RDFlib` + `NetworkX` handle what's needed, and with `cuGraph` this could scale. Feel free to subclass `ERKG` and change it to support your favorite graph database instead. The code has been written so that change could be done with ~100 lines of Python."
+A: "It's not needed. `RDFlib` + `NetworkX` handle what's needed, and with `cuGraph` this could scale. Feel free to extend the `KnowledgeGraph` class to support your favorite graph database instead. The code has been written so that could be done with less than 100 lines of Python."
 
 </details>
 
