@@ -120,11 +120,12 @@ keywords = [
 
 [project.urls]
 
-homepage = "https://github.com/DerwenAI/strwythura"
-doi = "https://doi.org/10.5281/zenodo.16934079"
-slides = "https://derwen.ai/s/2njz#1"
-video = "https://senzing.com/gph-graph-rag-llm-knowledge-graphs/"
-article = "https://pacoid.medium.com/strwythura-2a8007af3682"
+Homepage = "https://github.com/DerwenAI/strwythura"
+Tutorial = "https://pacoid.medium.com/strwythura-2a8007af3682"
+Slides = "https://derwen.ai/s/2njz#1"
+Video = "https://senzing.com/gph-graph-rag-llm-knowledge-graphs/"
+Citation = "https://doi.org/10.5281/zenodo.16934079"
+Quiz = "https://derwen.ai/quiz/ai_def"
 
 
 [tool.poetry.group.dev.dependencies]

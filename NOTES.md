@@ -54,6 +54,10 @@
      - use a "cross encoder" approach?
      - https://dubell.io/leveraging-bm25-and-vector-search-in-a-local-rag-application/
 
+  * use Ray `RLlib` to learn policies to optimize the semantic random walks per domain
+     - https://github.com/ray-project/ray/blob/master/rllib/examples/envs/custom_gym_env.py
+     - https://docs.ray.io/en/latest/rllib/index.html
+
   * migrate from `Turtle` to `N3` format
 
   * `textrank`

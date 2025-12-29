@@ -22,6 +22,81 @@ import streamlit as st
 from strwythura import GraphRAG, Workflow, \
     STRW_LOGO, SZ_LOGO
 
+STYLE_CSS: str = """
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+
+html, h1, h2, h3, h4, h5, p, span, cite, figcaption, button, input, select, textarea {
+    font-family: "Atkinson Hyperlegible", sans-serif;
+}
+
+body {
+    color: hsl(0, 0%, 40%);
+}
+
+p {
+    font-weight: normal;
+    font-size: 1em;
+    line-height: 1.3em;
+    margin: 1.2em 0 1.2em 0;
+}
+
+a {
+    text-decoration: none;
+    font-weight: bold;
+}
+</style>
+    """.strip()
+
+SIDEBAR_MENU: str = """
+<a
+ href="https://pacoid.medium.com/strwythura-2a8007af3682?postPublishedType=repub"
+ target="_blank"
+>Tutorial</a>
+<br/>
+<a
+ href="https://github.com/DerwenAI/strwythura/"
+ target="_blank"
+>Code Repo</a>
+<br/>
+<a
+ href="http://localhost:5173/"
+ target="_blank"
+>Opik Dashboard</a>
+<br/>
+<hr/>
+<a
+ href="https://senzing.com/gph-graph-rag-llm-knowledge-graphs/"
+ target="_blank"
+>Video</a>
+/
+<a
+ href="https://derwen.ai/s/2njz#1"
+ target="_blank"
+>Slides</a>
+<br/>
+<a
+ href="https://derwen.ai/quiz/ai_def"
+ target="_blank"
+>Quiz</a>
+<br/>
+<a
+ href="https://doi.org/10.5281/zenodo.17032671"
+ target="_blank"
+>Citation</a>
+<br/>
+<hr/>
+<a
+ href="https://senzing.com/graph-power-hour/"
+ target="_blank"
+>Graph Power Hour!</a>
+<br/>
+<a
+ href="https://senzing.com/"
+ target="_blank"
+>Senzing home</a>
+    """.strip()
+
 
 @st.cache_resource
 def load_assets (
@@ -224,27 +299,7 @@ if __name__ == "__main__":
         initial_sidebar_state = st.session_state.get("sidebar_state", "expanded"),
     )
 
-    st.html("""
-<style>
-@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap");
-
-html, h1, h2, h3, h4, h5, p, span, cite, figcaption, button, input, select, textarea {
-    font-family: "Atkinson Hyperlegible", sans-serif;
-}
-
-body {
-    color: hsl(0, 0%, 40%);
-}
-
-p {
-    font-weight: normal;
-    font-size: 1em;
-    line-height: 1.3em;
-    margin: 1.2em 0 1.2em 0;
-}
-</style>
-    """)
-
+    st.html(STYLE_CSS)
     st.session_state.sidebar_state = "collapsed"
 
     # load assets
@@ -260,67 +315,7 @@ p {
 
     with st.sidebar:
         st.image(STRW_LOGO.as_posix())
-
-        st.html("""
-<strong>
-<a
- href="https://pacoid.medium.com/strwythura-2a8007af3682?postPublishedType=repub"
- target="_blank"
- style="text-decoration: none;"
->tutorial</a>
-<br/>
-<a
- href="https://github.com/DerwenAI/strwythura/"
- target="_blank"
- style="text-decoration: none;"
->code repo</a>
-<br/>
-<a
- href="http://localhost:5173/"
- target="_blank"
- style="text-decoration: none;"
->Opik dashboard</a>
-<br/>
-<hr/>
-<a
- href="https://senzing.com/gph-graph-rag-llm-knowledge-graphs/"
- target="_blank"
- style="text-decoration: none;"
->video</a>
-<br/>
-<a
- href="https://derwen.ai/s/2njz#1"
- target="_blank"
- style="text-decoration: none;"
->slides</a>
-<br/>
-<a
- href="https://derwen.ai/quiz/ai_def"
- target="_blank"
- style="text-decoration: none;"
->quiz</a>
-<br/>
-<a
- href="https://doi.org/10.5281/zenodo.17032671"
- target="_blank"
- style="text-decoration: none;"
->citation</a>
-<br/>
-<hr/>
-<a
- href="https://senzing.com/graph-power-hour/"
- target="_blank"
- style="text-decoration: none;"
->Graph Power Hour!</a>
-<br/>
-<a
- href="https://senzing.com/"
- target="_blank"
- style="text-decoration: none;"
->Senzing home</a>
-</strong>
-        """)
-
+        st.html(SIDEBAR_MENU)
         st.image(SZ_LOGO.as_posix())
 
     # interaction
