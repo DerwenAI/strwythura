@@ -701,8 +701,8 @@ A: "As you may have noticed, many open source projects published in this GitHub 
 Q: "Why aren't you using an LLM to build graphs instead?"  
 A: "We promise to visit you in jail."
 
-Q: "Why don't you use a graph database in this tutorial?"
-A: "It's not needed. `RDFlib` + `NetworkX` handle what's needed, and with `cuGraph` this could scale. Feel free to extend the `KnowledgeGraph` class to support your favorite graph database instead. The code has been written so that could be done with less than 100 lines of Python."
+Q: "Why don't you use a graph database in this tutorial?"  
+A: "It's not needed. `RDFlib` + `NetworkX` handle what's needed, and with `cuGraph` this can scale quite large. Feel free to extend the `KnowledgeGraph` class to support your favorite graph database instead. The code has been written so it could be extended with less than 100 lines of Python."
 
 </details>
 
