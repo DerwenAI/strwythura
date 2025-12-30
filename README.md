@@ -23,10 +23,13 @@ techniques as well as working code you can use elsewhere.
  style="display: block; margin-left: auto; margin-right: auto; width: 30%;"
 />
 
+
+## Overview
+
 <details>
 <summary>
 
-Overview
+What this tutorial includes and how to use it.
 
 </summary>
 &nbsp;
@@ -632,6 +635,7 @@ _entity-resolved retrieval-augmented generation_ (ER-RAG).
 | OOP | object oriented programming |
 | ORM | object relational mapping |
 | OSFA | one size fits all |
+| PII | personally identifiable information |
 | RAG | retrieval augmented generation |
 | RDF | resource description framework |
 | RE | relation extraction |
