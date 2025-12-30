@@ -546,6 +546,8 @@ workflow steps, and also enhance some components:
 
 ---
 
+## Reference
+
 <details>
   <summary>Etymology</summary>
 &nbsp;
@@ -607,6 +609,7 @@ _entity-resolved retrieval-augmented generation_ (ER-RAG).
 | ERKG | entity resolved knowledge graph |
 | HITL | human in the loop |
 | HTML | hypertext markup language |
+| IDE | integrated development environment |
 | IRI | internationalized resource identifier |
 | KG | knowledge graph |
 | LLM | large language model |
@@ -614,6 +617,8 @@ _entity-resolved retrieval-augmented generation_ (ER-RAG).
 | ML | machine learning |
 | NER | named entity recognition |
 | NLP | natural language processing |
+| OOP | object oriented programming |
+| ORM | object relational mapping |
 | OSFA | one size fits all |
 | RAG | retrieval augmented generation |
 | RDF | resource description framework |
