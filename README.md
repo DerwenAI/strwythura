@@ -643,6 +643,7 @@ _entity-resolved retrieval-augmented generation_ (ER-RAG).
 | RPC | remote procedure call |
 | SDK | software development kit |
 | SKOS | simple knowledge organization system |
+| SLA | service level agreement |
 | TCP | transmission control protocol |
 | URL | uniform resource locator |
 | YMMV | your mileage may vary |
