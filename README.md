@@ -1,4 +1,4 @@
-# Strwythura: Entity Embeddings in Graphs
+# Strwythura: Entity Embeddings in Entity Resolved Knowledge Graphs
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.16934079.svg)](https://doi.org/10.5281/zenodo.16934079)
 ![License](https://img.shields.io/github/license/DerwenAI/strwythura)
@@ -6,16 +6,15 @@
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
 
-This [tutorial](https://pacoid.medium.com/strwythura–2a8007af3682)
-explains how to construct an *entity-resolved knowledge graph* from
-**structured data sources** and **unstructured content sources**,
+This tutorial explains how to construct an *entity-resolved knowledge graph*
+from **structured data sources** and **unstructured content sources**,
 implementing an *ontology pipeline*, plus *context engineering* for
 optimizing AI application outcomes within a specific domain.
 The process is enriched by using *entity embeddings* and *graph
 algorithms* to develop an enhanced GraphRAG approach, which implements
 a question/answer chat bot about a domain.
-This material provides hands-on experience with advanced techniques as
-well as working code you can use elsewhere.
+The material here provides hands-on experience with advanced
+techniques as well as working code you can use elsewhere.
 
 <img
  src="./strwythura/resources/logo.png"
@@ -23,6 +22,14 @@ well as working code you can use elsewhere.
  width="231"
  style="display: block; margin-left: auto; margin-right: auto; width: 30%;"
 />
+
+<details>
+<summary>
+
+Overview
+
+</summary>
+&nbsp;
 
 Downstream there can be multiple patterns of usage, such as graph
 analytics, dashboards, GraphRAG for question/answer chat bots, agents,
@@ -92,6 +99,7 @@ The code is written primarily as a tutorial, although it is also
 packaged as a Python library and can be extended for your use
 cases. The code is published as open source with a business-friendly
 license.
+</details>
 
 ---
 
@@ -175,6 +183,10 @@ git clone https://github.com/comet-ml/opik.git
 cd opik
 ./opik.sh
 ```
+
+Going forward, there is an article which serves as a "companion" to
+this repo. Please read along while running through each of the steps
+in the tutorial: <https://pacoid.medium.com/strwythura–2a8007af3682>
 
 </details>
 
