@@ -10,10 +10,12 @@ This [tutorial](https://pacoid.medium.com/strwythura–2a8007af3682)
 explains how to construct an *entity-resolved knowledge graph* from
 **structured data sources** and **unstructured content sources**,
 implementing an *ontology pipeline*, plus *context engineering* for
-optimizing AI application outcomes within a specific domain. The
-process is enriched by using *entity embeddings* and *graph algorithms*
-to develop an enhanced GraphRAG approach, which implements a
-question/answer chat bot about a particular topic.
+optimizing AI application outcomes within a specific domain.
+The process is enriched by using *entity embeddings* and *graph
+algorithms* to develop an enhanced GraphRAG approach, which implements
+a question/answer chat bot about a domain.
+This material provides hands-on experience with advanced techniques as
+well as working code you can use elsewhere.
 
 <img
  src="./strwythura/resources/logo.png"
@@ -29,7 +31,9 @@ and leverage the *domain-specific semantics*, and optimize for the
 downstream AI application outcomes. Think of this as an interactive
 exploration of [*neurosymbolic AI*](https:nesy-ai.org/) in practice.
 
-Code in the tutorial shows how to integrate popular Python libraries:
+Code in the tutorial shows how to integrate popular Python libraries
+following a maxim that OSFA and relying on monolithic frameworks
+doesn't work well; using composable SDKs works much better:
 `Senzing`, `Placekey`, `LanceDB`, `spaCy`, `GLiNER`, `RDFlib`,
 `NetworkX`, `ArrowSpace`, `DSPy`, `Ollama`, `Opik`, `Streamlit`,
 `yWorks`
@@ -125,13 +129,17 @@ Prerequisites for this tutorial, and steps to set up your local environment.
 
 ### Environment
 
+The code uses Python versions 3.11 through 3.13, and gets validated on
+these through continuous integration.
+
 The following must be downloaded and installed to run this tutorial:
 
   - Git <https://git-scm.com/install/>
   - Docker <https://docs.docker.com/get-docker/>
-  - Python 3.11+ <https://www.python.org/downloads/release/python-3139/>
-  - Ollama <https://ollama.com/>
+  - Python 3.11-3.13 <https://www.python.org/downloads/release/python-3139/>
   - Poetry <https://python-poetry.org/docs/>
+  - Ollama <https://ollama.com/>
+  - Opik <https://github.com/comet-ml/opik>
 
 To get started, use `git` to clone the repo, then connect into the
 repo directory and use `poetry` to install the Python dependencies:
@@ -581,6 +589,9 @@ this library.
   url = {https://github.com/DerwenAI/strwythura}
 }
 ```
+
+Overall, this tutorial illustrates a reference implementation for
+_entity-resolved retrieval-augmented generation_ (ER-RAG).
 </details>
 
 
@@ -603,6 +614,7 @@ this library.
 | ML | machine learning |
 | NER | named entity recognition |
 | NLP | natural language processing |
+| OSFA | one size fits all |
 | RAG | retrieval augmented generation |
 | RDF | resource description framework |
 | RE | relation extraction |
@@ -612,6 +624,7 @@ this library.
 | SKOS | simple knowledge organization system |
 | TCP | transmission control protocol |
 | URL | uniform resource locator |
+| YMMV | your mileage may vary |
 
 </details>
 
