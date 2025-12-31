@@ -395,7 +395,7 @@ JSONL file, before using these to construct the knowledge graph.
 </details>
 
 
-## Part 5: Entity Embeddings
+## Part 5: Embeddings and Distillation
 
 <details>
 <summary>
@@ -619,6 +619,7 @@ _entity-resolved retrieval-augmented generation_ (ER-RAG).
 | acronym    | definition |
 | ---------- | ---------- |
 | AI | artificial intelligence |
+| AKA | also known as |
 | EL | entity linking |
 | ER | entity resolution |
 | ERKG | entity resolved knowledge graph |
