@@ -522,7 +522,7 @@ for <code>DSPy</code> optimization.
 </summary>
 &nbsp;
 
-When running the question/answer chat bot in the prevous step, the
+When running the question/answer chat bot in the previous step, the
 `Opik` server is recording observations and evaluations about use of
 `DSPy` for LLM integration.
 
