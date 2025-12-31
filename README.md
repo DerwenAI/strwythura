@@ -280,7 +280,7 @@ The generated results:
   * a _domain-specific thesaurus_ serialized as the `data/thesaurus.ttl` file in RDF "Turtle" format
   * a knowledge graph serialized as the `data/erkg.json` JSON file in `NetworkX` _node-link_ data format
 
-Take a look at the information represented in this files.
+Take a look at the information represented in these files.
 
 </details>
 
@@ -341,7 +341,7 @@ entity store files.
 </details>
 
 
-## Part 5: Human-in-the-Loop
+## Part 4: Human-in-the-Loop
 
 <details>
 <summary>
