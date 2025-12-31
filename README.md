@@ -12,7 +12,7 @@ implementing an *ontology pipeline*, plus *context engineering* for
 optimizing AI application outcomes within a specific domain.
 The process is enriched by using *entity embeddings* and *graph
 algorithms* to develop an enhanced GraphRAG approach, which implements
-a question/answer chat bot about a domain.
+a question/answer chat bot about a particular domain.
 The material here provides hands-on experience with advanced
 techniques as well as working code you can use elsewhere.
 
