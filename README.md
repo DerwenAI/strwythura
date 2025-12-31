@@ -189,7 +189,7 @@ cd opik
 
 Going forward, there is an article which serves as a "companion" to
 this repo. Please read along while running through each of the steps
-in the tutorial: <https://pacoid.medium.com/strwythura–2a8007af3682>
+in the tutorial: <https://blog.derwen.ai/strwythura-2a8007af3682>
 
 </details>
 

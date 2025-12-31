@@ -127,7 +127,7 @@ keywords = [
 [project.urls]
 
 Homepage = "https://github.com/DerwenAI/strwythura"
-Tutorial = "https://pacoid.medium.com/strwythura-2a8007af3682"
+Tutorial = "https://blog.derwen.ai/strwythura-2a8007af3682"
 Slides = "https://derwen.ai/s/2njz#1"
 Video = "https://senzing.com/gph-graph-rag-llm-knowledge-graphs/"
 Citation = "https://doi.org/10.5281/zenodo.16934079"
