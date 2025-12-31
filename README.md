@@ -462,8 +462,8 @@ poetry run python3 6_vis.py
 Then load this this HTML page in your browser and zoom in to inspect
 elements of the graph.
 
-Visualization is good feeback for debugging the ERKG graph at this
-stage, before using it in downstream AI applications.
+Visualization provides good feedback for debugging the ERKG graph at
+this stage, before using it in downstream AI applications.
 
 </details>
 
