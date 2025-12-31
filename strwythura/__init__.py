@@ -2,29 +2,35 @@
 # -*- coding: utf-8 -*-
 
 """
-Package definitions for Strwythura.
+Package definitions.
 
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
-from .context import DomainContext
+from .ctx import DomainContext, TextChunk
 
-from .elem import Entity, NodeKind, StrwVocab, TextChunk
+from .elem import Entity, EntityInstance, EntitySource, NodeKind, NounSpan, \
+    de_token_span, \
+    STRW_BASE, STRW_PREFIX
 
-from .kg import KnowledgeGraph
+from .ent import EntityStore
+
+from .erkg import KnowledgeGraph
+
+from .lex import LexicalGraph
 
 from .nlp import Parser
 
-from .opt import calc_quantile_bins, stripe_column, root_mean_square
+from .opt import calc_quantile_bins, root_mean_square, stripe_column
 
-from .profile import PerfProfiler
+from .prof import Profiler
 
-from .rag import DSPy_RAG
+from .rag import GraphRAG
+
+from .resources import STRW_LOGO, SZ_LOGO
 
 from .scrape import Scraper
 
-from .strw import Strwythura, GraphRAG
-
-from .textrank import run_textrank, cooccur_entities
-
 from .vis import VisHTML
+
+from .work import Workflow

@@ -1,21 +1,37 @@
-[er]
+[sz]
 
-export_path = "sz_er/export.json"
+grpc_server = "localhost:8261"
+er_path = "data/er.json"
 thesaurus_path = "data/thesaurus.ttl"
+
+[erkg]
+
+erkg_path = "data/erkg.json"
+
+[ctx]
+
+domain_class = "DomainContext"
+domain_bundle = "domain.json"
 
 [nlp]
 
+parser_class = "Parser"
 spacy_model = "en_core_web_md"
-gliner_model = "urchade/gliner_medium-v2.1"
+lex_path = "data/lex.json"
+#gliner_model = "urchade/gliner_medium-v2.1"
+gliner_model = "urchade/gliner_small-v2.1"
+chunk_size = 1000
 
-[scraper]
+[tr]
 
-cache_path = "data/url_cache"
-cache_expire = 604800
+tr_alpha = 0.85
+tr_lookback = 3
 
 [ent]
 
-w2v_path = "data/entity.w2v"
+store_path = "data/ent.json"
+vec_path = "data/ent.vec"
+w2v_path = "data/ent.w2v"
 
 [vect]
 
@@ -24,19 +40,14 @@ chunk_table = "chunk"
 chunk_size = 1024
 fts_column = "text"
 
-[tr]
+[scraper]
 
-tr_alpha = 0.85
-tr_lookback = 3
-
-[kg]
-
-domain_path = "domain.ttl"
-kg_path = "data/kg.json"
-html_path = "kg.html"
+cache_expire = 604800
+cache_path = "data/url_cache"
 
 [vis]
 
+html_path = "data/erkg.html"
 html_height = "900px"
 html_width = "100%"
 
@@ -46,4 +57,13 @@ lm_name = "ollama_chat/gemma3:12b"
 api_base = "http://localhost:11434"
 temperature = 0.0
 max_tokens = 3000
-num_chunks = 11
+max_chunks = 11
+num_perm = 128
+lsh_top_k_question = 9
+lsh_top_k_lemma = 3
+w2v_top_k = 20
+w2v_min_dist = 0.33
+
+[opik]
+
+base_url = "http://localhost:5173/api"

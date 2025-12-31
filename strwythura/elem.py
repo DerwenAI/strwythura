@@ -2,18 +2,19 @@
 # -*- coding: utf-8 -*-
 
 """
-Data validation classes for constructing knowledge graphs.
+Elements used for knowledge graph construction.
 
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
-from dataclasses import dataclass
 from enum import StrEnum
 import typing
 
-from lancedb.embeddings import get_registry, transformers  # type: ignore
-from lancedb.pydantic import LanceModel, Vector  # type: ignore
-import spacy
+from pydantic import BaseModel
+
+
+STRW_BASE: str = "https://github.com/DerwenAI/strwythura/wiki/vocab#"
+STRW_PREFIX: str = "strw:"
 
 
 class NodeKind (StrEnum):
@@ -22,48 +23,76 @@ Values for the `kind` property in graph nodes.
     """
     CHUNK = "Chunk"
     ENTITY = "Entity"
+    DATAREC = "DataRec"
     TAXONOMY = "Taxonomy"
 
 
-class StrwVocab (StrEnum):
+class EntitySource (StrEnum):
     """
-Values for relations in the `strw:` RDF vocabulary.
+Values for the `source` property in `Entity` instances.
     """
-    LEMMA_PHRASE = "strw:lemma_phrase"
-    FOLLOWS_LEXICALLY = "strw:follows_lexically"
-    CO_OCCURS_WITH = "strw:co_occurs_with"
-    COMPOUND_ELEM_OF = "strw:compound_elem_of"
-    WITHIN_CHUNK = "strw:within_chunk"
+    TAXO = "Domain_Taxonomy"
+    ER = "Entity_Resolution"
+    NER = "Named_Entity_Recognition"
+    NC = "Noun_Chunk"
+    LEX = "Parsed_Noun"
 
 
-# Note: `LanceDB` requires that the embedding model be hard-coded, so far
-EMBED_MODEL: str = "BAAI/bge-small-en-v1.5"
-
-EMBED_FCN: transformers.TransformersEmbeddingFunction = \
-    get_registry().get("huggingface").create(name = EMBED_MODEL)
-
-
-class TextChunk (LanceModel):
+class EntityInstance (BaseModel):
     """
-Represents one chunk of text from a document.
+Represents coordinates for one instance of an entity among the chunks.
     """
-    uid: int
-    url: str
     sent_id: int
-    text: str = EMBED_FCN.SourceField()
-    vector: Vector(EMBED_FCN.ndims()) = EMBED_FCN.VectorField(default = None)  # type: ignore # pylint: disable=E1136
-
-
-@dataclass(order=False, frozen=False)
-class Entity:  # pylint: disable=R0902
-    """
-Represents one entity in the graph.
-    """
-    loc: typing.Tuple[ int, int ]
-    key: str
-    text: str
-    label: str
     chunk_id: int
-    sent_id: int
-    span: spacy.tokens.span.Span  # pylint: disable=I1101
-    node: typing.Optional[ int ] = None
+
+
+class NounSpan (BaseModel):
+    """
+Represents one token span within a parsed sentence.
+    """
+    loc: tuple[ int, int ]
+    text: str
+    span: list
+    label: str | None = None
+    source: EntitySource = EntitySource.LEX
+    iri: str | None = None
+
+
+class Entity (BaseModel):
+    """
+Represents one entity instance:
+
+  * defined by the domain taxonomy
+  * determined by entity resolution from structured data sources
+  * extracted from unstructured data sources
+
+A non-null `iri` field indicates this entity is linked within
+the constructed knowledge graph.
+    """
+    span: NounSpan
+    lemma_key: str
+    uid: int | None = None
+    inst: list[ EntityInstance ] = []
+    count: int = 0
+    rank: float = 0.0
+
+    def get_iri (
+        self,
+        ) -> str:
+        """
+Construct an IRI based on the `lemma_key` value.
+        """
+        if self.span.source == EntitySource.ER:
+            return self.span.iri  # type: ignore
+
+        stub: str = self.lemma_key.replace(" ", "_")
+        return f"{STRW_PREFIX}lemma_{stub}"
+
+
+def de_token_span (
+    span: typing.Any,
+    ) -> list[ str ]:
+    """
+Convert from a `spaCy` token span to a list of strings.
+    """
+    return list(map(str, span))

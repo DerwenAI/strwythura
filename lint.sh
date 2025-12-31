@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
-# approximate the functionality of pre-commit hooks,
-# without the attitude, or lack of useful docs
+# approximate the linting functionality of pre-commit hooks,
+# less their attitude and lack of useful docs
 
 # TBD:
 #    "run pytest"

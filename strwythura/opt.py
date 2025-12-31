@@ -3,11 +3,11 @@
 
 """
 Numerical utilities used for optimization.
+
 see copyright/license https://github.com/DerwenAI/strwythura/README.md
 """
 
 import math
-import typing
 
 import numpy as np
 import pandas as pd
@@ -39,11 +39,12 @@ calculated bins, as a `numpy.ndarray`
 
 
 def stripe_column (
-    values: list,
+    values: list[ float ],
     bins: int,
     ) -> np.ndarray:
     """
-Stripe a column in a dataframe, by interpolating quantiles into a set of discrete indexes.
+Stripe a column in a dataframe, by interpolating quantiles into a set
+of discrete indexes.
 
     values:
 list of values to stripe
@@ -58,8 +59,7 @@ the striped column values, as a `numpy.ndarray`
     q = s.quantile(bins, interpolation = "nearest")
 
     try:
-        stripe = np.digitize(values, q) - 1
-        return stripe
+        return np.digitize(values, q) - 1
     except ValueError as ex:
         # should never happen?
         print("ValueError:", str(ex), values, s, q, bins)
@@ -67,7 +67,7 @@ the striped column values, as a `numpy.ndarray`
 
 
 def root_mean_square (
-    values: typing.List[ float ]
+    values: list[ float ]
     ) -> float:
     """
 Calculate the [*root mean square*](https://mathworld.wolfram.com/Root-Mean-Square.html)
