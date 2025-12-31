@@ -322,11 +322,6 @@ based on NLP _part-of-speech tagging_ and _lemmatization_ for better
 indexing.
 These entity definitions get managed in an _entity store_.
 
-A _textgraph_ algorithm gets used to construct a _lexical graph_ in
-`NetworkX` which then ranks the "most referenced" entities to describe
-the domain context, and cross-links entities in the ERKG with text
-chunks in the vector store.
-
 The generated results:
 
   * `Requests-Cache` web page cache in the `data/url_cache.sqlite` file
@@ -411,7 +406,12 @@ and build an <em>entity embeddings</em> model.
 </summary>
 &nbsp;
 
-Perform _entity linking_ to connect entities extracted from the
+A _textgraph_ algorithm gets used to construct a _lexical graph_ in
+`NetworkX` which then ranks the "most referenced" entities to describe
+the domain context, and cross-links entities in the ERKG with text
+chunks in the vector store.
+
+Then _entity linking_ is used to connect entities extracted from the
 unstructured content into the ERKG.
 This step is a form of _distillation_, transforming the relatively
 "noisy" lexical graph to more refined/condensed nodes in the resulting
@@ -647,6 +647,7 @@ _entity-resolved retrieval-augmented generation_ (ER-RAG).
 | TCP | transmission control protocol |
 | URL | uniform resource locator |
 | YMMV | your mileage may vary |
+| WIP | work in progress |
 
 </details>
 
@@ -739,7 +740,8 @@ Kudos to
 [@jesstalisman-ia](https://github.com/jesstalisman-ia),
 [@Mec-iS](https://github.com/Mec-iS),
 [@hellovai](https://github.com/hellovai),
-and the kind folks at [GraphGeeks](https://graphgeeks.org/) for their support.
+[@amyhodler](https://github.com/amyhodler) 
+and [GraphGeeks](https://graphgeeks.org/) for their support.
 
 
 ## Star History

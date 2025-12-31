@@ -1,5 +1,7 @@
 ## TODOs
 
+ * is the  `spaCy` NLP pipeline including a lemmatizer?
+
  * fix the Streamlit app:
     - send thumb_up/thumb_down evals to Opik
     - iterate on design of the subgraph visualization
