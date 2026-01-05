@@ -1,4 +1,4 @@
-# Strwythura: Entity Embeddings in Entity Resolved Knowledge Graphs
+# Strwythura: Put the Context in Context Engineering
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.16934079.svg)](https://doi.org/10.5281/zenodo.16934079)
 ![License](https://img.shields.io/github/license/DerwenAI/strwythura)
@@ -388,7 +388,7 @@ Q: Can any of the `EntitySource.NC` or `EntitySource.LEX` extracted entities be 
 If so, add the info and link these into the taxonomy.
 
 WIP:  
-Use a `FastAPI` web-app to provide a browser-based interactive UI for
+Use a `Streamlit` app to provide a browser-based interactive UI for
 curating _entity store_ results serialized in the `data/ent.json`
 JSONL file, before using these to construct the knowledge graph.
 
@@ -730,6 +730,22 @@ A: "It's not needed. `RDFlib` + `NetworkX` handle what's needed, and with `cuGra
 
 </details>
 
+---
+
+<img
+ src="./strwythura/resources/senzing.png"
+ alt="Senzing logo"
+ width="300"
+ style="display: block; margin-left: auto; margin-right: auto; width: 40%;"
+/>
+
+* _Graph Power Hour!_ podcast <https://senzing.com/graph-power-hour>
+* Senzing Learning Portal <https://senzing.com/senzing-learning-portal-signup>
+* Senzing + Docker quickstart <https://senzing.com/docs/quickstart/quickstart_docker/>
+* GitHub public repos <https://github.com/senzing-garage>
+* ERKG Discussion Group on LinkedIn <https://linkedin.com/groups/14426852>
+
+---
 
 Kudos to 
 [@docktermj](https://github.com/docktermj),
