@@ -1,7 +1,7 @@
 [project]
 
 name = "strwythura"
-version = "2.0.0"
+version = "2.0.1"
 
 description = "Construct an entity-resolved knowledge graph from structured data sources and unstructured content sources, implementing an ontology pipeline, plus context engineering for optimizing AI application outcomes within a specific domain."
 
@@ -102,6 +102,7 @@ keywords = [
     "entity embedding",
     "entity linking",
     "entity resolution",
+    "epistemic literacy",
     "graph algorithms",
     "graph analytics",
     "graphrag",

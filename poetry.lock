@@ -262,14 +262,14 @@ files = [
 
 [[package]]
 name = "anyio"
-version = "4.12.0"
+version = "4.12.1"
 description = "High-level concurrency and networking framework on top of asyncio or Trio"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "anyio-4.12.0-py3-none-any.whl", hash = "sha256:dad2376a628f98eeca4881fc56cd06affd18f659b17a747d3ff0307ced94b1bb"},
-    {file = "anyio-4.12.0.tar.gz", hash = "sha256:73c693b567b0c55130c104d0b43a9baf3aa6a31fc6110116509f27bf75e21ec0"},
+    {file = "anyio-4.12.1-py3-none-any.whl", hash = "sha256:d405828884fc140aa80a3c667b8beed277f1dfedec42ba031bd6ac3db606ab6c"},
+    {file = "anyio-4.12.1.tar.gz", hash = "sha256:41cfcc3a4c85d3f05c932da7c26d0201ac36f72abd4435ba90d0464a3ffed703"},
 ]
 
 [package.dependencies]
@@ -472,18 +472,18 @@ numpy = {version = ">=1.19.0,<3.0.0", markers = "python_version >= \"3.9\""}
 
 [[package]]
 name = "boto3"
-version = "1.42.21"
+version = "1.42.22"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3-1.42.21-py3-none-any.whl", hash = "sha256:1885f252d715a5810bb4e0c5bbebfa8e9018b025febf5be3d58540626e7b43d2"},
-    {file = "boto3-1.42.21.tar.gz", hash = "sha256:9b92943d253bc837323079fe88460e741cb2eb80abaebcb558b2446bdb4049d6"},
+    {file = "boto3-1.42.22-py3-none-any.whl", hash = "sha256:c8df2c356366f6193a85d2582ba27b170a93dd37784b8f195e901b169ae74d29"},
+    {file = "boto3-1.42.22.tar.gz", hash = "sha256:8550d91432dec1e587ab6d97f7e031bb334ca4fbb7824b8b63bca6e69c7e84b5"},
 ]
 
 [package.dependencies]
-botocore = ">=1.42.21,<1.43.0"
+botocore = ">=1.42.22,<1.43.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.16.0,<0.17.0"
 
@@ -492,14 +492,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "boto3-stubs"
-version = "1.42.21"
-description = "Type annotations for boto3 1.42.21 generated with mypy-boto3-builder 8.12.0"
+version = "1.42.22"
+description = "Type annotations for boto3 1.42.22 generated with mypy-boto3-builder 8.12.0"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3_stubs-1.42.21-py3-none-any.whl", hash = "sha256:44a2fededbe8d71b33bb774c274710bf46ae2eb6e2f7a1fb5aecc2d6a701e995"},
-    {file = "boto3_stubs-1.42.21.tar.gz", hash = "sha256:de7807081010b3768b731272936fe7d4a4d4cdf8dde19690d461e14e73e22d63"},
+    {file = "boto3_stubs-1.42.22-py3-none-any.whl", hash = "sha256:f00859c228b68285f575098664895588120ec083a7ba1e1bbcc9f06a7bdf100a"},
+    {file = "boto3_stubs-1.42.22.tar.gz", hash = "sha256:8cf34c2c5b99dbf51f48aa48681f52a98dfca382c6429f3b9cd727c69b185f2a"},
 ]
 
 [package.dependencies]
@@ -561,7 +561,7 @@ bedrock-data-automation-runtime = ["mypy-boto3-bedrock-data-automation-runtime (
 bedrock-runtime = ["mypy-boto3-bedrock-runtime (>=1.42.0,<1.43.0)"]
 billing = ["mypy-boto3-billing (>=1.42.0,<1.43.0)"]
 billingconductor = ["mypy-boto3-billingconductor (>=1.42.0,<1.43.0)"]
-boto3 = ["boto3 (==1.42.21)"]
+boto3 = ["boto3 (==1.42.22)"]
 braket = ["mypy-boto3-braket (>=1.42.0,<1.43.0)"]
 budgets = ["mypy-boto3-budgets (>=1.42.0,<1.43.0)"]
 ce = ["mypy-boto3-ce (>=1.42.0,<1.43.0)"]
@@ -930,14 +930,14 @@ xray = ["mypy-boto3-xray (>=1.42.0,<1.43.0)"]
 
 [[package]]
 name = "botocore"
-version = "1.42.21"
+version = "1.42.22"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore-1.42.21-py3-none-any.whl", hash = "sha256:6b59973a3ba8c3cfd5123f2656fef2339beee9f6483b8bc12bb00c5453ea2c6d"},
-    {file = "botocore-1.42.21.tar.gz", hash = "sha256:db8f99d186156da42feb4fd2098017383d9b155097290cc53da7258f6e652c39"},
+    {file = "botocore-1.42.22-py3-none-any.whl", hash = "sha256:a1dfebcf9dec52a74ad7f28bc6c895e7c43216cac63748eb1216054fb0c3a7fe"},
+    {file = "botocore-1.42.22.tar.gz", hash = "sha256:635c9213a448885a1cf735f1a950b83adaced0860b8159fc26d1242abc042443"},
 ]
 
 [package.dependencies]
@@ -950,14 +950,14 @@ crt = ["awscrt (==0.29.2)"]
 
 [[package]]
 name = "botocore-stubs"
-version = "1.42.21"
+version = "1.42.22"
 description = "Type annotations and code completion for botocore"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore_stubs-1.42.21-py3-none-any.whl", hash = "sha256:1ff57f95f2a9bae57ad19d63e43e26e602e8570b1c3298607a6f5a5d44bfbde2"},
-    {file = "botocore_stubs-1.42.21.tar.gz", hash = "sha256:b822c85e8616df66db320d52da12ea112016c6548f8c07c7e546524ac55cff4b"},
+    {file = "botocore_stubs-1.42.22-py3-none-any.whl", hash = "sha256:74996853410dcd1915ab62c189c43086495263b3a8b69c17f6cdb3781cc4aa57"},
+    {file = "botocore_stubs-1.42.22.tar.gz", hash = "sha256:e0dc59c014ccb5896fac25cdcb4cfb7370d02e0877cb15949c4fd69a6774a358"},
 ]
 
 [package.dependencies]
@@ -2593,14 +2593,14 @@ files = [
 
 [[package]]
 name = "ipython"
-version = "9.8.0"
+version = "9.9.0"
 description = "IPython: Productive Interactive Computing"
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "ipython-9.8.0-py3-none-any.whl", hash = "sha256:ebe6d1d58d7d988fbf23ff8ff6d8e1622cfdb194daf4b7b73b792c4ec3b85385"},
-    {file = "ipython-9.8.0.tar.gz", hash = "sha256:8e4ce129a627eb9dd221c41b1d2cdaed4ef7c9da8c17c63f6f578fe231141f83"},
+    {file = "ipython-9.9.0-py3-none-any.whl", hash = "sha256:b457fe9165df2b84e8ec909a97abcf2ed88f565970efba16b1f7229c283d252b"},
+    {file = "ipython-9.9.0.tar.gz", hash = "sha256:48fbed1b2de5e2c7177eefa144aba7fcb82dac514f09b57e2ac9da34ddb54220"},
 ]
 
 [package.dependencies]
@@ -2617,7 +2617,7 @@ traitlets = ">=5.13.0"
 typing_extensions = {version = ">=4.6", markers = "python_version < \"3.12\""}
 
 [package.extras]
-all = ["ipython[doc,matplotlib,test,test-extra]"]
+all = ["argcomplete (>=3.0)", "ipython[doc,matplotlib,terminal,test,test-extra]"]
 black = ["black"]
 doc = ["docrepr", "exceptiongroup", "intersphinx_registry", "ipykernel", "ipython[matplotlib,test]", "setuptools (>=70.0)", "sphinx (>=8.0)", "sphinx-rtd-theme (>=0.1.8)", "sphinx_toml (==0.0.4)", "typing_extensions"]
 matplotlib = ["matplotlib (>3.9)"]
@@ -4000,14 +4000,14 @@ files = [
 
 [[package]]
 name = "narwhals"
-version = "2.14.0"
+version = "2.15.0"
 description = "Extremely lightweight compatibility layer between dataframe libraries"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "narwhals-2.14.0-py3-none-any.whl", hash = "sha256:b56796c9a00179bd757d15282c540024e1d5c910b19b8c9944d836566c030acf"},
-    {file = "narwhals-2.14.0.tar.gz", hash = "sha256:98be155c3599db4d5c211e565c3190c398c87e7bf5b3cdb157dece67641946e0"},
+    {file = "narwhals-2.15.0-py3-none-any.whl", hash = "sha256:cbfe21ca19d260d9fd67f995ec75c44592d1f106933b03ddd375df7ac841f9d6"},
+    {file = "narwhals-2.15.0.tar.gz", hash = "sha256:a9585975b99d95084268445a1fdd881311fa26ef1caa18020d959d5b2ff9a965"},
 ]
 
 [package.extras]
@@ -4444,14 +4444,14 @@ voice-helpers = ["numpy (>=2.0.2)", "sounddevice (>=0.5.1)"]
 
 [[package]]
 name = "opik"
-version = "1.9.70"
+version = "1.9.71"
 description = "Comet tool for logging and evaluating LLM traces"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "opik-1.9.70-py3-none-any.whl", hash = "sha256:fc5ce31d9c82435d02bc3b99e80774754d41605dabf50056063b602c2de189bb"},
-    {file = "opik-1.9.70.tar.gz", hash = "sha256:d5a74a00e136d3a53e86d5aa6079745e3605f4d750a133ebeec916fc952f6a06"},
+    {file = "opik-1.9.71-py3-none-any.whl", hash = "sha256:d4617c482e35806dc0a41d1aeb7bbcdecdaa16b093ba9749d17ef2ea443fa66a"},
+    {file = "opik-1.9.71.tar.gz", hash = "sha256:3dc7df3ae590eec8802d2e24eef6dfb77dade2754e2af4e3f5e472150b59d31c"},
 ]
 
 [package.dependencies]
@@ -4772,15 +4772,21 @@ testing = ["docopt", "pytest"]
 
 [[package]]
 name = "pathspec"
-version = "0.12.1"
+version = "1.0.1"
 description = "Utility library for gitignore style pattern matching of file paths."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 groups = ["dev"]
 files = [
-    {file = "pathspec-0.12.1-py3-none-any.whl", hash = "sha256:a0d503e138a4c123b27490a4f7beda6a01c6f288df0e4a8b79c7eb0dc7b4cc08"},
-    {file = "pathspec-0.12.1.tar.gz", hash = "sha256:a482d51503a1ab33b1c67a6c3813a26953dbdc71c31dacaef9a838c4e29f5712"},
+    {file = "pathspec-1.0.1-py3-none-any.whl", hash = "sha256:8870061f22c58e6d83463cfce9a7dd6eca0512c772c1001fb09ac64091816721"},
+    {file = "pathspec-1.0.1.tar.gz", hash = "sha256:e2769b508d0dd47b09af6ee2c75b2744a2cb1f474ae4b1494fd6a1b7a841613c"},
 ]
+
+[package.extras]
+hyperscan = ["hyperscan (>=0.7)"]
+optional = ["typing-extensions (>=4)"]
+re2 = ["google-re2 (>=1.1)"]
+tests = ["pytest (>=9)", "typing-extensions (>=4.15)"]
 
 [[package]]
 name = "pexpect"
@@ -7488,27 +7494,36 @@ blobfile = ["blobfile (>=2)"]
 
 [[package]]
 name = "tokenizers"
-version = "0.22.1"
+version = "0.22.2"
 description = ""
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "tokenizers-0.22.1-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:59fdb013df17455e5f950b4b834a7b3ee2e0271e6378ccb33aa74d178b513c73"},
-    {file = "tokenizers-0.22.1-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:8d4e484f7b0827021ac5f9f71d4794aaef62b979ab7608593da22b1d2e3c4edc"},
-    {file = "tokenizers-0.22.1-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:19d2962dd28bc67c1f205ab180578a78eef89ac60ca7ef7cbe9635a46a56422a"},
-    {file = "tokenizers-0.22.1-cp39-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:38201f15cdb1f8a6843e6563e6e79f4abd053394992b9bbdf5213ea3469b4ae7"},
-    {file = "tokenizers-0.22.1-cp39-abi3-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:d1cbe5454c9a15df1b3443c726063d930c16f047a3cc724b9e6e1a91140e5a21"},
-    {file = "tokenizers-0.22.1-cp39-abi3-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:e7d094ae6312d69cc2a872b54b91b309f4f6fbce871ef28eb27b52a98e4d0214"},
-    {file = "tokenizers-0.22.1-cp39-abi3-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:afd7594a56656ace95cdd6df4cca2e4059d294c5cfb1679c57824b605556cb2f"},
-    {file = "tokenizers-0.22.1-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e2ef6063d7a84994129732b47e7915e8710f27f99f3a3260b8a38fc7ccd083f4"},
-    {file = "tokenizers-0.22.1-cp39-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:ba0a64f450b9ef412c98f6bcd2a50c6df6e2443b560024a09fa6a03189726879"},
-    {file = "tokenizers-0.22.1-cp39-abi3-musllinux_1_2_armv7l.whl", hash = "sha256:331d6d149fa9c7d632cde4490fb8bbb12337fa3a0232e77892be656464f4b446"},
-    {file = "tokenizers-0.22.1-cp39-abi3-musllinux_1_2_i686.whl", hash = "sha256:607989f2ea68a46cb1dfbaf3e3aabdf3f21d8748312dbeb6263d1b3b66c5010a"},
-    {file = "tokenizers-0.22.1-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:a0f307d490295717726598ef6fa4f24af9d484809223bbc253b201c740a06390"},
-    {file = "tokenizers-0.22.1-cp39-abi3-win32.whl", hash = "sha256:b5120eed1442765cd90b903bb6cfef781fd8fe64e34ccaecbae4c619b7b12a82"},
-    {file = "tokenizers-0.22.1-cp39-abi3-win_amd64.whl", hash = "sha256:65fd6e3fb11ca1e78a6a93602490f134d1fdeb13bcef99389d5102ea318ed138"},
-    {file = "tokenizers-0.22.1.tar.gz", hash = "sha256:61de6522785310a309b3407bac22d99c4db5dba349935e99e4d15ea2226af2d9"},
+    {file = "tokenizers-0.22.2-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:544dd704ae7238755d790de45ba8da072e9af3eea688f698b137915ae959281c"},
+    {file = "tokenizers-0.22.2-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:1e418a55456beedca4621dbab65a318981467a2b188e982a23e117f115ce5001"},
+    {file = "tokenizers-0.22.2-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:2249487018adec45d6e3554c71d46eb39fa8ea67156c640f7513eb26f318cec7"},
+    {file = "tokenizers-0.22.2-cp39-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:25b85325d0815e86e0bac263506dd114578953b7b53d7de09a6485e4a160a7dd"},
+    {file = "tokenizers-0.22.2-cp39-abi3-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:bfb88f22a209ff7b40a576d5324bf8286b519d7358663db21d6246fb17eea2d5"},
+    {file = "tokenizers-0.22.2-cp39-abi3-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:1c774b1276f71e1ef716e5486f21e76333464f47bece56bbd554485982a9e03e"},
+    {file = "tokenizers-0.22.2-cp39-abi3-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:df6c4265b289083bf710dff49bc51ef252f9d5be33a45ee2bed151114a56207b"},
+    {file = "tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:369cc9fc8cc10cb24143873a0d95438bb8ee257bb80c71989e3ee290e8d72c67"},
+    {file = "tokenizers-0.22.2-cp39-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:29c30b83d8dcd061078b05ae0cb94d3c710555fbb44861139f9f83dcca3dc3e4"},
+    {file = "tokenizers-0.22.2-cp39-abi3-musllinux_1_2_armv7l.whl", hash = "sha256:37ae80a28c1d3265bb1f22464c856bd23c02a05bb211e56d0c5301a435be6c1a"},
+    {file = "tokenizers-0.22.2-cp39-abi3-musllinux_1_2_i686.whl", hash = "sha256:791135ee325f2336f498590eb2f11dc5c295232f288e75c99a36c5dbce63088a"},
+    {file = "tokenizers-0.22.2-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:38337540fbbddff8e999d59970f3c6f35a82de10053206a7562f1ea02d046fa5"},
+    {file = "tokenizers-0.22.2-cp39-abi3-win32.whl", hash = "sha256:a6bf3f88c554a2b653af81f3204491c818ae2ac6fbc09e76ef4773351292bc92"},
+    {file = "tokenizers-0.22.2-cp39-abi3-win_amd64.whl", hash = "sha256:c9ea31edff2968b44a88f97d784c2f16dc0729b8b143ed004699ebca91f05c48"},
+    {file = "tokenizers-0.22.2-cp39-abi3-win_arm64.whl", hash = "sha256:9ce725d22864a1e965217204946f830c37876eee3b2ba6fc6255e8e903d5fcbc"},
+    {file = "tokenizers-0.22.2-pp310-pypy310_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:753d47ebd4542742ef9261d9da92cd545b2cacbb48349a1225466745bb866ec4"},
+    {file = "tokenizers-0.22.2-pp310-pypy310_pp73-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:e10bf9113d209be7cd046d40fbabbaf3278ff6d18eb4da4c500443185dc1896c"},
+    {file = "tokenizers-0.22.2-pp310-pypy310_pp73-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:64d94e84f6660764e64e7e0b22baa72f6cd942279fdbb21d46abd70d179f0195"},
+    {file = "tokenizers-0.22.2-pp310-pypy310_pp73-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:f01a9c019878532f98927d2bacb79bbb404b43d3437455522a00a30718cdedb5"},
+    {file = "tokenizers-0.22.2-pp39-pypy39_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:319f659ee992222f04e58f84cbf407cfa66a65fe3a8de44e8ad2bc53e7d99012"},
+    {file = "tokenizers-0.22.2-pp39-pypy39_pp73-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:1e50f8554d504f617d9e9d6e4c2c2884a12b388a97c5c77f0bc6cf4cd032feee"},
+    {file = "tokenizers-0.22.2-pp39-pypy39_pp73-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:1a62ba2c5faa2dd175aaeed7b15abf18d20266189fb3406c5d0550dd34dd5f37"},
+    {file = "tokenizers-0.22.2-pp39-pypy39_pp73-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:143b999bdc46d10febb15cbffb4207ddd1f410e2c755857b5a0797961bbdc113"},
+    {file = "tokenizers-0.22.2.tar.gz", hash = "sha256:473b83b915e547aa366d1eee11806deaf419e17be16310ac0a14077f1e28f917"},
 ]
 
 [package.dependencies]
@@ -7517,7 +7532,7 @@ huggingface-hub = ">=0.16.4,<2.0"
 [package.extras]
 dev = ["tokenizers[testing]"]
 docs = ["setuptools-rust", "sphinx", "sphinx-rtd-theme"]
-testing = ["black (==22.3)", "datasets", "numpy", "pytest", "pytest-asyncio", "requests", "ruff"]
+testing = ["datasets", "numpy", "pytest", "pytest-asyncio", "requests", "ruff", "ty"]
 
 [[package]]
 name = "toml"
@@ -7778,14 +7793,14 @@ tutorials = ["matplotlib", "pandas", "tabulate"]
 
 [[package]]
 name = "typer-slim"
-version = "0.21.0"
+version = "0.21.1"
 description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "typer_slim-0.21.0-py3-none-any.whl", hash = "sha256:92aee2188ac6fc2b2924bd75bb61a340b78bd8cd51fd9735533ce5a856812c8e"},
-    {file = "typer_slim-0.21.0.tar.gz", hash = "sha256:f2dbd150cfa0fead2242e21fa9f654dfc64773763ddf07c6be9a49ad34f79557"},
+    {file = "typer_slim-0.21.1-py3-none-any.whl", hash = "sha256:6e6c31047f171ac93cc5a973c9e617dbc5ab2bddc4d0a3135dc161b4e2020e0d"},
+    {file = "typer_slim-0.21.1.tar.gz", hash = "sha256:73495dd08c2d0940d611c5a8c04e91c2a0a98600cbd4ee19192255a233b6dbfd"},
 ]
 
 [package.dependencies]

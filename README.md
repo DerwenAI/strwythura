@@ -742,6 +742,7 @@ A: "It's not needed. `RDFlib` + `NetworkX` handle what's needed, and with `cuGra
 * _Graph Power Hour!_ podcast <https://senzing.com/graph-power-hour>
 * Senzing Learning Portal <https://senzing.com/senzing-learning-portal-signup>
 * Senzing + Docker quickstart <https://senzing.com/docs/quickstart/quickstart_docker/>
+* Senzing on AWS Marketplace <https://aws.amazon.com/marketplace/pp/prodview-p3y2bvjkxcipo>
 * GitHub public repos <https://github.com/senzing-garage>
 * ERKG Discussion Group on LinkedIn <https://linkedin.com/groups/14426852>
 
