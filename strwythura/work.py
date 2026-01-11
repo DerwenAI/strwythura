@@ -12,6 +12,7 @@ import os
 import pathlib
 import tomllib
 import typing
+import urllib3
 
 from icecream import ic
 from sz_semantics import Thesaurus  # type: ignore
@@ -179,6 +180,7 @@ For each of the given URLs:
   - parse the text in each chunk, linking into the graph
         """
         chunk_size: int = self.config["nlp"]["chunk_size"]
+        urllib3.disable_warnings()
 
         for url in content_sources:
             sent_id: int = 0

@@ -12,6 +12,7 @@ import os
 import time
 import traceback
 import typing
+import warnings
 
 from datasketch import MinHashLSHForest, MinHash  # type: ignore
 from icecream import ic
@@ -184,10 +185,13 @@ Loop to answer questions.
                 )
 
                 # LLM summarizes the text chunks in response to the question
-                response: dspy.primitives.prediction.Prediction = self.qa_signature(
-                    question,
-                    self.get_chunks_text(),
-                )
+                with warnings.catch_warnings(record=True) as caught_warnings:
+                    warnings.simplefilter("always")  # catch all warnings
+
+                    response: dspy.primitives.prediction.Prediction = self.qa_signature(
+                        question,
+                        self.get_chunks_text(),
+                    )
 
                 ic(question)
                 ic(response.response)

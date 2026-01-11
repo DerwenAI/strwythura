@@ -1,7 +1,7 @@
 [project]
 
 name = "strwythura"
-version = "2.0.0"
+version = "2.0.1"
 
 description = "Construct an entity-resolved knowledge graph from structured data sources and unstructured content sources, implementing an ontology pipeline, plus context engineering for optimizing AI application outcomes within a specific domain."
 
@@ -58,6 +58,7 @@ dependencies = [
     # context engineering
     "dspy (>=3.0.4,<4.0.0)",
     "pydantic (>=2.12.5,<3.0.0)",
+    "datamodel-code-generator (>=0.52.2,<0.53.0)",
 
     # interactive visualization
     "pyvis (>=0.3.2,<0.4.0)",
@@ -102,6 +103,7 @@ keywords = [
     "entity embedding",
     "entity linking",
     "entity resolution",
+    "epistemic literacy",
     "graph algorithms",
     "graph analytics",
     "graphrag",
@@ -126,12 +128,13 @@ keywords = [
 
 [project.urls]
 
-Homepage = "https://github.com/DerwenAI/strwythura"
-Tutorial = "https://blog.derwen.ai/strwythura-2a8007af3682"
-Slides = "https://derwen.ai/s/2njz#1"
-Video = "https://senzing.com/gph-graph-rag-llm-knowledge-graphs/"
-Citation = "https://doi.org/10.5281/zenodo.16934079"
-Quiz = "https://derwen.ai/quiz/ai_def"
+codes = "https://github.com/DerwenAI/strwythura"
+words = "https://blog.derwen.ai/strwythura-2a8007af3682?source=friends_link&sk=93eb7dcce1f48206162e1f69a0f57661"
+tubes = "https://youtu.be/ZWl5Pb29O-o"
+slides = "https://derwen.ai/s/2njz#1"
+video = "https://senzing.com/gph-graph-rag-llm-knowledge-graphs/"
+cite = "https://doi.org/10.5281/zenodo.16934079"
+quiz = "https://derwen.ai/quiz/ai_def"
 
 
 [tool.poetry.group.dev.dependencies]
