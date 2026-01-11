@@ -1,16 +1,13 @@
 ## TODOs
 
- * is the  `spaCy` NLP pipeline including a lemmatizer?
+ * fix Part 6:
+    - modify style to make the graph understandable
+    - fix the tooltip info
+    - generate the JavaScript data structures for `PyVis`, then recompose using Jinja2
 
  * fix the Streamlit app:
     - send thumb_up/thumb_down evals to Opik
     - iterate on design of the subgraph visualization
-
- * fix Part 6:
-    - modify style to make the graph understandable
-    - fix the tooltip info
-    - extract the JavaScript data structures which `PyVis` generates
-    - recompose using Jinja2
 
  * why is the former lemma IRI getting used in the serialized ERKG instead of the latter?
       "id": "strw:lemma_NOUN.doctor"
@@ -20,6 +17,8 @@
 {"span": {"loc": [-1, -1], "text": "", "span": [], "label": null, "source": "Domain_Taxonomy", "iri": null}, "lemma_key": "NOUN.science", "uid": 9, "inst": [], "count
 ": 1, "rank": 0.0}
      - add Taxonomy lemmas
+
+ * is the  `spaCy` NLP pipeline including a lemmatizer?
 
   * gensim => ArrowSpace embeddings for entities
      - hire Lorenzo to replace `Gensim` with `ArrowSpace` (after Dec 22 seminar)

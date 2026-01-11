@@ -6,7 +6,7 @@
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
 
-This tutorial explains how to construct an *entity-resolved knowledge graph*
+This tutorial explains how to construct an *entity resolved knowledge graph*
 from **structured data sources** and **unstructured content sources**,
 implementing an *ontology pipeline*, plus *context engineering* for
 optimizing AI application outcomes within a specific domain.
@@ -76,7 +76,8 @@ which integrating them:
 *graph analytics*,
 *declarative LLM integration*,
 *retrieval-augmented generation*,
-*observability and optimization*.
+*observability and optimization*,
+*epistemic literacy*.
 
 The end result is a **Streamlit** app which implements an enhanced
 GraphRAG for a question/answer chat bot. In terms of MLOps, this app
@@ -189,7 +190,8 @@ cd opik
 
 Going forward, there is an article which serves as a "companion" to
 this repo. Please read along while running through each of the steps
-in the tutorial: <https://blog.derwen.ai/strwythura-2a8007af3682>
+in the tutorial:
+<https://blog.derwen.ai/strwythura-2a8007af3682?source=friends_link&sk=93eb7dcce1f48206162e1f69a0f57661>
 
 </details>
 
