@@ -1,5 +1,16 @@
 ## TODOs
 
+ * optimizations
+    - DSPy/Opik optimizers https://dspy.ai/learn/optimization/optimizers/
+    - add reference data via entity resolution
+    - iterate on taxonomy definitions
+    - curate the extracted entity, identify synonyms
+    - reranking / semantic highlighting of chunks to reduce token count and mitigate noise in RAG
+
+
+ * reranking via _semantic highlighting_ as an optimization
+    - https://huggingface.co/blog/zilliz/zilliz-semantic-highlight-model
+
  * fix Part 6:
     - modify style to make the graph understandable
     - fix the tooltip info
