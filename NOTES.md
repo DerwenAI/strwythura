@@ -1,12 +1,14 @@
 ## TODOs
 
+ * fix the Streamlit app:
+    - iterate on design of the subgraph visualization
+
  * optimizations
     - DSPy/Opik optimizers https://dspy.ai/learn/optimization/optimizers/
     - add reference data via entity resolution
     - iterate on taxonomy definitions
     - curate the extracted entity, identify synonyms
     - reranking / semantic highlighting of chunks to reduce token count and mitigate noise in RAG
-
 
  * reranking via _semantic highlighting_ as an optimization
     - https://huggingface.co/blog/zilliz/zilliz-semantic-highlight-model
@@ -15,10 +17,6 @@
     - modify style to make the graph understandable
     - fix the tooltip info
     - generate the JavaScript data structures for `PyVis`, then recompose using Jinja2
-
- * fix the Streamlit app:
-    - send thumb_up/thumb_down evals to Opik
-    - iterate on design of the subgraph visualization
 
  * why is the former lemma IRI getting used in the serialized ERKG instead of the latter?
       "id": "strw:lemma_NOUN.doctor"

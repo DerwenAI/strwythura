@@ -25,7 +25,7 @@ from .opt import calc_quantile_bins, root_mean_square, stripe_column
 
 from .prof import Profiler
 
-from .rag import GraphRAG
+from .rag import DSPy_RAG, GraphRAG, TracedCallback
 
 from .resources import STRW_LOGO, SZ_LOGO
 

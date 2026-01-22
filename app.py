@@ -9,6 +9,7 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 
 import json
 import logging
+import os
 import pathlib
 import time
 
@@ -17,6 +18,7 @@ from yfiles_graphs_for_streamlit import StreamlitGraphWidget
 import dspy  # type: ignore
 import matplotlib.pyplot as plt
 import polars as pl
+import opik
 import streamlit as st
 
 from strwythura import GraphRAG, Workflow, \
@@ -130,42 +132,6 @@ load the assets, and instantiate a `GraphRAG` object.
     return graph_rag
 
 
-@st.fragment
-def eval_buttons (
-    ) -> None:
-    """
-Show like/nope evaluation buttons.
-    """
-    col1_, col2_, col3_ = st.columns([1 , 1, 12])
-
-    with col1_:
-        if did_like := st.button("", icon = ":material/thumb_up:"):
-            eval_like()
-
-    with col2_:
-        if did_nope := st.button("", icon = ":material/thumb_down:"):
-            eval_nope()
-
-    with col3_:
-        pass
-
-
-def eval_like (
-    ) -> None:
-    """
-User clicks a "thumb_up" button.
-    """
-    ic("like")
-
-
-def eval_nope (
-    ) -> None:
-    """
-User clicks a "thumb_down" button.
-    """
-    ic("nope")
-
-
 def show_analytics (
     response: dspy.primitives.prediction.Prediction,
     graph_rag: GraphRAG,  # pylint: disable=W0621
@@ -210,15 +176,105 @@ Render analytics about the question/response sessions.
 
 
 @st.fragment
+def collect_feedback (
+    graph_rag: GraphRAG,  # pylint: disable=W0621
+    opik_client: opik.Opik,
+    ) -> None:
+    """
+Collect feedback scores from the user.
+    """
+    feedback: int | None = st.feedback(
+        "stars",
+        key = "user_feedback",
+    )
+
+    if feedback is not None:
+        opik_client.log_traces_feedback_scores(
+            scores = [
+                {
+                    "project_name": graph_rag.rag.project_name,
+                    "id": graph_rag.rag.opik_callback.last_trace_id,
+                    "name": "user_feedback",
+                    "value": feedback,
+                },
+            ],
+        )
+
+
+def handle_response (
+    graph_rag: GraphRAG,  # pylint: disable=W0621
+    df_perf: pl.DataFrame,  # pylint: disable=W0621
+    opik_client: opik.Opik,
+    history_item: dict,
+    question: str,
+    *,
+    debug: bool = False,
+    ) -> None:
+    """
+Handle rendering the current response.
+    """
+    with st.chat_message("user"):
+        st.markdown(question)
+
+    with st.spinner(text = "In progress...", show_time = True):
+        start_time: float = time.time()
+
+        # enchanced GraphRAG prioritizes and retrieves text chunks
+        graph_rag.run_errag(
+            question,
+            debug = debug,
+        )
+
+        # LLM summarizes the text chunks in response to the question
+        response: dspy.primitives.prediction.Prediction = graph_rag.qa_signature(
+            question,
+            graph_rag.get_chunks_text(),
+        )
+
+        history_item["content"] = response.response
+
+        if "user_feedback" in st.session_state:
+            del st.session_state["user_feedback"]
+
+        # collect peformance statistics
+        df_perf.extend(pl.DataFrame({
+            "tokens": list(response.get_lm_usage().values())[0]["total_tokens"],
+            "time": time.time() - start_time,
+        }))
+
+    with st.chat_message("assistant", avatar = STRW_LOGO):
+        st.markdown(response.response)
+
+        collect_feedback(
+            graph_rag,
+            opik_client,
+        )
+
+    with st.expander("analytics"):
+        show_analytics(
+            response,
+            graph_rag,
+            df_perf,
+        )
+
+
+@st.fragment
 def run_er_rag (
     graph_rag: GraphRAG,  # pylint: disable=W0621
     df_perf: pl.DataFrame,  # pylint: disable=W0621
+    opik_client: opik.Opik,
     *,
     debug: bool = False,
     ) -> None:
     """
 Main UI task as a `Streamlit.fragment`
     """
+    history_item: dict = {
+        "role": "assistant",
+        "content": None,
+        "feedback": None,
+    }
+
     # initialize chat history
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -239,46 +295,17 @@ Main UI task as a `Streamlit.fragment`
 
         # show the question/response pair
         with col1:
-            with st.chat_message("user"):
-                st.markdown(question)
-
-            with st.spinner(text = "In progress...", show_time = True):
-                start_time: float = time.time()
-
-                # enchanced GraphRAG prioritizes and retrieves text chunks
-                graph_rag.run_errag(
-                    question,
-                    debug = debug,
-                )
-
-                # LLM summarizes the text chunks in response to the question
-                response: dspy.primitives.prediction.Prediction = graph_rag.qa_signature(
-                    question,
-                    graph_rag.get_chunks_text(),
-                )
-
-                # collect peformance statistics
-                df_perf.extend(pl.DataFrame({
-                    "tokens": list(response.get_lm_usage().values())[0]["total_tokens"],
-                    "time": time.time() - start_time,
-                }))
-
-            with st.chat_message("assistant", avatar = STRW_LOGO):
-                st.markdown(response.response)
-                eval_buttons()
-
-            with st.expander("analytics"):
-                show_analytics(
-                    response,
-                    graph_rag,
-                    df_perf,
-                )
+            handle_response(
+                graph_rag,
+                df_perf,
+                opik_client,
+                history_item,
+                question,
+                debug = debug,
+            )
 
         # add the question and response to chat history
-        st.session_state.messages.insert(0, {
-            "role": "assistant",
-            "content": response.response,
-        })
+        st.session_state.messages.insert(0, history_item)
 
         st.session_state.messages.insert(0, {
             "role": "user",
@@ -308,6 +335,8 @@ if __name__ == "__main__":
         pathlib.Path("domain.json"),
     )
 
+    opik_client: opik.Opik = opik.Opik()
+
     # render page
     st.header("Strwythura")
     st.text(f"Domain: {graph_rag.description}")
@@ -327,4 +356,5 @@ if __name__ == "__main__":
     run_er_rag(
         graph_rag,
         df_perf,
+        opik_client,
     )
