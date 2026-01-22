@@ -23,6 +23,19 @@ techniques as well as working code you can use elsewhere.
  style="display: block; margin-left: auto; margin-right: auto; width: 30%;"
 />
 
+An article on _Medium.com_ plus some other resources available online
+serve as "companions" for working with this repo. Please read along
+while running through each of the steps in this tutorial:
+
+| purpose | URL |
+| ------- | --- |
+| words | <https://blog.derwen.ai/strwythura-2a8007af3682> |
+| tubes | <https://www.youtube.com/watch?v=ZWl5Pb29O-o>
+| slides | <https://tinyurl.com/strwythura> |
+| codes | <https://github.com/DerwenAI/strwythura> |
+| quiz | <https://derwen.ai/quiz/ai_def> |
+| DOI | <https://doi.org/10.5281/zenodo.16934079> |
+
 
 ## Overview
 
@@ -54,15 +67,16 @@ change the configuration to use remote LLM services instead.
 
 Progressing through several steps, a workflow develops assets which
 are represented as a *knowledge graph* plus *vector embeddings*.
-This approach **unbundles** the process which otherwise tends to get
+This approach **unbundles** the processes which otherwise tend to be
 presented as monolithic "black box" frameworks. In contrast, we'll
 apply more intentional ways of developing the "context" in context
 engineering.
 
-Overall, this explores the underlying concepts and technologies used
-in developing AI applications. Some of these technologies may be new
-to you, or at least you haven't worked with hands-on coding examples
-which integrating them:
+Overall, this tutorial explores the underlying concepts and
+technologies used in developing AI applications. Some of these
+technologies may be new to you, or at least you haven't worked with
+hands-on coding examples which integrating them:
+
 *entity resolution*,
 *named entity recognition*,
 *domain context*,
@@ -187,11 +201,6 @@ git clone https://github.com/comet-ml/opik.git
 cd opik
 ./opik.sh
 ```
-
-Going forward, there is an article which serves as a "companion" to
-this repo. Please read along while running through each of the steps
-in the tutorial:
-<https://blog.derwen.ai/strwythura-2a8007af3682?source=friends_link&sk=93eb7dcce1f48206162e1f69a0f57661>
 
 </details>
 

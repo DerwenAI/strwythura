@@ -27,6 +27,32 @@ from .elem import Entity, EntitySource, NodeKind, STRW_PREFIX
 from .work import Workflow
 
 
+class TracedCallback (OpikCallback):
+    """Modify the Opik callback to capture trace info for DSPy integration."""
+
+    def __init__ (
+        self,
+        project_name: str | None = None,
+        log_graph: bool = False,
+        ) -> None:
+        """
+Constructor.
+        """
+        self.last_trace_id: str | None = None
+        super().__init__(project_name, log_graph)
+
+
+    def _end_trace (
+        self,
+        call_id: str,
+        ) -> None:
+        """
+Override to capture the `trace_id` for this call to DSPy.
+        """
+        self.last_trace_id = self._map_call_id_to_trace_data[call_id].id
+        super()._end_trace(call_id)
+
+
 class DSPy_RAG (dspy.Module):  # pylint: disable=C0103
     """
 DSPy implementation of a RAG signature.
@@ -44,6 +70,7 @@ DSPy implementation of a RAG signature.
 Constructor.
         """
         self.config: dict = config
+        self.project_name: str = project_name
 
         # load the LLM
         dspy.configure(
@@ -85,8 +112,8 @@ Constructor.
                 url = self.config["opik"]["base_url"],
             )
 
-            self.opik_callback: OpikCallback = OpikCallback(
-                project_name = project_name,
+            self.opik_callback: TracedCallback = TracedCallback(
+                project_name = self.project_name,
                 log_graph = True,
             )
 
@@ -185,7 +212,7 @@ Loop to answer questions.
                 )
 
                 # LLM summarizes the text chunks in response to the question
-                with warnings.catch_warnings(record=True) as caught_warnings:
+                with warnings.catch_warnings(record=True) as caught_warnings:  # pylint: disable=W0612
                     warnings.simplefilter("always")  # catch all warnings
 
                     response: dspy.primitives.prediction.Prediction = self.qa_signature(
