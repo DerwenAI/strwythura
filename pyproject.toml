@@ -1,7 +1,7 @@
 [project]
 
 name = "strwythura"
-version = "2.0.1"
+version = "2.0.2"
 
 description = "Construct an entity-resolved knowledge graph from structured data sources and unstructured content sources, implementing an ontology pipeline, plus context engineering for optimizing AI application outcomes within a specific domain."
 
@@ -133,6 +133,7 @@ words = "https://blog.derwen.ai/strwythura-2a8007af3682"
 tubes = "https://youtu.be/ZWl5Pb29O-o"
 slides = "https://tinyurl.com/strwythura"
 quiz = "https://derwen.ai/quiz/ai_def"
+wiki = "https://deepwiki.com/DerwenAI/strwythura"
 cite = "https://doi.org/10.5281/zenodo.16934079"
 
 
