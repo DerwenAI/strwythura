@@ -12,7 +12,10 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 import pathlib
 import typing
 
+import jinja2
 import pyvis  # type: ignore
+
+from .resources import PYVIS_JINJA_TEMPLATE
 
 
 class VisHTML:
@@ -87,3 +90,34 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
         pv_net.show_buttons(filter_ = [ "physics" ])
 
         pv_net.save_graph(html_path.as_posix())
+
+
+    def rebuild_html (
+        self,
+        load_path: pathlib.Path,
+        save_path: pathlib.Path,
+        ) -> None:
+        """
+Rebuild the HTML app which `pyvis` generated, restructuring the UI:
+
+  - less about embedding in Jypter notebook cells
+  - more about `vis.js` controls in an HTML standalone app
+        """
+        node_frag: str = "nodes = new vis.DataSet("
+        edge_frag: str = "edges = new vis.DataSet("
+
+        with load_path.open() as fp:
+            for line in fp:
+                line = line.strip()
+
+                if line.startswith(node_frag):
+                    nodes: str = line.replace(node_frag, "").rstrip(");")
+
+                if line.startswith(edge_frag):
+                    edges: str = line.replace(edge_frag, "").rstrip(");")
+
+        with open(save_path, "w", encoding = "utf-8") as fp:
+            fp.write(PYVIS_JINJA_TEMPLATE.render(
+                nodes = nodes,
+                edges = edges,
+            ))

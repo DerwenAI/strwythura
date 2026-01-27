@@ -27,7 +27,7 @@ from .prof import Profiler
 
 from .rag import DSPy_RAG, GraphRAG, TracedCallback
 
-from .resources import STRW_LOGO, SZ_LOGO
+from .resources import PYVIS_JINJA_TEMPLATE, STRW_LOGO, SZ_LOGO
 
 from .scrape import Scraper
 

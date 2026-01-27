@@ -1,6 +1,10 @@
 ## TODOs
 
- * fix the Streamlit app:
+ * fix Part 6:
+    - modify style to make the graph understandable
+    - fix the tooltip info
+
+ * fix graph vis in the Streamlit app:
     - iterate on design of the subgraph visualization
 
  * optimizations
@@ -12,11 +16,6 @@
 
  * reranking via _semantic highlighting_ as an optimization
     - https://huggingface.co/blog/zilliz/zilliz-semantic-highlight-model
-
- * fix Part 6:
-    - modify style to make the graph understandable
-    - fix the tooltip info
-    - generate the JavaScript data structures for `PyVis`, then recompose using Jinja2
 
  * why is the former lemma IRI getting used in the serialized ERKG instead of the latter?
       "id": "strw:lemma_NOUN.doctor"
