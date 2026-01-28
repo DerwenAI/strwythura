@@ -1,33 +1,76 @@
-<html>
+<!doctype html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css"
-      integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-      />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
-      integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
-      crossorigin="anonymous"
-      />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js"
-      integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ=="
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css"
+      integrity="sha512-2bBQCjcnw658Lho4nlXJcc6WkV/UxpE/sAokbXPxQNGqmNdQrWqtw26Ns9kFF/yG792pKR1Sx8/Y1Lf1XN4GKA=="
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
-      ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+      />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css"
+      integrity="sha512-t7Few9xlddEmgd3oKZQahkNI4dS6l80+eGEzFQiqtyVYdvcSG2D3Iub77R20BdotfRPA9caaRkg1tyaJiPmO0g=="
       crossorigin="anonymous"
-      ></script>
+      referrerpolicy="no-referrer"
+      />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/10.0.2/dist/dist/vis-network.min.css"
+      integrity="sha512-GSpw80rwo8kTr/5IPf9mhy5Ze8smoCCJ9fDJceVf6UAA5EUk9mOa/h/rug+PcDyCkdkR1mA+Gb3ot2GyHimFkw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.css"
+      />
 
     <style>
+/* fonts, icons */
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+
+/* structural */
+html, h1, h2, h3, h4, h5, p, span, cite, figcaption, button, input, select, textarea {
+    font-family: "Atkinson Hyperlegible", sans-serif;
+}
+
+body {
+    color: hsl(0, 0%, 40%);
+}
+
+p {
+    font-weight: normal;
+    font-size: 1.1em;
+    line-height: 1.3em;
+    margin: 1.2em 0 1.2em 0;
+}
+
+a {
+    color: hsl(55, 17%, 49%);
+    background-color: white;
+    font-weight: bold;
+}
+
+a:visited {
+    color: hsl(55, 17%, 49%);
+    background-color: white;
+}
+
+a:hover {
+    color: white;
+    background-color: hsl(55, 17%, 49%);
+}
+
+a {
+    text-decoration: none !important;
+}
+
+
 #mynetwork {
     width: 100%;
     height: 900px;
@@ -112,28 +155,75 @@ div.outerBorder {
     height: 600px;
 }
     </style>
+
   </head>
 
   <body>
-    <details>
-      <summary>options</summary>
-      <div id="config"></div>
-    </details>
+    <div id="main" class="container-fluid">
+      <h1>{{ domain.name }}</h1>
+      <nav>
+	<div class="nav nav-tabs" id="nav-tab" role="tablist">
+	  <button class="nav-link active" id="nav-graph-tab" data-bs-toggle="tab" data-bs-target="#nav-graph" type="button" role="tab" aria-controls="nav-graph" aria-selected="true"><strong>graph</strong></button>
+	  <button class="nav-link" id="nav-ent-tab" data-bs-toggle="tab" data-bs-target="#nav-ent" type="button" role="tab" aria-controls="nav-ent" aria-selected="false"><strong>entities</strong></button>
+	  <button class="nav-link" id="nav-rel-tab" data-bs-toggle="tab" data-bs-target="#nav-rel" type="button" role="tab" aria-controls="nav-rel" aria-selected="false"><strong>relations</strong></button>
+	</div>
+      </nav>
+      <div class="tab-content" id="nav-tabContent">
 
-    <div class="card" style="width: 100%">
-      <div id="mynetwork" class="card-body"></div>
-    </div>
+	<!-- graph -->
+	<div class="tab-pane fade show active" id="nav-graph" role="tabpanel" aria-labelledby="nav-graph-tab" tabindex="0">
+	  <div class="container">
+	    <details>
+	      <summary>options</summary>
+	      <div id="config"></div>
+	    </details>
 
-    <div id="loadingBar">
-      <div class="outerBorder">
-        <div id="text">0%</div>
-        <div id="border">
-          <div id="bar"></div>
-        </div>
+	    <div class="card" style="width: 100%">
+	      <div id="mynetwork" class="card-body"></div>
+	    </div>
+
+	    <div id="loadingBar">
+	      <div class="outerBorder">
+		<div id="text">0%</div>
+		<div id="border">
+		  <div id="bar"></div>
+		</div>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<!-- entities -->
+	<div class="tab-pane fade show active" id="nav-ent" role="tabpanel" aria-labelledby="nav-ent-tab" tabindex="1">
+	  <div class="container">
+	    <p>ENTITIES</p>
+	  </div>
+	</div>
+
+	<!-- relations -->
+	<div class="tab-pane fade show active" id="nav-rel" role="tabpanel" aria-labelledby="nav-rel-tab" tabindex="2">
+	  <div class="container">
+	    <p>RELATIONS</p>
+	  </div>
+	</div>
+
       </div>
     </div>
         
-<script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.bundle.min.js"
+      integrity="sha512-HvOjJrdwNpDbkGJIG2ZNqDlVqMo77qbs4Me4cah0HoDrfhrbA+8SBlZn1KrvAQw7cILLPFJvdwIgphzQmMm+Pw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/10.0.2/dist/vis-network.min.js"
+      integrity="sha512-5qYRU42HLweh0Ehlsu9bVWc13gwZviSNGsnfx+PqGRQRM4NltzGzb8dO3WY20CTsbkTBzhyKlso9cfYz2A5lOQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      ></script>
+
+    <script>
 const NODES = {{ nodes }};
 const EDGES = {{ edges }};
 
@@ -180,7 +270,15 @@ var options = {
 	    "iterations": 1000,
 	    "onlyDynamicEdges": false,
 	    "updateInterval": 50
-        }
+        },
+	"barnesHut": {
+	    "gravitationalConstant": -2800,
+	    "centralGravity": 0.65,
+	    "springLength": 90,
+	    "springConstant": 0.285,
+	    "damping": 0.54
+	},
+	"minVelocity": 0.75
     }
 };
 
@@ -458,7 +556,7 @@ function drawGraph () {
 }
 
 drawGraph();
-</script>
+    </script>
 
   </body>
 </html>

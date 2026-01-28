@@ -94,6 +94,7 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
 
     def rebuild_html (
         self,
+        domain: dict,
         load_path: pathlib.Path,
         save_path: pathlib.Path,
         ) -> None:
@@ -121,6 +122,7 @@ Rebuild the HTML app which `pyvis` generated, restructuring the UI:
 
         with open(save_path, "w", encoding = "utf-8") as fp:
             fp.write(PYVIS_JINJA_TEMPLATE.render(
+                domain = domain,
                 nodes = nodes,
                 edges = edges,
             ))

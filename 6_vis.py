@@ -50,6 +50,7 @@ if __name__ == "__main__":
     )
 
     vis.rebuild_html(
+        domain,
         pathlib.Path(work.config["vis"]["html_path"]),
         pathlib.Path(work.config["vis"]["html_path"]),
     )

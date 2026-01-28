@@ -1,7 +1,6 @@
 ## TODOs
 
  * fix Part 6:
-    - use Bootstrap
     - add "Entities" tab with a DataTable
     - use autocompletion on Entity field values
     - add "Relations" tab with sheaf analysis
