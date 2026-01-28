@@ -10,6 +10,7 @@ see copyright/license https://github.com/DerwenAI/strwythura/README.md
 from .ctx import DomainContext, TextChunk
 
 from .elem import Entity, EntityInstance, EntitySource, NodeKind, NounSpan, \
+    NodeStyle, NODE_STYLES, \
     de_token_span, \
     STRW_BASE, STRW_PREFIX
 
