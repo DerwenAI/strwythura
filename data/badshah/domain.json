@@ -1,0 +1,20 @@
+{
+    "name": "Badshah Case",
+    "language": "en",
+    "taxonomy": "data/badshah/domain.ttl",
+    "description": "Articles about the owner of Papa John's in South London jailed for tax evasion using shell companies.",
+    "sources": {
+        "data": {
+	    "OPEN-SANCTIONS": "data/badshah/open-sanctions.json",
+	    "OPEN-OWNERSHIP": "data/badshah/open-ownership.json"
+        },
+        "content": [
+	    "https://qsrmedia.co.uk/legal/more-news/papa-johns-franchisee-jailed-tax-fraud-report",
+	    "https://www.newsshopper.co.uk/news/19164815.boss-bromley-catford-papa-johns-stores-jailed/",
+	    "https://www.what-franchise.com/news/from-pizza-delivery-driver-to-multi-unit-franchisee",
+	    "https://inside.papajohns.co.uk/former-pizza-delivery-driver-opens-second-papa-johns/",
+	    "https://www.pointfranchise.co.uk/news-papa-john-s-delivery-driver-climbs-the-ladder-to-franchisee",
+	    "https://find-and-update.company-information.service.gov.uk/disqualified-officers/natural/mGquuTbmESWiRmHJPz1ObUwfDgk"
+        ]
+    }
+}

@@ -1,22 +1,32 @@
 ## TODOs
 
- * fix the Streamlit app:
+ * fix Part 6:
+    - add "Entities" tab with a DataTable
+    - use autocompletion on Entity field values
+    - add "Relations" tab with sheaf analysis
+
+ * debug `erkg.json`
+    - "chunk": 2,
+      "id": "strw:chunk_2",
+      "kind": "Chunk",
+      "sent": 0,
+      "url": "sz:Person"
+
+ * fix graph vis in the Streamlit app:
     - iterate on design of the subgraph visualization
 
  * optimizations
     - DSPy/Opik optimizers https://dspy.ai/learn/optimization/optimizers/
     - add reference data via entity resolution
+    - improve the Sz data mapping
     - iterate on taxonomy definitions
-    - curate the extracted entity, identify synonyms
+    - curate the extracted entities, identify synonyms used to build the thesaurus
+    - refine the relationships
+    - refine the SHACL rules used to validate the graph construction
     - reranking / semantic highlighting of chunks to reduce token count and mitigate noise in RAG
 
  * reranking via _semantic highlighting_ as an optimization
     - https://huggingface.co/blog/zilliz/zilliz-semantic-highlight-model
-
- * fix Part 6:
-    - modify style to make the graph understandable
-    - fix the tooltip info
-    - generate the JavaScript data structures for `PyVis`, then recompose using Jinja2
 
  * why is the former lemma IRI getting used in the serialized ERKG instead of the latter?
       "id": "strw:lemma_NOUN.doctor"

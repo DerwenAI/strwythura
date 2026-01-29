@@ -96,3 +96,27 @@ def de_token_span (
 Convert from a `spaCy` token span to a list of strings.
     """
     return list(map(str, span))
+
+
+class NodeStyle (BaseModel):
+    """
+Represent graph visualization styles for nodes.
+    """
+    color: str
+    shape: str = "dot"
+
+
+NODE_STYLES: dict[ EntitySource, NodeStyle ] = {
+    EntitySource.TAXO: NodeStyle(
+        color = "hsla(306, 45%, 57%, 0.5)",
+        shape = "box",
+    ),
+
+    EntitySource.ER: NodeStyle(
+        color = "hsl(55, 17%, 49%, 0.9)",
+    ),
+
+    EntitySource.NER: NodeStyle(
+        color = "hsla(65, 46%, 58%, 0.8)",
+    ),
+}

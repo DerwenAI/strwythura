@@ -4,15 +4,15 @@
 ![License](https://img.shields.io/github/license/DerwenAI/strwythura)
 ![Repo size](https://img.shields.io/github/repo-size/DerwenAI/strwythura)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
-
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/DerwenAI/strwythura)
 
 This tutorial explains how to construct an *entity resolved knowledge graph*
 from **structured data sources** and **unstructured content sources**,
 implementing an *ontology pipeline*, plus *context engineering* for
 optimizing AI application outcomes within a specific domain.
-The process is enriched by using *entity embeddings* and *graph
-algorithms* to develop an enhanced GraphRAG approach, which implements
-a question/answer chat bot about a particular domain.
+The process gets enriched by *entity embeddings* and *graph algorithms*
+used in an enhanced GraphRAG approach, which implements a question/answer
+chat bot about a particular domain.
 The material here provides hands-on experience with advanced
 techniques as well as working code you can use elsewhere.
 
@@ -24,8 +24,9 @@ techniques as well as working code you can use elsewhere.
 />
 
 An article on _Medium.com_ plus some other resources available online
-serve as "companions" for working with this repo. Please read along
-while running through each of the steps in this tutorial:
+serve as "companions" for working with this repo.
+Please read along while running through each of the steps in this
+tutorial:
 
 | purpose | URL |
 | ------- | --- |
@@ -34,6 +35,7 @@ while running through each of the steps in this tutorial:
 | slides | <https://tinyurl.com/strwythura> |
 | codes | <https://github.com/DerwenAI/strwythura> |
 | quiz | <https://derwen.ai/quiz/ai_def> |
+| wiki | <https://deepwiki.com/DerwenAI/strwythura> |
 | DOI | <https://doi.org/10.5281/zenodo.16934079> |
 
 

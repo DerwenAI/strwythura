@@ -49,6 +49,12 @@ if __name__ == "__main__":
         work.config["vis"]["html_width"],
     )
 
+    vis.rebuild_html(
+        domain,
+        pathlib.Path(work.config["vis"]["html_path"]),
+        pathlib.Path(work.config["vis"]["html_path"]),
+    )
+
 
     # finally, report the performance profiler stats
     if profiling:

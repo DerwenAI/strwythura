@@ -12,12 +12,13 @@ import json
 import math
 import pathlib
 import sys
+import traceback
 import typing
 
 from icecream import ic
 import networkx as nx
 
-from .elem import EntitySource, NodeKind
+from .elem import EntitySource, NodeKind, NODE_STYLES
 
 
 class KnowledgeGraph:
@@ -253,7 +254,14 @@ Iterator for the inbound connections of an ERKG node.
         """
 Iterator for the neighbors of an ERKG node.
         """
-        return self.graph.neighbors(iri)
+        try:
+            yield from self.graph.neighbors(iri)
+        except nx.exception.NetworkXError as nx_ex:
+            # no neighbors
+            ic(nx_ex)
+        except Exception as ex:  # pylint: disable=W0718
+            ic(ex)
+            traceback.print_exc()
 
 
     def subgraph (
@@ -287,25 +295,42 @@ Compute all shortest simple paths in the graph.
         """
 Iterator for the visualization attributes of nodes.
         """
-        filter_lex: set[ str ] = set([ EntitySource.NC.value, EntitySource.LEX.value ])
+        filter_iri: set[ str ] = set([ "sz:Entity", "sz:DataRecord", ])
+        filter_lex: set[ str ] = set([ EntitySource.NC.value, EntitySource.LEX.value, ])
 
         for iri, attrs in self.graph.nodes(data = True):
-            attr: dict = {}
+            node: dict = {}
 
-            if attrs.get("kind") == NodeKind.ENTITY.value and attrs.get("label") not in filter_lex:
-                attr["color"] = "hsla(65, 46%, 58%, 0.80)"
-                attr["size"] = round(20 * math.log(1.0 + math.sqrt(float(attrs.get("count"))) / num_docs))
-                attr["label"] = attrs.get("text")  # type: ignore
-                attr["title"] = attrs.get("key")  # type: ignore
-            elif attrs.get("kind") == NodeKind.TAXONOMY.value:
-                attr["color"] = "hsla(306, 45%, 57%, 0.95)"
-                attr["size"] = 5
-                attr["label"] = attrs.get("label")  # type: ignore
-                attr["title"] = attrs.get("iri")  # type: ignore
+            if attrs.get("kind") == NodeKind.TAXONOMY.value and attrs.get("id") not in filter_iri:
+                node["style"] = NODE_STYLES[EntitySource.TAXO]
+                node["size"] = 5
+                node["label"] = attrs.get("id")  # type: ignore
+                node["title"] = attrs.get("text")  # type: ignore
+
+            elif attrs.get("kind") == NodeKind.ENTITY.value and attrs.get("method") in [ EntitySource.ER.value, ]:
+                node["style"] = NODE_STYLES[EntitySource.ER]
+                node["size"] = round(50 * math.log(1.0 + math.sqrt(float(attrs.get("count"))) / num_docs))
+                node["label"] = attrs.get("text")  # type: ignore
+                node["title"] = attrs.get("lemma")  # type: ignore
+
+            elif attrs.get("kind") == NodeKind.ENTITY.value and attrs.get("method") in [ EntitySource.NER.value, ]:
+                node["style"] = NODE_STYLES[EntitySource.NER]
+                node["size"] = round(20 * math.log(1.0 + math.sqrt(float(attrs.get("count"))) / num_docs))
+                node["label"] = attrs.get("text")  # type: ignore
+                node["title"] = attrs.get("lemma")  # type: ignore
+
+            elif attrs.get("kind") == NodeKind.ENTITY.value and attrs.get("label") not in filter_lex:
+                ## NOTE: not included yet -- too much noise
+                continue
+
+            elif attrs.get("kind") == NodeKind.DATAREC.value:
+                ## NOTE: the `iri` value for a node_id would be displayed in PyVis -- too much noise
+                continue
+
             else:
                 continue
 
-            yield iri, attr
+            yield iri, node
 
 
     def vis_edges (
@@ -314,5 +339,8 @@ Iterator for the visualization attributes of nodes.
         """
 Iterator for the visualization attributes of edges.
         """
+        filter_rel: set[ str ] = set([ "strw:co_occurs_with", ])
+
         for src_iri, dst_iri, key in self.graph.edges(keys = True):
-            yield src_iri, dst_iri, key
+            if key not in filter_rel:
+                yield src_iri, dst_iri, key

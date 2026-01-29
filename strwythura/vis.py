@@ -14,6 +14,8 @@ import typing
 
 import pyvis  # type: ignore
 
+from .resources import PYVIS_JINJA_TEMPLATE
+
 
 class VisHTML:
     """
@@ -71,8 +73,9 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
                 iri,
                 label = attrs["label"],
                 title = attrs["title"],
-                color = attrs["color"],
                 size = attrs["size"],
+                color = attrs["style"].color,
+                shape = attrs["style"].shape,
             )
 
         for src_iri, dst_iri, key in edge_iter:
@@ -87,3 +90,39 @@ Use `pyvis` to provide an interactive visualization of the graph layers.
         pv_net.show_buttons(filter_ = [ "physics" ])
 
         pv_net.save_graph(html_path.as_posix())
+
+
+    def rebuild_html (
+        self,
+        domain: dict,
+        load_path: pathlib.Path,
+        save_path: pathlib.Path,
+        ) -> None:
+        """
+Rebuild the HTML app which `pyvis` generated, restructuring the UI:
+
+  - less about embedding in Jypter notebook cells
+  - more about `vis.js` controls in an HTML standalone app
+        """
+        node_frag: str = "nodes = new vis.DataSet("
+        edge_frag: str = "edges = new vis.DataSet("
+
+        nodes: str = "null;"
+        edges: str = "null;"
+
+        with load_path.open() as fp:
+            for line in fp:
+                line = line.strip()
+
+                if line.startswith(node_frag):
+                    nodes = line.replace(node_frag, "").rstrip(");")
+
+                if line.startswith(edge_frag):
+                    edges = line.replace(edge_frag, "").rstrip(");")
+
+        with open(save_path, "w", encoding = "utf-8") as fp:
+            fp.write(PYVIS_JINJA_TEMPLATE.render(
+                domain = domain,
+                nodes = nodes,
+                edges = edges,
+            ))
