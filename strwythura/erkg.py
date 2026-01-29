@@ -12,6 +12,7 @@ import json
 import math
 import pathlib
 import sys
+import traceback
 import typing
 
 from icecream import ic
@@ -253,7 +254,14 @@ Iterator for the inbound connections of an ERKG node.
         """
 Iterator for the neighbors of an ERKG node.
         """
-        return self.graph.neighbors(iri)
+        try:
+            yield from self.graph.neighbors(iri)
+        except nx.exception.NetworkXError as nx_ex:
+            # no neighbors
+            ic(nx_ex)
+        except Exception as ex:  # pylint: disable=W0718
+            ic(ex)
+            traceback.print_exc()
 
 
     def subgraph (
