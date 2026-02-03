@@ -1,7 +1,7 @@
 [project]
 
 name = "strwythura"
-version = "2.0.2"
+version = "2.0.3"
 
 description = "Construct an entity-resolved knowledge graph from structured data sources and unstructured content sources, implementing an ontology pipeline, plus context engineering for optimizing AI application outcomes within a specific domain."
 

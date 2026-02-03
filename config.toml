@@ -67,3 +67,7 @@ w2v_min_dist = 0.33
 [opik]
 
 base_url = "http://localhost:5173/api"
+
+[prof]
+
+use_pyinst = false

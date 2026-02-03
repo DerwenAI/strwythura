@@ -15,18 +15,18 @@ from strwythura import GraphRAG, Profiler, Workflow
 
 
 if __name__ == "__main__":
-    # start the performance profiling -
-    profiling: bool = True # False
-
-    if profiling:
-        prof: Profiler = Profiler()
-
-
     # instantiate and configure our workflow manager
     work: Workflow = Workflow(
         config_path = pathlib.Path("config.toml"),
     )
 
+    # start the performance profiling
+    profiling: bool = work.config["prof"]["use_pyinst"]
+
+    if profiling:
+        prof: Profiler = Profiler()
+
+    # finish provisioning
     work.load_assets()
     work.ctx.open_vector_tables()
     work.load_parser()
