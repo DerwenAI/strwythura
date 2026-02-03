@@ -16,5 +16,9 @@
 	    "https://www.pointfranchise.co.uk/news-papa-john-s-delivery-driver-climbs-the-ladder-to-franchisee",
 	    "https://find-and-update.company-information.service.gov.uk/disqualified-officers/natural/mGquuTbmESWiRmHJPz1ObUwfDgk"
         ]
+    },
+    "subgraph": {
+	"stage": "Entity_Resolution",
+	"name": "Abassin Badshah"
     }
 }

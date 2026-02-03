@@ -15,18 +15,18 @@ from strwythura import Profiler, VisHTML, Workflow
 
 
 if __name__ == "__main__":
-    # start the performance profiling -
-    profiling: bool = True # False
-
-    if profiling:
-        prof: Profiler = Profiler()
-
-
     # instantiate and configure our workflow manager
     work: Workflow = Workflow(
         config_path = pathlib.Path("config.toml"),
     )
 
+    # start the performance profiling
+    profiling: bool = work.config["prof"]["use_pyinst"]
+
+    if profiling:
+        prof: Profiler = Profiler()
+
+    # finish provisioning
     work.ctx.erkg.load_graph(
         pathlib.Path(work.config["erkg"]["erkg_path"]),
     )
