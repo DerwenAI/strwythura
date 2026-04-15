@@ -11,10 +11,124 @@ import typing
 import warnings
 
 from icecream import ic
+import gliner  # type: ignore
 import spacy
 
 from .ctx import DomainContext
 from .elem import Entity, EntityInstance, EntitySource, NounSpan
+
+
+spacy.tokens.span.Span.set_extension(
+    "score",
+    default = 0,
+    force = True,
+)
+
+spacy.tokens.span.Span.set_extension(
+    "raw_scores",
+    default = [],
+    force = True,
+)
+
+spacy.tokens.span.Span.set_extension(
+    "sent_spans",
+    default = [],
+    force = True,
+)
+
+
+class GLiCy:
+    """
+Replacement for the (abandoned?) `gliner-spacy` library we formerly
+used as a spaCy pipeline extension.
+    """
+
+    def call (
+        self,
+        parser: "Parser",
+        text_chunk: str,
+        labels: list[ str ],
+        chunk_size: int,
+        threshold: float,
+        ) -> spacy.tokens.doc.Doc:
+        """
+Align the GLiNER entity indicies to those used by spaCy.
+        """
+        doc: spacy.tokens.doc.Doc = parser.ner_pipe(text_chunk)
+
+        # tokenize the text
+        chunks: list[ str ] = []
+        start: int = 0
+        text: str = doc.text
+
+        while start < len(text):
+            if (start + chunk_size) < len(text):
+                end: int = start + chunk_size
+            else:
+                end = len(text)
+
+            # ensure the chunk ends at a complete word
+            while end < len(text) and text[end] not in [" ", "\n"]:
+                end += 1
+
+            chunks.append(text[start:end])
+            start = end
+
+        # process each chunk and adjust entity indices
+        all_entities: list[ dict ] = []
+        offset: int = 0
+
+        for chunk in chunks:
+            chunk_entities: list[ dict ] = parser.gliner_model.predict_entities(
+                chunk,
+                labels,
+                flat_ner = True,
+                threshold = threshold,
+            )
+
+            for entity in chunk_entities:
+                all_entities.append({
+                    "start": offset + entity["start"],
+                    "end": offset + entity["end"],
+                    "label": entity["label"],
+                    "score": entity["score"]
+                })
+
+            offset += len(chunk)
+
+        # create new spans for the entities and add them to the doc
+        doc = self._create_entity_spans(
+            doc,
+            all_entities,
+        )
+
+        return doc
+
+
+    def _create_entity_spans (
+        self,
+        doc: spacy.tokens.doc.Doc,
+        all_entities: list[ dict ],
+        ) -> spacy.tokens.doc.Doc:
+        """
+Rework the entity spans in the spaCy document to use GLiNER.
+        """
+        spans: list[ spacy.tokens.span.Span ] = []
+
+        for ent in all_entities:
+            span: spacy.tokens.span.Span | None = doc.char_span(
+                ent["start"],
+                ent["end"],
+                label = ent["label"],
+            )
+
+            if span is not None:  # Only add span if it is valid
+                span._.score = ent["score"]
+                spans.append(span)
+
+        doc.ents = spans
+
+        return doc
 
 
 class Parser:
@@ -57,46 +171,64 @@ to modify the definitions for other languages and dialects.
         ) -> None:
         """
 Constructor.
-        """
-        self.config: dict = config
-        self.ctx: DomainContext = ctx
-        self.label_map: dict[ str, str ] = self.ctx.get_label_map()
-        self.ner_pipe: spacy.Language = self.build_ner_pipe()
 
-
-    def build_ner_pipe (
-        self,
-        *,
-        use_gliner: bool = True, # False
-        ) -> spacy.Language:
-        """
-Initialize the `spaCy` pipeline used for NER + RE, by loading models
-for `spaCy`, `GLiNER`
-
-  - `ner_labels`: semantics to apply for zero-shot NER
-
-This assumes the `spaCy` model has been downloaded already.
+This initializes the `spaCy` pipeline used for NER + RE, by loading
+models for `spaCy` and `GLiNER`, which  assumes the `spaCy` model has
+already been downloaded.
 
 Note: this may take several minutes when run the first time after
 installing the repo.
         """
-        ner_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])
+        self.config: dict = config
+        self.ctx: DomainContext = ctx
+        self.label_map: dict[ str, str ] = self.ctx.get_label_map()
+        self.ner_pipe: spacy.Language = spacy.load(self.config["nlp"]["spacy_model"])
+        self.glicy: GLiCy = GLiCy()
 
-        if use_gliner:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
 
-                ner_pipe.add_pipe(
-                    "gliner_spacy",
-                    config = {
-                        "style": "ent",
-                        "labels": list(self.label_map.keys()),
-                        "gliner_model": self.config["nlp"]["gliner_model"],
-                        "chunk_size": self.config["vect"]["chunk_size"],
-                    },
-                )
+            self.gliner_model: gliner.model.UniEncoderSpanGLiNER = gliner.GLiNER.from_pretrained(
+                config["nlp"]["gliner_model"],
+            )
 
-        return ner_pipe
+
+    def get_labels (
+        self,
+        ) -> list[ str ]:
+        """
+Accessor for the labels needed by GLiNER to perform NER.
+        """
+        return list(self.label_map.keys())
+
+
+    def run_ner (
+        self,
+        text: str,
+        *,
+        labels: list[ str ] | None = None,
+        chunk_size: int | None = None,
+        threshold: float = 0.5,
+        ) -> spacy.tokens.doc.Doc:
+        """
+Accessor to run spaCy for NLP parse and GLiNER for NER.
+        """
+        if labels is None:
+            labels = self.get_labels()
+
+        if chunk_size is None:
+            chunk_size = self.config["nlp"]["chunk_size"]
+
+        if threshold is None:
+            threshold = self.config["nlp"]["threshold"]
+
+        return self.glicy.call(
+            self,
+            text,
+            labels,
+            chunk_size,
+            threshold,
+        )
 
 
     def normalize_pos (
@@ -344,7 +476,7 @@ Parse a text paragraph, then per sentence:
 For the paragraph, load an entity sequence vector into `gensim.Word2Vec`
 using `EntityStore`
         """
-        doc: spacy.tokens.doc.Doc = self.ner_pipe(chunk_text)
+        doc: spacy.tokens.doc.Doc = self.run_ner(chunk_text)
         num_sent: int = 0
         ent_seq: list[ Entity ] = []
 

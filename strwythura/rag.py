@@ -110,6 +110,7 @@ Constructor.
             opik.configure(
                 use_local = True,
                 url = self.config["opik"]["base_url"],
+                project_name = self.project_name,
             )
 
             self.opik_callback: TracedCallback = TracedCallback(
@@ -384,7 +385,7 @@ which are returned as a dictionary.
 Search the entity store for direct matches from NER
         """
         lem_seq: list[ str ] = []
-        doc: spacy.tokens.doc.Doc = self.work.parser.ner_pipe(question)  # type: ignore
+        doc: spacy.tokens.doc.Doc = self.work.parser.run_ner(question)  # type: ignore
 
         lemma_todo: set[ str ] = {
             self.work.parser.tokenize_lemma(span)  # type: ignore
