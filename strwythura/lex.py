@@ -132,7 +132,7 @@ on `NetworkX` and `Polars`.
 
         # renormalize the ranks
         df_rank["rank"] = df2.apply(root_mean_square, axis = 1)
-        rank_col: np.ndarray = df_rank["rank"].to_numpy()
+        rank_col: np.ndarray = df_rank["rank"].to_numpy().copy()
         rank_col /= sum(rank_col)
         df_rank["rank"] = rank_col
 

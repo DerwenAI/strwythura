@@ -400,7 +400,7 @@ WHERE {
 
             else:
                 # use the label to generate a lemma key
-                span: spacy.tokens.doc.Doc = parser.ner_pipe(label)
+                span: spacy.tokens.doc.Doc = parser.run_ner(label)
                 lemma_key = parser.tokenize_lemma(span)
 
                 # create an entry in the entity store

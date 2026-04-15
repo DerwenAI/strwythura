@@ -20,7 +20,7 @@ from .erkg import KnowledgeGraph
 
 from .lex import LexicalGraph
 
-from .nlp import Parser
+from .nlp import GLiCy, Parser
 
 from .opt import calc_quantile_bins, root_mean_square, stripe_column
 

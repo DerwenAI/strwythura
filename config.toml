@@ -20,7 +20,8 @@ spacy_model = "en_core_web_md"
 lex_path = "data/lex.json"
 #gliner_model = "urchade/gliner_medium-v2.1"
 gliner_model = "urchade/gliner_small-v2.1"
-chunk_size = 1000
+chunk_size = 250
+threshold = 0.5
 
 [tr]
 

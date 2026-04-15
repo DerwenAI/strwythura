@@ -1,7 +1,7 @@
 [project]
 
 name = "strwythura"
-version = "2.0.4"
+version = "2.1.0"
 
 description = "Construct an entity-resolved knowledge graph from structured data sources and unstructured content sources, implementing an ontology pipeline, plus context engineering for optimizing AI application outcomes within a specific domain."
 
@@ -35,7 +35,6 @@ dependencies = [
     # NLP parsing, NER
     "spacy (>=3.8.7,<4.0)",
     "gliner (>=0.2.21,<0.3)",
-    "gliner-spacy (>=0.0.11,<1.0)",
     "accelerate (>=1.10,<2.0)",
     "transformers (<4.57)",
     "datasets (>=4.0,<5.0)",
@@ -57,7 +56,7 @@ dependencies = [
 
     # context engineering
     "dspy (>=3.1,<4.0)",
-    "litellm (<=1.82.6)", # note security advisory https://docs.litellm.ai/blog/security-update-march-2026
+    "litellm (>=1.83,<2.0)", # note security advisory https://docs.litellm.ai/blog/security-update-march-2026
     "pydantic (>=2.12,<3.0)",
     "datamodel-code-generator (>=0.52.2,<0.53.0)",
 
