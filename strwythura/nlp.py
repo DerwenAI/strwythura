@@ -11,17 +11,11 @@ import typing
 import warnings
 
 from icecream import ic
-import gliner
+import gliner  # type: ignore
 import spacy
 
 from .ctx import DomainContext
 from .elem import Entity, EntityInstance, EntitySource, NounSpan
-
-
-from spacy.tokens import Span, Doc
-import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
 
 
 spacy.tokens.span.Span.set_extension(
@@ -52,7 +46,7 @@ used as a spaCy pipeline extension.
     def call (
         self,
         parser: "Parser",
-        text: str,
+        text_chunk: str,
         labels: list[ str ],
         chunk_size: int,
         threshold: float,
@@ -60,7 +54,7 @@ used as a spaCy pipeline extension.
         """
 Align the GLiNER entity indicies to those used by spaCy.
         """
-        doc: spacy.tokens.doc.Doc = parser.ner_pipe(text)
+        doc: spacy.tokens.doc.Doc = parser.ner_pipe(text_chunk)
 
         # tokenize the text
         chunks: list[ str ] = []
@@ -68,8 +62,8 @@ Align the GLiNER entity indicies to those used by spaCy.
         text: str = doc.text
 
         while start < len(text):
-            if ((start + chunk_size) < len(text)):
-                end: int = start + chunk_size 
+            if (start + chunk_size) < len(text):
+                end: int = start + chunk_size
             else:
                 end = len(text)
 
@@ -91,7 +85,7 @@ Align the GLiNER entity indicies to those used by spaCy.
                 flat_ner = True,
                 threshold = threshold,
             )
-             
+
             for entity in chunk_entities:
                 all_entities.append({
                     "start": offset + entity["start"],
@@ -197,7 +191,7 @@ installing the repo.
             self.gliner_model: gliner.model.UniEncoderSpanGLiNER = gliner.GLiNER.from_pretrained(
                 config["nlp"]["gliner_model"],
             )
-            
+
 
     def get_labels (
         self,
