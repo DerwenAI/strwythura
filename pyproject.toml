@@ -1,7 +1,7 @@
 [project]
 
 name = "strwythura"
-version = "2.1.0"
+version = "2.1.1"
 
 description = "Construct an entity-resolved knowledge graph from structured data sources and unstructured content sources, implementing an ontology pipeline, plus context engineering for optimizing AI application outcomes within a specific domain."
 
@@ -67,7 +67,7 @@ dependencies = [
     "yfiles-graphs-for-streamlit (>=1.3,<2.0)",
 
     # observability
-    "opik (>=1.9.93,<2.0)",
+    "opik (>=1.11,<2.0)",
     "pyinstrument (>=5.0,<6.0)",
     "psutil (>=7.2,<8.0)",
     "icecream (>=2.1,<3.0)",
